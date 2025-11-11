@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>K&A Farms</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {--bg:#faf8f6;--ink:#1f2937;--muted:#667085;--brand:#a18c00;--accent:#fffce8;}
+    *{box-sizing:border-box} html,body{margin:0;padding:0}
+    body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;}
+    header{background:#fff;border-bottom:1px solid #eee;position:sticky;top:0;z-index:10;}
+    .nav{max-width:1000px;margin:0 auto;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .links{display:flex;align-items:center;gap:14px}
+    .links a{color:var(--ink);text-decoration:none;font-weight:600}
+    .links a:hover{color:var(--brand)}
+    .cartpill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #eee;border-radius:999px;background:#fff}
+    .cartpill b{min-width:2ch;display:inline-block;text-align:right}
+    .hero{background:linear-gradient(180deg,var(--accent) 0%,#fff 100%);padding:80px 20px;text-align:center;}
+    .hero h1{font-size:48px;margin:0 0 12px;}
+    .hero p{max-width:700px;margin:0 auto 20px;color:var(--muted);font-size:18px;}
+    .btn{background:var(--brand);color:#fff;padding:12px 22px;border:none;border-radius:10px;font-weight:600;cursor:pointer;text-decoration:none;}
+    .btn:hover{opacity:.95}
+    main{max-width:900px;margin:auto;padding:40px 20px;}
+    section{margin-bottom:40px;}
+    h2{margin-top:0;color:var(--brand);}
+    footer{background:#fff;border-top:1px solid #eee;padding:24px 20px;text-align:center;color:var(--muted);}
+    img.hero-img{width:100%;max-width:800px;border-radius:16px;border:1px solid #eee;margin:30px auto;display:block;}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav">
+      <h1 style="font-size:22px;margin:0;">K&A Farms</h1>
+    </div>
+  </header>
+
+  <section class="hero">
+    <img src="KA Farms.png" alt="K&A Farms banner image" class="hero-img">
+    <p>Our family homestead offers <strong>farm-fresh eggs</strong> with deep orange yolks, <strong>homemade vanilla extract</strong>, and small-batch seasonal goods made with care. We keep things simple, local, and full of heart.</p>
+    <a class="btn" href="K&A Farms - Shop.html">Visit the Shop</a>
+  </section>
+
+  <main>
+    <section>
+      <h2>Our Story</h2>
+      <p>What started as a backyard hobby quickly grew into something more. We found joy in sharing the things we made and gathered — fresh eggs, homemade vanilla, and a few creative touches from our kitchen. Each product is created with the same care we’d give our own family.</p>
+      <p>Our hens roam freely, enjoying sunshine and natural forage, producing eggs that truly taste like home. We believe in honest work, fresh ingredients, and keeping our process simple and transparent.</p>
+    </section>
+
+    <section>
+      <h2>What We Offer</h2>
+      <ul>
+        <li><strong>Farm-Fresh Eggs:</strong> Mixed sizes, vibrant orange yolks, gathered daily.</li>
+        <li><strong>Homemade Vanilla Extract:</strong> Small-batch, 2oz bottles made from real vanilla beans.</li>
+        <li><strong>Egg Scrubbers:</strong> Chicken-shaped silicone tools perfect for cleaning fresh eggs.</li>
+        <li><strong>Seasonal Goods:</strong> Handcrafted items that change with the seasons — jams, herbal blends, and more.</li>
+      </ul>
+      <p>Our products are limited and available through private order only, ensuring freshness and attention to detail in every batch.</p>
+    </section>
+
+    <section>
+      <h2>Contact Us</h2>
+      <p>Have a question or want to place a special order? Reach out anytime!</p>
+      <p><strong>Email:</strong> <a href="mailto:austinblack05@icloud.com">austinblack05@icloud.com</a></p>
+      <p style="color:var(--muted);font-size:14px;">Return & Refund Policy: Because our goods are handmade and perishable, all sales are final. If something isn’t right, we’ll make it right — just let us know.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; <span id="year"></span> K&A Farms — Made with love on the farm.</p>
+  </footer>
+
+  <script>
+    // Cart tracker for header (shared with shop/cart pages)
+    const STORAGE_KEY = 'ka_cart';
+    function loadCart(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch{ return {}; } }
+    function countItems(cart){ return Object.values(cart).reduce((a,b)=>a+(b||0),0); }
+    function currency(n){ return (Math.round((n||0)*100)/100).toFixed(2); }
+
+    // If prices are needed for total, read from cart.html later; for now persist a cached total if present
+    function computeTotal(cart){
+      // We cache a running total under ka_cart_total from the shop/cart pages; fall back to 0.00
+      const cached = localStorage.getItem('ka_cart_total');
+      if(cached) return parseFloat(cached);
+      return 0;
+    }
+
+    function updateBadge(){
+      const cart = loadCart();
+      const items = countItems(cart);
+      const total = computeTotal(cart);
+      const countEl = document.getElementById('cartCount');
+      const totalEl = document.getElementById('cartTotal');
+      if(countEl) countEl.textContent = items;
+      if(totalEl) totalEl.textContent = currency(total);
+    }
+
+    // Initial + on storage changes
+    updateBadge();
+    window.addEventListener('storage', (e)=>{ if(e.key === STORAGE_KEY || e.key === 'ka_cart_total') updateBadge(); });
+
+    // Footer year
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
