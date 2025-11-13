@@ -79,7 +79,7 @@ footer{background:#fff;border-top:1px solid #eee;padding:24px 18px;color:#6b7280
 	<a href="#bakery">Kelsey's Bakery</a>
 	</div>
 </div>
-	<form style="flex:1; max-width:300px; position:relative;">
+	<form style="flex:1; max-width:300px; position:relative;display: none;">
 		<input type="search" placeholder="Search..." style="width:100%; padding:8px 10px 8px 32px; border-radius:12px; border:1px solid #ddd;">
 		<svg viewBox="0 0 24 24" width="18" height="18" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); fill:#999;">
 			<path d="M12 20l-5.6-5.6A7 7 0 1015 15.4L20.6 21 21 20zM5 10a5 5 0 1110 0 5 5 0 01-10 0z"/>
@@ -94,7 +94,7 @@ footer{background:#fff;border-top:1px solid #eee;padding:24px 18px;color:#6b7280
   <div class="layout">
     <!-- SHOP LEFT -->
     <section id="shop">
-      <p class="notice" id="notice">Add items and adjust quantities here. Your cart is saved automatically.</p>
+      <p class="notice" id="notice">Orders must be placed at least 24 hours in advance.<br><small>A rush fee of $10.00 will be added to the cart if the order is needed sooner.</small></p>
 	  <h3 id="farmProduct">Farm Products</h3>
       <div class="grid-shop" aria-label="Products">
         <!-- Eggs -->
@@ -244,31 +244,35 @@ footer{background:#fff;border-top:1px solid #eee;padding:24px 18px;color:#6b7280
 
       <div class="card" style="margin-top:12px">
         <div class="pad">
-          <h3 style="margin:0 0 10px; font-size:16px">Your Details</h3>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
-            <div>
-              <label for="oName">Full name</label>
-              <input id="oName" placeholder="Jane Doe" required>
-            </div>
-            <div>
-              <label for="oPhone">Phone</label>
-              <input id="oPhone" placeholder="(555) 555‑5555" required>
-            </div>
-          </div>
-          <div style="margin-top:12px">
-            <label for="oEmail">Email</label>
-            <input id="oEmail" type="email" placeholder="you@example.com" required>
-          </div>
-          <div style="margin-top:12px">
-            <label for="oNotes">Notes (optional)</label>
-            <textarea id="oNotes" rows="3" placeholder="Preferred pickup time, directions, allergies, etc."></textarea>
-          </div>
-          <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
-            <button id="mailtoBtn" class="btn">Email my order</button>
-            <button id="clearBtn" class="btn" title="Clear cart">Clear</button>
-          </div>
-          <p id="hint" class="notice" style="margin-top:12px; display:none">If your mail app doesn’t open, copy the summary below into an email to <a href="mailto:kafarmsorders@gmail.com">kafarmsorders@gmail.com</a>.</p>
-          <pre id="fallback" style="display:none; white-space:pre-wrap; background:#fff; border:1px solid #eee; border-radius:12px; padding:12px; font-family:sans-serif; font-size:13px"></pre>
+			<h3 style="margin:0 0 10px; font-size:16px">Your Details</h3>
+			<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
+			<div>
+				<label for="oName">Full name</label>
+				<input id="oName" placeholder="Jane Doe" required>
+			</div>
+			<div>
+				<label for="oPhone">Phone</label>
+				<input id="oPhone" placeholder="(555) 555‑5555" required>
+			</div>
+			</div>
+			<div style="margin-top:12px">
+				<label for="oEmail">Email</label>
+				<input id="oEmail" type="email" placeholder="you@example.com" required>
+			</div>
+			<div style="margin-top:12px">
+				<label for="oDate">Pickup Date/Time</label>
+				<input id="oDate" type="datetime-local" style="font-family:sans-serif" name="pickupTime" required>
+			</div>	
+			<div style="margin-top:12px">
+				<label for="oNotes">Notes (optional)</label>
+				<textarea id="oNotes" rows="3" placeholder="Preferred pickup time, directions, allergies, etc."></textarea>
+			</div>
+			<div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+				<button id="mailtoBtn" class="btn">Email my order</button>
+				<button id="clearBtn" class="btn" title="Clear cart">Clear</button>
+			</div>
+			<p id="hint" class="notice" style="margin-top:12px; display:none">If your mail app doesn’t open, copy the summary below into an email to <a href="mailto:kafarmsorders@gmail.com">kafarmsorders@gmail.com</a>.</p>
+			<pre id="fallback" style="display:none; white-space:pre-wrap; background:#fff; border:1px solid #eee; border-radius:12px; padding:12px; font-family:sans-serif; font-size:13px"></pre>
         </div>
       </div>
     </aside>
@@ -333,9 +337,12 @@ const cart = loadCart();
 
 function headerTotal(){ return Object.entries(cart).reduce((s,[k,q])=> s + (PRICES[k]||0)*(q||0), 0); }
 function updateBadge(){
-  document.getElementById('cartCount').textContent = itemsCount(cart);
-  document.getElementById('cartTotal').textContent = currency(headerTotal());
+  const countEl = document.getElementById('cartCount');
+  const totalEl = document.getElementById('cartTotal');
+  if (countEl) countEl.textContent = itemsCount(cart);
+  if (totalEl) totalEl.textContent = currency(headerTotal());
 }
+
 
 // SHOP stepper logic (disable +/- until added)
 for(const row of document.querySelectorAll('.controls')){
@@ -413,13 +420,51 @@ function renderCart(){
   finalize();
 }
 
+const RUSH_FEE_AMOUNT = 10.00;
+
+function isRushOrder() {
+  const pickupInput = document.getElementById('oDate');
+  if (!pickupInput || !pickupInput.value) return false;
+
+  const pickup = new Date(pickupInput.value);
+  const now = new Date();
+
+  const diffMs = pickup - now;
+  const diffHours = diffMs / (1000 * 60 * 60); // ms → hours
+
+  return diffHours > 0 && diffHours <= 24;
+}
+	
+
 function finalize(){
-  Object.keys(cart).forEach(k=>{ if(!cart[k]) delete cart[k]; });
+  Object.keys(cart).forEach(k => { if (!cart[k]) delete cart[k]; });
   saveCart(cart);
-  const g=total();
-  document.getElementById('grand').textContent=currency(g);
+
+  let g = total();
+
+  const rush = isRushOrder();
+  const grandDisplay = document.getElementById('grand');
+
+  if (rush) {
+    g += RUSH_FEE_AMOUNT;
+
+    if (!document.getElementById('rushFeeLine')) {
+      const feeLine = document.createElement('div');
+      feeLine.id = 'rushFeeLine';
+      feeLine.style = "font-size:14px; color:#b91c1c; font-weight:700;";
+      feeLine.textContent = `Rush Fee (24 Hour Buffer): $${RUSH_FEE_AMOUNT.toFixed(2)}`;
+      // totals box = grand span's grandparent
+      grandDisplay.parentElement.parentElement.appendChild(feeLine);
+    }
+  } else {
+    const feeLine = document.getElementById('rushFeeLine');
+    if (feeLine) feeLine.remove();
+  }
+
+  grandDisplay.textContent = currency(g);
   updateBadge();
 }
+		
 
 function summaryLines(){
   return Object.entries(cart)
@@ -429,16 +474,23 @@ function summaryLines(){
 }
 
 function buildMailto(){
-  const name=document.getElementById('oName').value.trim();
-  const email=document.getElementById('oEmail').value.trim();
-  const phone=document.getElementById('oPhone').value.trim();
-  const notes=document.getElementById('oNotes').value.trim();
-  if(!name||!email||!phone){ alert('Please fill in your name, email, and phone.'); return null; }
-  const id='KA-'+Date.now().toString().slice(-8).toUpperCase();
-  const totalStr=document.getElementById('grand').textContent;
-  const subject=encodeURIComponent(`K&A Farms Order ${id}`);
-  const bodyRaw=`Order #: ${id}\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nItems:\n${summaryLines()}\n\nTotal: $${totalStr}\n\nNotes: ${notes||'—'}\n`;
+	const name=document.getElementById('oName').value.trim();
+	const email=document.getElementById('oEmail').value.trim();
+	const date=document.getElementById('oDate').value.trim();
+	const phone=document.getElementById('oPhone').value.trim();
+	const notes=document.getElementById('oNotes').value.trim();
+	if(!name||!email||!phone){ alert('Please fill in your name, email, and phone.'); return null; }
+	if(!date) {alert('Please choose a pickup date.'); return null; }
+	const id='KA-'+Date.now().toString().slice(-8).toUpperCase();
+	const totalStr=document.getElementById('grand').textContent;
+	let rushNote = "";
+	if (isRushOrder()) {
+	rushNote = `\nRush Fee: $${RUSH_FEE_AMOUNT.toFixed(2)} (Pickup is within 24 hour buffer)\n`;
+	}
+	const subject=encodeURIComponent(`K&A Farms Order ${id}`);
+	const bodyRaw=`Order #: ${id}\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nItems:\n${summaryLines()} ${rushNote}\n\nTotal: $${totalStr}\n\nNotes: ${notes||'—'}\n`;
   return `mailto:${TO_EMAIL}?subject=${subject}&body=${encodeURIComponent(bodyRaw)}`;
+	return `mailto:${TO_EMAIL}?subject=${subject}&body=${encodeURIComponent(bodyRaw)}`;
 }
 
 // Buttons
@@ -462,6 +514,9 @@ document.getElementById('clearBtn').addEventListener('click',()=>{
 // Init
 renderCart(); updateBadge();
 document.getElementById('year').textContent=new Date().getFullYear();
+
+document.getElementById('oDate').addEventListener('change', finalize);
+
 </script>
 </body>
 </html>
