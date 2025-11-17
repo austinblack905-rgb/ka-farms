@@ -168,23 +168,6 @@ footer{background:#fff;border-top:1px solid #eee;padding:24px 18px;color:#6b7280
           </div>
         </article>
 
-        <!-- Crinkle Cookies Batch -->
-        <article class="card">
-          <img src="Crinkle Cookie.jpg" alt="Stacked Crinkle Cookies">
-          <div class="pad">
-            <div class="kicker">Baked Good</div>
-            <h2 style="margin:2px 0 6px;font-size:20px">Crinkle Cookies <span class="badge">Batch</span></h2>
-            <p style="margin:0 0 10px;color:var(--muted)">Roughly 6 dozen Crinkle cookies<br><small>Please allow 48 hours for order completion</small></small></p>
-            <p class="price">$ <span data-price="crinkleBatch">28.00</span> / batch</p>
-            <div class="controls" data-key="crinkleBatch">
-              <button class="step" aria-label="Decrease" disabled>–</button>
-              <span class="qty" aria-live="polite">0</span>
-              <button class="step" aria-label="Increase" disabled>+</button>
-              <button class="btn" data-add>Add to cart</button>
-            </div>
-          </div>
-        </article>
-
         <!-- Ooey Gooey Butter Cake -->
         <article class="card">
           <img src="Ooey Gooey.png" alt="Ooey Gooey Butter Cake">
@@ -201,6 +184,7 @@ footer{background:#fff;border-top:1px solid #eee;padding:24px 18px;color:#6b7280
             </div>
           </div>
         </article>
+		  
 		<!-- Chocolate Chip Cookies -->
         <article class="card">
           <img src="Chocolate Chip.jpg" alt="Chocolate Chip Cookies">
@@ -306,7 +290,6 @@ const PRICES = {
 	scrubber: parseFloat(document.querySelector('[data-price="scrubber"]').textContent),
 	vanilla: parseFloat(document.querySelector('[data-price="vanilla"]').textContent),
 	crinkle: parseFloat(document.querySelector('[data-price="crinkle"]').textContent),
-	crinkleBatch: parseFloat(document.querySelector('[data-price="crinkleBatch"]').textContent),
 	butterCake: parseFloat(document.querySelector('[data-price="butterCake"]').textContent),
 	chocChip: parseFloat(document.querySelector('[data-price="chocChip"]').textContent),
 	cupCookie: parseFloat(document.querySelector('[data-price="cupCookie"]').textContent)	
@@ -317,7 +300,6 @@ const TITLES = {
 	scrubber: 'Egg Scrubber',
 	vanilla: 'Vanilla Extract (2 oz)',
 	crinkle: 'Crinkle Cookies (24 ct)',
-	crinkleBatch: 'Crinkle Cookies (Batch)',
 	butterCake: 'Butter Cake',
 	chocChip: 'Chocolate Chip (18 ct)',
 	cupCookie: 'PB Cup Cookie (24 ct)'
@@ -327,7 +309,6 @@ const TITLES = {
 	scrubber: 'Egg Scrubber.jpg',
 	vanilla: 'Vanilla.jpg',
 	crinkle: 'Crinkle Cookie.jpg',
-	crinkleBatch: 'Crinkle Cookie.jpg',
 	butterCake: 'Ooey Gooey.png',
 	chocChip: 'Chocolate Chip.jpg',
 	cupCookie: 'CupCookies.jpg'
