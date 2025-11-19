@@ -401,20 +401,6 @@ function renderCart(){
   finalize();
 }
 
-const RUSH_FEE_AMOUNT = 10.00;
-
-function isRushOrder() {
-  const pickupInput = document.getElementById('oDate');
-  if (!pickupInput || !pickupInput.value) return false;
-
-  const pickup = new Date(pickupInput.value);
-  const now = new Date();
-
-  const diffMs = pickup - now;
-  const diffHours = diffMs / (1000 * 60 * 60); // ms → hours
-
-  return diffHours > 0 && diffHours <= 24;
-}
 	
 
 function finalize(){
@@ -464,10 +450,6 @@ function buildMailto(){
 	if(!date) {alert('Please choose a pickup date.'); return null; }
 	const id='KA-'+Date.now().toString().slice(-8).toUpperCase();
 	const totalStr=document.getElementById('grand').textContent;
-	let rushNote = "";
-	if (isRushOrder()) {
-	rushNote = `\nRush Fee: $${RUSH_FEE_AMOUNT.toFixed(2)} (Pickup is within 24 hour buffer)\n`;
-	}
 	const subject=encodeURIComponent(`K&A Farms Order ${id}`);
 	const bodyRaw=`Order #: ${id}\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nItems:\n${summaryLines()} ${rushNote}\n\nTotal: $${totalStr}\n\nNotes: ${notes||'—'}\n`;
   return `mailto:${TO_EMAIL}?subject=${subject}&body=${encodeURIComponent(bodyRaw)}`;
