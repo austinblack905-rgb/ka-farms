@@ -63,7 +63,7 @@ input,select,textarea{width:100%; padding:12px 14px; border-radius:12px; border:
 <header>
   <div class="nav">
     <div style="display:flex;align-items:center;gap:10px">
-      <a href="K&A Farms - Home.html" style="text-decoration:none;color:inherit"><strong>K&A Farms</strong></a>
+      <a href="https://www.ka-farms.com" style="text-decoration:none;color:inherit"><strong>K&A Farms</strong></a>
     </div>
     <nav class="links">
       <a href="https://www.ka-farms.com/Shop">Shop</a>
@@ -191,7 +191,7 @@ function render(){
   box.innerHTML = '';
 
   if(itemsCount(cart) === 0){
-    box.innerHTML = `<div class="empty">Your cart is empty. <a href='K&A Farms - Shop.html'>Go to the shop</a>.</div>`;
+    box.innerHTML = `<div class="empty">Your cart is empty. <a href='https://www.ka-farms.com/Shop'>Go to the shop</a>.</div>`;
     document.getElementById('grand').textContent = '0.00';
     localStorage.setItem(TOTAL_KEY, 0);
     updateBadge();
@@ -490,4 +490,5 @@ document.getElementById('year').textContent = new Date().getFullYear();
 </script>
 </body>
 </html>
+
 
