@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Shop – K&A Farms</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="Products.js"></script>
+<style>
+:root {--bg:#faf8f6;--ink:#1f2937;--muted:#667085;--brand:#a18c00;--accent:#fffce8;}
+*{box-sizing:border-box} html,body{margin:0}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);}
+header{background:#fff;border-bottom:1px solid #eee;position:sticky;top:0;z-index:10}
+.nav{max-width:1000px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.links{display:flex;align-items:center;gap:14px}
+.links a{color:var(--ink);text-decoration:none;font-weight:600}
+.links a:hover{color:var(--brand)}
+.cartpill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #eee;border-radius:999px;background:#fff}
+.cartpill b{min-width:2ch;display:inline-block;text-align:right}
+.container{max-width:1000px;margin:0 auto;padding:28px 18px}
+.h1{font-size:28px;font-weight:700;margin:0 0 10px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:900px){.grid{grid-template-columns:1fr 1fr}}
+@media (max-width:600px){.grid{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid #eee;border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+.pad{padding:14px}
+.kicker{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.price{font-weight:700}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 12px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;font-weight:700;cursor:pointer}
+.btn.primary{background:var(--brand);color:#fff;border-color:transparent}
+.controls{display:flex;align-items:center;gap:8px}
+.step{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #e5e7eb;border-radius:10px;background:#fff;cursor:pointer;font-size:18px}
+.step:disabled{opacity:0.4;cursor:not-allowed}
+.qty{min-width:2ch;text-align:center;font-weight:700}
+.notice{padding:12px 14px;border:1px dashed #e5e7eb;border-radius:12px;background:#fff;color:var(--muted)}
+footer{background:#fff;border-top:1px solid #eee;padding:24px 18px;color:#6b7280}
+.badge{font-size:11px;padding:4px 8px;border-radius:8px;background:#f3f4f6;color:#374151}
+</style>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <div style="display:flex;align-items:center;gap:10px"><a href="K&A Farms - Home.html" style="text-decoration:none;color:inherit"><strong>K&A Farms</strong></a></div>
+    <nav class="links">
+      <a href="K&A Farms - Shop.html" aria-current="page">Shop</a>
+      <a href="cart_1.html" class="cartpill" title="View cart">
+        <span>Cart</span>
+        <b id="cartCount">0</b>
+        <span>· $<span id="cartTotal">0.00</span></span>
+      </a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <h1 class="h1">Shop</h1>
+<br>	
+  <section class="grid" aria-label="Products">
+    <!-- Eggs -->
+    <article class="card">
+      <img src="Eggs.jpg" alt="Farm fresh eggs in a basket">
+      <div class="pad">
+        <div class="kicker">Farm‑Fresh</div>
+        <h2 style="margin:2px 0 6px;font-size:20px">Eggs <span class="badge">Mixed sizes</span></h2>
+        <p style="margin:0 0 10px;color:var(--muted)">Dozens include a natural mix of sizes with <strong>deep orange yolks</strong>. Gathered daily from free‑roaming hens.</p>
+        <p class="price">$ <span data-price="eggs">5.00</span> / dozen</p>
+        <div class="controls" data-key="eggs">
+          <button class="step" aria-label="Decrease" disabled>–</button>
+          <span class="qty" aria-live="polite">0</span>
+          <button class="step" aria-label="Increase" disabled>+</button>
+          <button class="btn primary" data-add>Add to cart</button>
+        </div>
+      </div>
+    </article>
+
+    <!-- Egg Scrubber -->
+    <article class="card">
+      <img src="Egg Scrubber.jpg" alt="Chicken‑shaped silicone egg scrubber">
+      <div class="pad">
+        <div class="kicker">Coop Tool</div>
+        <h2 style="margin:2px 0 6px;font-size:20px">Egg Scrubber</h2>
+        <p style="margin:0 0 10px;color:var(--muted)">Soft, flexible bristles gently clean fresh eggs without damaging the shell.</p>
+        <p class="price">$ <span data-price="scrubber">6.00</span> / each</p>
+        <div class="controls" data-key="scrubber">
+          <button class="step" aria-label="Decrease" disabled>–</button>
+          <span class="qty" aria-live="polite">0</span>
+          <button class="step" aria-label="Increase" disabled>+</button>
+          <button class="btn primary" data-add>Add to cart</button>
+        </div>
+      </div>
+    </article>
+
+    <!-- Vanilla Extract -->
+    <article class="card">
+      <img src="Picture Coming Soon.png" alt="Homemade vanilla extract bottle">
+      <div class="pad">
+        <div class="kicker">Small‑Batch</div>
+        <h2 style="margin:2px 0 6px;font-size:20px">Vanilla Extract <span class="badge">2 oz</span></h2>
+        <p style="margin:0 0 10px;color:var(--muted)">Made with whole vanilla beans and simple ingredients, aged for smooth, fragrant flavor.</p>
+        <p class="price">$ <span data-price="vanilla">5.00</span> / bottle</p>
+        <div class="controls" data-key="vanilla">
+          <button class="step" aria-label="Decrease" disabled>–</button>
+          <span class="qty" aria-live="polite">0</span>
+          <button class="step" aria-label="Increase" disabled>+</button>
+          <button class="btn primary" data-add>Add to cart</button>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section style="margin-top:16px;" class="grid" aria-label="Products">
+  <!-- Crinkle Cookies -->
+    <article class="card">
+      <img src="Picture Coming Soon.png" alt="Crinkle Cookies">
+      <div class="pad">
+        <div class="kicker">Fresh Baked</div>
+        <h2 style="margin:2px 0 6px;font-size:20px">Crinkle Cookies <span class="badge">24 ct</span></h2>
+        <p style="margin:0 0 10px;color:var(--muted)">Made from scratch using real cocoa and simple ingredients.<br><small>Please allow 48 hours for order completion</small></p>
+        <p class="price">$ <span data-price="crinkle">10.00</span> / 24 ct</p>
+        <div class="controls" data-key="crinkle">
+          <button class="step" aria-label="Decrease" disabled>–</button>
+          <span class="qty" aria-live="polite">0</span>
+          <button class="step" aria-label="Increase" disabled>+</button>
+          <button class="btn primary" data-add>Add to cart</button>
+        </div>
+      </div>
+    </article>
+    <!-- Ooey Gooey -->
+    <article class="card">
+      <img src="Picture Coming Soon.png" alt="Butter Cake">
+      <div class="pad">
+        <div class="kicker">Fresh Baked</div>
+        <h2 style="margin:2px 0 6px;font-size:20px">Ooey Gooey Butter Cake <br><span class="badge">9x13 pan</span></h2>
+        <p style="margin:0 0 10px;color:var(--muted)">Baked to golden perfection, it’s dense yet pillowy, with a caramelized top and a custard-like center. Each bite is ultra-sweet, buttery, and irresistibly decadent</p>
+        <p class="price">$ <span data-price="butterCake">20.00</span> / pan</p>
+        <div class="controls" data-key="butterCake">
+          <button class="step" aria-label="Decrease" disabled>–</button>
+          <span class="qty" aria-live="polite">0</span>
+          <button class="step" aria-label="Increase" disabled>+</button>
+          <button class="btn primary" data-add>Add to cart</button>
+        </div>
+      </div>
+    </article>
+    <!-- Chocolate Chip -->
+    <article class="card">
+      <img src="Picture Coming Soon.png" alt="Chocolate Chip">
+      <div class="pad">
+        <div class="kicker">Fresh Baked</div>
+        <h2 style="margin:2px 0 6px;font-size:20px">Chocolate Chip Cookies <span class="badge">18 ct</span></h2>
+        <p style="margin:0 0 10px;color:var(--muted)">Soft-centered and golden-edged, these classic Chocolate Chip Cookies are baked fresh with real butter, pure vanilla, and creamy milk chocolate chips.</p>
+        <p class="price">$ <span data-price="chocChip">12.00</span> / 2 ct</p>
+        <div class="controls" data-key="chocChip">
+          <button class="step" aria-label="Decrease" disabled>–</button>
+          <span class="qty" aria-live="polite">0</span>
+          <button class="step" aria-label="Increase" disabled>+</button>
+          <button class="btn primary" data-add>Add to cart</button18
+        </div>
+      </div>
+    </article> 
+  </section>
+
+  <section style="margin-top:16px;" class="grid" aria-label="Products">
+      <article class="card">
+      <img src="Picture Coming Soon.png" alt="Peanut Cup Cookies">
+      <div class="pad">
+        <div class="kicker">Fresh Baked</div>
+        <h2 style="margin:2px 0 6px;font-size:20px">Peanut Butter Cup Cookies<br> <span class="badge">24 ct</span></h2>
+        <p style="margin:0 0 10px;color:var(--muted)">Each bite delivers the perfect blend of smooth chocolate and creamy peanut butter.</p>
+        <p class="price">$ <span data-price="cupCookie">14.00</span> / 24 ct</p>
+        <div class="controls" data-key="cupCookie">
+          <button class="step" aria-label="Decrease" disabled>–</button>
+          <span class="qty" aria-live="polite">0</span>
+          <button class="step" aria-label="Increase" disabled>+</button>
+          <button class="btn primary" data-add>Add to cart</button>
+        </div>
+      </div>
+    </article> 
+  </section>
+</main>
+
+<footer>
+  <div class="container" style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
+    <span><span id="year"></span> K&A Farms</span>
+    <span class="muted">Private link — please don’t share publicly</span>
+  </div>
+</footer>
+
+<script>
+const STORAGE_KEY = 'ka_cart';
+const PRODUCTS = window.PRODUCTS;
+const PRICES = Object.fromEntries(
+    Object.entries(PRODUCTS).map(([k,v])=>[k,v.price])
+);
+
+function loadCart(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch{ return {}; } }
+function saveCart(cart){ localStorage.setItem(STORAGE_KEY, JSON.stringify(cart)); }
+function countItems(cart){ return Object.values(cart).reduce((a,b)=>a+b,0); }
+function totalCost(cart){ return Object.entries(cart).reduce((sum,[k,q])=> sum + (PRICES[k]||0)*q, 0); }
+function currency(n){ return (Math.round(n*100)/100).toFixed(2); }
+
+const cart = loadCart();
+
+function updateBadge(){
+  document.getElementById('cartCount').textContent = countItems(cart);
+  document.getElementById('cartTotal').textContent = currency(totalCost(cart));
+}
+updateBadge();
+
+document.querySelectorAll('.controls').forEach(row => {
+  const key = row.dataset.key;
+  const qtyEl = row.querySelector('.qty');
+  const minusBtn = row.querySelectorAll('.step')[0];
+  const plusBtn = row.querySelectorAll('.step')[1];
+  const addBtn = row.querySelector('[data-add]');
+
+  // Initialize state
+  if(cart[key] > 0){ enableSteps(); qtyEl.textContent = cart[key]; }
+  else{ disableSteps(); qtyEl.textContent = 0; }
+
+  function disableSteps(){ minusBtn.disabled = true; plusBtn.disabled = true; }
+  function enableSteps(){ minusBtn.disabled = false; plusBtn.disabled = false; }
+  
+  minusBtn.addEventListener('click', ()=>{
+    if(cart[key] > 0){ cart[key]--; saveCart(cart); qtyEl.textContent = cart[key]; updateBadge(); if(cart[key] === 0) disableSteps(); }
+  });
+  plusBtn.addEventListener('click', ()=>{
+    cart[key]++; saveCart(cart); qtyEl.textContent = cart[key]; updateBadge();
+  });
+  addBtn.addEventListener('click', ()=>{
+    cart[key] = (cart[key]||0) + 1; saveCart(cart); qtyEl.textContent = cart[key]; enableSteps(); updateBadge();
+  });
+});
+
+document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
