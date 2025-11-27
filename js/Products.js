@@ -3,7 +3,7 @@ window.PRODUCTS = {
   "eggs": {
     "title": "Farm-Fresh Eggs",
     "price": 5,
-    "thumb": "ka-farms/images/Eggs.jpg",
+    "thumb": "Eggs.jpg",
     "inventory": 10
   },
   "scrubber": {
