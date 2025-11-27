@@ -1,0 +1,264 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Shop – K&A Farms</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="Products.js"></script>
+<style>
+:root {--bg:#faf8f6;--ink:#1f2937;--muted:#667085;--brand:#a18c00;--accent:#fffce8;}
+*{box-sizing:border-box} html,body{margin:0}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);justify-content:center;align-items:center;}
+header{background:#fff;border-bottom:1px solid #eee;position:sticky;top:0;z-index:10}
+.nav{max-width:1000px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.links{display:flex;align-items:center;gap:14px}
+.links a{color:var(--ink);text-decoration:none;font-weight:600}
+.links a:hover{color:var(--brand)}
+.cartpill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #eee;border-radius:999px;background:#fff}
+.cartpill b{min-width:2ch;display:inline-block;text-align:right}
+.container{max-width:1000px;margin:0 auto;padding:28px 18px}
+.h1{font-size:28px;font-weight:700;margin:0 0 10px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.grid.title{display:grid;grid-template-columns:repeat(1,minmax(0,1fr));gap:16px;margin-bottom:20px;}
+@media (max-width:900px){.grid{grid-template-columns:1fr 1fr}}
+@media (max-width:600px){.grid{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid #eee;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;padding:10px}
+.pad{padding:14px}
+.kicker{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.price{font-weight:700}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 12px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;font-weight:700;cursor:pointer}
+.btn.primary{background:var(--brand);color:#fff;border-color:transparent}
+.btn.admin{background:var(--brand);color:#fff;border-color:transparent;width:135px}
+.controls{display:flex;align-items:center;gap:8px}
+.step{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #e5e7eb;border-radius:10px;background:#fff;cursor:pointer;font-size:18px}
+.step:disabled{opacity:0.4;cursor:not-allowed}
+.qty{min-width:2ch;text-align:center;font-weight:700}
+.notice{padding:12px 14px;border:1px dashed #e5e7eb;border-radius:12px;background:#fff;color:var(--muted)}
+label{font-weight:700; font-size:14px}
+input,select,textarea{width:100%; padding:12px 14px; border-radius:12px; border:1px solid #e5e7eb; background:#fff}
+footer{background:#fff;border-top:1px solid #eee;padding:24px 18px;color:#6b7280}
+.badge{font-size:11px;padding:4px 8px;border-radius:8px;background:#f3f4f6;color:#374151}
+</style>
+</head>
+<body>
+<header>
+	<div class="nav">
+		<div style="display:flex;align-items:center;gap:10px"><a href="https://www.ka-farms.com" style="text-decoration:none;color:inherit"><strong>K&A Farms</strong></a></div>
+		<div class="links">
+			<button id="downloadBtn" class="btn">Download Products.js</button>
+		</div>
+</header>
+	<h1 class="container">Admin Center</h1>
+<main class="container">
+<!-- About -->
+	<aside Style="margin-bottom:16px" class="card">
+		<h3>Site Version 2.0</h3>
+		<ul>
+			<li>Single-Page Store was replaced with a multi-page system (Shop + Cart/Checkout + Product Database).</li>
+			<li>Cart Behavior improved</li>
+			<li>Email Order Button replaced with Continue to Payment.</li>
+				<li>Payment options added: CashApp, Venmo, Cash(In-Person).</li>
+			<li>EmailJS now handles order submissions, removing the need for the user's mail app.</li>
+			<li>UI Improvements</li>
+			<li>Numerous bug fixes across cart logic, pricing, images, and UI behavior</li>
+			<li>The rush fee system was removed and will not return</li>
+		</ul>
+	</aside>
+<section class="grid">
+<!-- Add Items to Catalog -->
+<!-- Add Items to Catalog -->
+<article id="createItem" class="card">
+	<h3>Add Item</h3>
+
+	<label for="title">Title</label>
+	<input id="title" type="text" placeholder="Item Title">
+	<br>
+	<label for="price">Price</label>
+	<input id="price" type="text" placeholder="Item Price">
+	<br>
+	<label for="thumb">Thumbnail (file name or upload)</label>
+	<input id="thumb" type="file" accept="image/*">
+	<br>
+	<label for="newInventory">Starting Inventory (optional)</label>
+	<input id="newInventory" type="number" placeholder="0">
+	<br><br>
+	<div style="display:flex; gap:10px; flex-wrap:wrap">
+		<button id="addItemBtn" class="btn primary">Add Item</button>
+	</div>
+</article>
+
+<!-- Update Item Inventory -->
+	<article id="inventory" class="card">
+		<h3>Item Inventory</h3>
+		<label>Item</label>
+		<select id="productSelect">
+			<option id="option" value="">Select an item...</option>
+		</select>
+		<br>
+		<label>Inventory</label>
+		<input id="quantity" type="text"></input>
+		<br>
+		<div style="display:flex; gap:10px; flex-wrap:wrap">
+		<button id="updateBtn" class="btn admin">Update Inventory</button>
+		</div>
+	</article>
+</section>
+</main>
+<script>
+// Grab existing Products.js
+let PRODUCTS = window.PRODUCTS || {};
+
+// DOM elements
+const select        = document.getElementById("productSelect");
+const qtyInput      = document.getElementById("quantity");
+const updateBtn     = document.getElementById("updateBtn");
+
+const titleInput    = document.getElementById("title");
+const priceInput    = document.getElementById("price");
+const thumbInput    = document.getElementById("thumb");
+const newInvInput   = document.getElementById("newInventory");
+const addItemBtn    = document.getElementById("addItemBtn");
+const downloadBtn   = document.getElementById("downloadBtn");
+
+// --- Helpers ---
+function normalizeKey(str) {
+  // "Crinkle Cookies (24 ct)" -> "crinklecookies24ct"
+  return str.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function safeNumber(val, fallback = null) {
+  const n = Number(val);
+  return Number.isNaN(n) ? fallback : n;
+}
+
+function populateSelect() {
+  select.innerHTML = `<option value="">Select an item...</option>`;
+  Object.entries(PRODUCTS).forEach(([key, product]) => {
+    const opt = document.createElement("option");
+    opt.value = key;
+    opt.textContent = product.title || key;
+    select.appendChild(opt);
+  });
+}
+
+// --- Initial load of dropdown from Products.js ---
+populateSelect();
+
+// --- When a product is selected, show its inventory in the box ---
+select.addEventListener("change", () => {
+  const key = select.value;
+  if (!key) {
+    qtyInput.value = "";
+    return;
+  }
+
+  const product = PRODUCTS[key];
+  const inv = (product && typeof product.inventory !== "undefined")
+    ? product.inventory
+    : "";
+
+  qtyInput.value = inv;
+});
+
+// --- Update Inventory for selected product ---
+updateBtn.addEventListener("click", () => {
+  const key = select.value;
+  if (!key) {
+    alert("Select an item first.");
+    return;
+  }
+
+  const newInv = safeNumber(qtyInput.value, null);
+  if (newInv === null || newInv < 0) {
+    alert("Enter a valid non-negative inventory number.");
+    return;
+  }
+
+  if (!PRODUCTS[key]) {
+    alert("Selected product not found in PRODUCTS.");
+    return;
+  }
+
+  PRODUCTS[key].inventory = newInv;
+  alert(`Inventory updated for "${PRODUCTS[key].title}" to ${newInv}.`);
+});
+
+// --- Add a brand new product into PRODUCTS ---
+addItemBtn.addEventListener("click", () => {
+  const title = titleInput.value.trim();
+  const price = safeNumber(priceInput.value, null);
+  const file  = thumbInput.files[0];
+  const startInvRaw = newInvInput.value.trim();
+  const startInv = startInvRaw === "" ? null : safeNumber(startInvRaw, null);
+
+  if (!title) {
+    alert("Please enter a title.");
+    return;
+  }
+  if (price === null || price < 0) {
+    alert("Please enter a valid price.");
+    return;
+  }
+
+  let key = normalizeKey(title);
+  if (!key) {
+    alert("Could not generate a key from the title.");
+    return;
+  }
+
+  if (PRODUCTS[key]) {
+    const overwrite = confirm(
+      `A product with key "${key}" already exists. Overwrite it?`
+    );
+    if (!overwrite) return;
+  }
+
+  // Use uploaded file name if present, otherwise a placeholder
+  const thumbName = file ? file.name : "Picture Coming Soon.png";
+
+  PRODUCTS[key] = {
+    title: title,
+    price: price,
+    thumb: thumbName
+  };
+
+  if (startInv !== null && startInv >= 0) {
+    PRODUCTS[key].inventory = startInv;
+  }
+
+  // refresh dropdown
+  populateSelect();
+
+  // clear inputs
+  titleInput.value = "";
+  priceInput.value = "";
+  thumbInput.value = "";
+  newInvInput.value = "";
+
+  alert(`Item "${title}" added with key "${key}". Remember to download Products.js.`);
+});
+
+// --- Download updated Products.js file ---
+downloadBtn.addEventListener("click", () => {
+  const fileContent =
+`// Products
+window.PRODUCTS = ${JSON.stringify(PRODUCTS, null, 2)};`;
+
+  const blob = new Blob([fileContent], { type: "application/javascript" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "Products.js";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  alert("Downloaded updated Products.js. Replace this file in your repo to apply changes.");
+});
+</script>
+
+</body>
+</html>
