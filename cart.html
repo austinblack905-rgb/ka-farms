@@ -208,7 +208,7 @@ function render(){
     const line = document.createElement('div');
     line.className = 'row pad';
     line.innerHTML = `
-      <div class="line"><img class="thumb" src="${THUMBS[key]||''}" alt="${TITLES[key]}"><div>${TITLES[key]}</div>
+      <div class="line"><img class="thumb" src="${THUMBS[key]||''}" alt="${TITLES[key]}"><div>${TITLES[key]}</div></div>
       <div>$ ${currency(PRICES[key]||0)}</div>
       <div class="actions" data-key="${key}">
         <button class="step" aria-label="Decrease">–</button>
@@ -490,6 +490,7 @@ document.getElementById('year').textContent = new Date().getFullYear();
 </script>
 </body>
 </html>
+
 
 
 
