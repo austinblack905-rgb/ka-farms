@@ -9,19 +9,19 @@ window.PRODUCTS = {
   "scrubber": {
     "title": "Egg Scrubber",
     "price": 6,
-    "thumb": "images/Egg%Scrubber.jpg",
+    "thumb": "https://www.ka-farms.com/images/Egg%Scrubber.jpg",
     "inventory": 3
   },
   "vanilla": {
     "title": "Vanilla Extract",
     "price": 5,
-    "thumb": "images/Vanilla.jpg",
+    "thumb": "https://www.ka-farms.com/images/Vanilla.jpg",
     "inventory": 68
   },
   "crinkle": {
     "title": "Crinkle Cookies",
     "price": 10,
-    "thumb": "images/Crinkle Cookie.jpg",
+    "thumb": "https://www.ka-farms.com/images/Crinkle%Cookie.jpg",
     "inventory": "By Order"
   },
   "butterCake": {
@@ -33,13 +33,13 @@ window.PRODUCTS = {
   "chocChip": {
     "title": "Chocolate Chip Cookies",
     "price": 12,
-    "thumb": "images/Chocolate Chip.jpg",
+    "thumb": "https://www.ka-farms.com/images/Chocolate%Chip.jpg",
     "inventory": "By Order"
   },
   "cupCookie": {
     "title": "Peanut Butter Cup Cookies",
     "price": 14,
-    "thumb": "images/CupCookies.jpg",
+    "thumb": "https://www.ka-farms.com/images/CupCookies.jpg",
     "inventory": "By Order"
   }
 };
