@@ -3,25 +3,25 @@ window.PRODUCTS = {
   "eggs": {
     "title": "Farm-Fresh Eggs",
     "price": 5,
-    "thumb": "Eggs.jpg",
+    "thumb": "images/Eggs.jpg",
     "inventory": 10
   },
   "scrubber": {
     "title": "Egg Scrubber",
     "price": 6,
-    "thumb": "Egg Scrubber.jpg",
+    "thumb": "images/Egg Scrubber.jpg",
     "inventory": 3
   },
   "vanilla": {
     "title": "Vanilla Extract",
     "price": 5,
-    "thumb": "Vanilla.jpg",
+    "thumb": "images/Vanilla.jpg",
     "inventory": 68
   },
   "crinkle": {
     "title": "Crinkle Cookies",
     "price": 10,
-    "thumb": "Crinkle Cookie.jpg",
+    "thumb": "images/Crinkle Cookie.jpg",
     "inventory": "By Order"
   },
   "butterCake": {
@@ -33,13 +33,13 @@ window.PRODUCTS = {
   "chocChip": {
     "title": "Chocolate Chip Cookies",
     "price": 12,
-    "thumb": "Chocolate Chip.jpg",
+    "thumb": "images/Chocolate Chip.jpg",
     "inventory": "By Order"
   },
   "cupCookie": {
     "title": "Peanut Butter Cup Cookies",
     "price": 14,
-    "thumb": "CupCookies.jpg",
+    "thumb": "images/CupCookies.jpg",
     "inventory": "By Order"
   }
 };
