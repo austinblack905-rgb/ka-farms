@@ -6,10 +6,12 @@
 <title>Cart – K&A Farms</title>
 <script src="https://www.ka-farms.com/js/Products.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="shortcut icon" type="image/x-icon" href="https://raw.githubusercontent.com/austinblack905-rgb/ka-farms/refs/heads/main/assets/KA_logo.png">
 <style>
+html,body {height:100%}
 :root {--bg:#faf8f6;--ink:#1f2937;--muted:#667085;--brand:#a18c00;--accent:#fffce8}
 *{box-sizing:border-box} html,body{margin:0}
-body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column}
 header{background:#fff;border-bottom:1px solid #eee;position:sticky;top:0;z-index:10}
 .nav{max-width:1000px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .links{display:flex;align-items:center;gap:14px}
@@ -48,6 +50,7 @@ header{background:#fff;border-bottom:1px solid #eee;position:sticky;top:0;z-inde
 label{font-weight:700; font-size:14px}
 input,select,textarea{width:100%; padding:12px 14px; border-radius:12px; border:1px solid #e5e7eb; background:#fff}
 .small{font-size:12px;color:var(--muted)}
+footer {background: #fff;border-top: 1px solid #eee;padding: 24px 18px;color: #6b7280;margin-bottom:0}
 .code{font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; background:#fff; border:1px solid #eee; border-radius:10px; padding:8px}
 </style>
 
@@ -76,7 +79,7 @@ input,select,textarea{width:100%; padding:12px 14px; border-radius:12px; border:
   </div>
 </header>
 
-<main class="container">
+<main class="container" style="flex:1">
   <h1 class="h1">Your Cart</h1>
   <div id="cartBox"></div>
 
@@ -132,10 +135,10 @@ input,select,textarea{width:100%; padding:12px 14px; border-radius:12px; border:
 </main>
 
 <footer>
-  <div class="container" style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
-    <span><span id="year"></span> K&A Farms</span>
-    <span class="muted">Private link — please don’t share publicly</span>
-  </div>
+    <div class="container" style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <span><span id="year"></span>K&A Farms</span>
+        <span class="muted">Private link — please don’t share publicly</span>
+    </div>
 </footer>
 
 <script>
@@ -490,16 +493,3 @@ document.getElementById('year').textContent = new Date().getFullYear();
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
