@@ -25,9 +25,9 @@ window.PRODUCTS = {
     "inventory": "By Order"
   },
   "butterCake": {
-    "title": "https://www.ka-farms.com/Ooey%20Gooey Butter Cake",
+    "title": "Ooey Gooey Butter Cake",
     "price": 20,
-    "thumb": "Ooey Gooey.png",
+    "thumb": "https://www.ka-farms.com/Ooey%20Gooey.png",
     "inventory": "By Order"
   },
   "chocChip": {
