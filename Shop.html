@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Shop – K&A Farms</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 <link rel="shortcut icon" type="image/x-icon" href="https://raw.githubusercontent.com/austinblack905-rgb/ka-farms/refs/heads/main/assets/KA_logo.png">
-<script src="js/Products.js"></script>
+<script src="https://www.ka-farms.com/js/Products.js"></script>
 <style>
 :root {--bg:#faf8f6;--ink:#1f2937;--muted:#667085;--brand:#a18c00;--accent:#fffce8;}
 *{box-sizing:border-box} html,body{margin:0}
@@ -24,12 +25,12 @@ header{background:#fff;border-bottom:1px solid #eee;position:sticky;top:0;z-inde
 @media (max-width:900px){.grid{grid-template-columns:1fr 1fr}}
 @media (max-width:600px){.grid{grid-template-columns:1fr}}
 .card{background:#fff;border:1px solid #eee;border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
-.pad{padding:14px}
+.pad{padding:14px;display:flex;flex-direction:column;flex:1}
 .kicker{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
 .price{font-weight:700}
 .btn{display:inline-flex;align-items:center;gap:6px;padding:10px 12px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;font-weight:700;cursor:pointer}
 .btn.primary{background:var(--brand);color:#fff;border-color:transparent}
-.controls{display:flex;align-items:center;gap:8px}
+.controls{display:flex;align-items:center;gap:8px;margin-top:auto}
 .step{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #e5e7eb;border-radius:10px;background:#fff;cursor:pointer;font-size:18px}
 .step:disabled{opacity:0.4;cursor:not-allowed}
 .qty{min-width:2ch;text-align:center;font-weight:700}
@@ -45,7 +46,7 @@ footer{background:#fff;border-top:1px solid #eee;padding:24px 18px;color:#6b7280
     <nav class="links">
       <a href="https://www.ka-farms.com/Shop" aria-current="page">Shop</a>
       <a href="https://www.ka-farms.com/cart" class="cartpill" title="View cart">
-        <span>Cart</span>
+        <span><i class="fa-solid fa-cart-shopping"></i></span>
         <b id="cartCount">0</b>
         <span>· $<span id="cartTotal">0.00</span></span>
       </a>
@@ -129,7 +130,7 @@ footer{background:#fff;border-top:1px solid #eee;padding:24px 18px;color:#6b7280
     </article>
     <!-- Ooey Gooey -->
     <article class="card">
-      <img src="Ooey Gooey.png" alt="Butter Cake">
+      <img src="https://www.ka-farms.com/Ooey%20Gooey.png" alt="Butter Cake">
       <div class="pad">
         <div class="kicker">Fresh Baked</div>
         <h2 style="margin:2px 0 6px;font-size:20px">Ooey Gooey Butter Cake <br><span class="badge">9x13 pan</span></h2>
@@ -155,7 +156,7 @@ footer{background:#fff;border-top:1px solid #eee;padding:24px 18px;color:#6b7280
           <button class="step" aria-label="Decrease" disabled>–</button>
           <span class="qty" aria-live="polite">0</span>
           <button class="step" aria-label="Increase" disabled>+</button>
-          <button class="btn primary" data-add>Add to cart</button18
+          <button class="btn primary" data-add>Add to cart</button>
         </div>
       </div>
     </article> 
@@ -237,25 +238,3 @@ document.getElementById('year').textContent = new Date().getFullYear();
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
