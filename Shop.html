@@ -25,13 +25,13 @@ header{background:#fff;border-bottom:1px solid #eee;position:sticky;top:0;z-inde
 @media (max-width:900px){.grid{grid-template-columns:1fr 1fr}}
 @media (max-width:600px){.grid{grid-template-columns:1fr}}
 .card{background:#fff;border:1px solid #eee;border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
-.card img {width:100%; height:200px;object-fit:cover;display:block}
+.card img {width:100%; height:300px;object-fit:cover;display:block}
 .pad{padding:14px;display:flex;flex-direction:column;flex:1}
 .kicker{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
-.price{font-weight:700}
+.price{display:flex;font-weight:700;margin-top:auto}
 .btn{display:inline-flex;align-items:center;gap:6px;padding:10px 12px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;font-weight:700;cursor:pointer}
 .btn.primary{background:var(--brand);color:#fff;border-color:transparent}
-.controls{display:flex;align-items:center;gap:8px;margin-top:auto}
+.controls{display:flex;align-items:center;gap:8px;}
 .step{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #e5e7eb;border-radius:10px;background:#fff;cursor:pointer;font-size:18px}
 .step:disabled{opacity:0.4;cursor:not-allowed}
 .qty{min-width:2ch;text-align:center;font-weight:700}
@@ -238,6 +238,7 @@ document.getElementById('year').textContent = new Date().getFullYear();
 </script>
 </body>
 </html>
+
 
 
 
