@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="shortcut icon" type="image/x-icon" href="https://raw.githubusercontent.com/austinblack905-rgb/ka-farms/refs/heads/main/assets/KA_logo.png">
 
-    <!-- Supabase client (replaces Products.js) -->
+    <!-- Supabase client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -225,6 +225,90 @@
         .muted {
             color: #6b7280;
         }
+
+        /* === Product modal === */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 50;
+        }
+
+            .modal-backdrop[hidden] {
+                display: none;
+            }
+
+        .modal {
+            max-width: 480px;
+            width: 100%;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25);
+            overflow: hidden;
+        }
+
+        .modal-body {
+            padding: 16px 16px 18px;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .modal-subtitle {
+            font-size: 13px;
+            color: var(--muted);
+            margin: 2px 0 0;
+        }
+
+        .modal-close {
+            border: none;
+            background: transparent;
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+            color: #9ca3af;
+        }
+
+        .modal-img {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 16px;
+            margin-bottom: 10px;
+        }
+
+        .modal-text {
+            font-size: 14px;
+            color: var(--muted);
+            margin: 0 0 12px;
+        }
+
+        .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .modal-price {
+            font-weight: 700;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
@@ -253,8 +337,7 @@
                 <div class="pad">
                     <div class="kicker">Farm-Fresh</div>
                     <h2 style="margin:2px 0 6px;font-size:20px">Eggs <span class="badge">Mixed sizes</span></h2>
-                    <p style="margin:0 0 10px;color:var(--muted)">Dozens include a natural mix of sizes with <strong>deep orange yolks</strong>. Gathered daily from free-roaming hens.</p>
-                    <p class="price">$ <span data-price="eggs">5.00</span> / dozen</p>
+                    <p class="price">$ <span data-price="eggs">5.00</span></p>
                     <div class="controls" data-key="eggs">
                         <button class="step" aria-label="Decrease" disabled>–</button>
                         <span class="qty" aria-live="polite">0</span>
@@ -270,8 +353,7 @@
                 <div class="pad">
                     <div class="kicker">Kitchen Tool</div>
                     <h2 style="margin:2px 0 6px;font-size:20px">Egg Scrubber</h2>
-                    <p style="margin:0 0 10px;color:var(--muted)">Soft, flexible bristles gently clean fresh eggs without damaging the shell.</p>
-                    <p class="price">$ <span data-price="scrubber">6.00</span> / each</p>
+                    <p class="price">$ <span data-price="scrubber">6.00</span></p>
                     <div class="controls" data-key="scrubber">
                         <button class="step" aria-label="Decrease" disabled>–</button>
                         <span class="qty" aria-live="polite">0</span>
@@ -287,8 +369,7 @@
                 <div class="pad">
                     <div class="kicker">Small-Batch</div>
                     <h2 style="margin:2px 0 6px;font-size:20px">Vanilla Extract <span class="badge">2 oz</span></h2>
-                    <p style="margin:0 0 10px;color:var(--muted)">Made with whole vanilla beans and simple ingredients, aged for smooth, fragrant flavor.</p>
-                    <p class="price">$ <span data-price="vanilla">5.00</span> / bottle</p>
+                    <p class="price">$ <span data-price="vanilla">5.00</span></p>
                     <div class="controls" data-key="vanilla">
                         <button class="step" aria-label="Decrease" disabled>–</button>
                         <span class="qty" aria-live="polite">0</span>
@@ -306,8 +387,7 @@
                 <div class="pad">
                     <div class="kicker">Fresh Baked</div>
                     <h2 style="margin:2px 0 6px;font-size:20px">Crinkle Cookies <span class="badge">24 ct</span></h2>
-                    <p style="margin:0 0 10px;color:var(--muted)">Made from scratch using real cocoa and simple ingredients.<br><small>Please allow 48 hours for order completion</small></p>
-                    <p class="price">$ <span data-price="crinkle">10.00</span> / 24 ct</p>
+                    <p class="price">$ <span data-price="crinkle">10.00</span></p>
                     <div class="controls" data-key="crinkle">
                         <button class="step" aria-label="Decrease" disabled>–</button>
                         <span class="qty" aria-live="polite">0</span>
@@ -323,8 +403,7 @@
                 <div class="pad">
                     <div class="kicker">Fresh Baked</div>
                     <h2 style="margin:2px 0 6px;font-size:20px">Ooey Gooey Butter Cake <br><span class="badge">9x13 pan</span></h2>
-                    <p style="margin:0 0 10px;color:var(--muted)">Baked to golden perfection, it’s dense yet pillowy, with a caramelized top and a custard-like center. Each bite is ultra-sweet, buttery, and irresistibly decadent</p>
-                    <p class="price">$ <span data-price="butterCake">20.00</span> / pan</p>
+                    <p class="price">$ <span data-price="butterCake">20.00</span></p>
                     <div class="controls" data-key="butterCake">
                         <button class="step" aria-label="Decrease" disabled>–</button>
                         <span class="qty" aria-live="polite">0</span>
@@ -340,8 +419,7 @@
                 <div class="pad">
                     <div class="kicker">Fresh Baked</div>
                     <h2 style="margin:2px 0 6px;font-size:20px">Chocolate Chip Cookies <span class="badge">18 ct</span></h2>
-                    <p style="margin:0 0 10px;color:var(--muted)">Soft-centered and golden-edged, these classic Chocolate Chip Cookies are baked fresh with real butter, pure vanilla, and creamy milk chocolate chips.</p>
-                    <p class="price">$ <span data-price="chocChip">12.00</span> / 18 ct</p>
+                    <p class="price">$ <span data-price="chocChip">12.00</span></p>
                     <div class="controls" data-key="chocChip">
                         <button class="step" aria-label="Decrease" disabled>–</button>
                         <span class="qty" aria-live="polite">0</span>
@@ -359,8 +437,7 @@
                 <div class="pad">
                     <div class="kicker">Fresh Baked</div>
                     <h2 style="margin:2px 0 6px;font-size:20px">Peanut Butter Cup Cookies<br> <span class="badge">24 ct</span></h2>
-                    <p style="margin:0 0 10px;color:var(--muted)">Each bite delivers the perfect blend of smooth chocolate and creamy peanut butter.</p>
-                    <p class="price">$ <span data-price="cupCookie">14.00</span> / 24 ct</p>
+                    <p class="price">$ <span data-price="cupCookie">14.00</span></p>
                     <div class="controls" data-key="cupCookie">
                         <button class="step" aria-label="Decrease" disabled>–</button>
                         <span class="qty" aria-live="polite">0</span>
@@ -379,12 +456,44 @@
         </div>
     </footer>
 
+    <!-- Modal -->
+    <div id="productModal" class="modal-backdrop" hidden>
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <div class="modal-body">
+                <div class="modal-header">
+                    <div>
+                        <h2 id="modalTitle" class="modal-title"></h2>
+                        <p id="modalSubtitle" class="modal-subtitle"></p>
+                    </div>
+                    <button type="button" class="modal-close" aria-label="Close">&times;</button>
+                </div>
+
+                <img id="modalImage" class="modal-img" src="" alt="" />
+
+                <p id="modalDescription" class="modal-text"></p>
+
+                <div class="modal-footer">
+
+                    <button class="step modal-step" aria-label="Decrease" disabled>–</button>
+                    <span class="qty modal-qty" aria-live="polite">0</span>
+                    <button class="step modal-step" aria-label="Increase" disabled>+</button>
+                    <div class="modal-price">
+                        $ <span id="modalPrice">0.00</span>
+                    </div>
+                    <button id="modalAddBtn" class="btn primary">
+                        Add to cart
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ==== CART + SUPABASE CONFIG ====
         const STORAGE_KEY = 'ka_cart';
         const PRICES = {}; // filled from Supabase
+        const DESCRIPTIONS = {}; // long text from Supabase
 
-        // TODO: fill these with your actual Supabase project values
         const SUPABASE_URL = 'https://mxuqexwylasphrnldhmx.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14dXFleHd5bGFzcGhybmxkaG14Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzOTQ3NzMsImV4cCI6MjA4MDk3MDc3M30.u1mS0rM6EWH5BlJ6qvz4bXRCy5LQSqaF_9R0eUlPuLc';
 
@@ -464,6 +573,154 @@
             });
         }
 
+        // ==== MODAL LOGIC ====
+        function initModals() {
+            const modal = document.getElementById('productModal');
+            const closeBtn = modal.querySelector('.modal-close');
+            const imgEl = document.getElementById('modalImage');
+            const titleEl = document.getElementById('modalTitle');
+            const subtitleEl = document.getElementById('modalSubtitle');
+            const descEl = document.getElementById('modalDescription');
+            const priceEl = document.getElementById('modalPrice');
+            const addBtn = document.getElementById('modalAddBtn');
+
+            // NEW: modal +/- and qty
+            const modalMinusBtn = modal.querySelectorAll('.modal-step')[0];
+            const modalPlusBtn = modal.querySelectorAll('.modal-step')[1];
+            const modalQtyEl = modal.querySelector('.modal-qty');
+
+            let currentKey = null;
+
+            function syncCardControls(key) {
+                const controls = document.querySelector(`.controls[data-key="${key}"]`);
+                if (!controls) return;
+
+                const qtyEl = controls.querySelector('.qty');
+                const minusBtn = controls.querySelectorAll('.step')[0];
+                const plusBtn = controls.querySelectorAll('.step')[1];
+
+                const qty = cart[key] || 0;
+                qtyEl.textContent = qty;
+                minusBtn.disabled = qty <= 0;
+                plusBtn.disabled = false;
+            }
+
+            function syncModalControls(key) {
+                const qty = cart[key] || 0;
+                modalQtyEl.textContent = qty;
+                modalMinusBtn.disabled = qty <= 0;
+                modalPlusBtn.disabled = false;
+            }
+
+            function openForCard(card) {
+                const controls = card.querySelector('.controls');
+                if (!controls) return;
+
+                const key = controls.dataset.key;
+                currentKey = key;
+
+                const img = card.querySelector('img');
+                const titleNode = card.querySelector('h2');
+                const badgeNode = titleNode.querySelector('.badge');
+
+                // Title: text without badge
+                const titleText = badgeNode
+                    ? titleNode.childNodes[0].textContent.trim()
+                    : titleNode.textContent.trim();
+
+                imgEl.src = img.src;
+                imgEl.alt = img.alt || titleText;
+                titleEl.textContent = titleText;
+
+                // Subtitle = badge text (if present)
+                subtitleEl.textContent = badgeNode ? badgeNode.textContent.trim() : '';
+
+                // Description: Pull from Supabase
+                const descText = DESCRIPTIONS[key] || '';
+                descEl.textContent = descText;
+
+                // Price from PRICES map (already in dollars)
+                priceEl.textContent = (PRICES[key] || 0).toFixed(2);
+
+                // Sync modal qty to current cart qty
+                syncModalControls(key);
+
+                modal.hidden = false;
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeModal() {
+                modal.hidden = true;
+                document.body.style.overflow = '';
+                currentKey = null;
+            }
+
+            // Close interactions
+            closeBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal(); // click on backdrop
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !modal.hidden) closeModal();
+            });
+
+            // NEW: modal minus
+            modalMinusBtn.addEventListener('click', () => {
+                if (!currentKey) return;
+                if (!cart[currentKey]) return;
+
+                cart[currentKey]--;
+                if (cart[currentKey] <= 0) {
+                    delete cart[currentKey];
+                }
+
+                saveCart(cart);
+                updateBadge();
+                syncModalControls(currentKey);
+                syncCardControls(currentKey);
+            });
+
+            // NEW: modal plus
+            modalPlusBtn.addEventListener('click', () => {
+                if (!currentKey) return;
+
+                cart[currentKey] = (cart[currentKey] || 0) + 1;
+
+                saveCart(cart);
+                updateBadge();
+                syncModalControls(currentKey);
+                syncCardControls(currentKey);
+            });
+
+            // Add to cart from modal (still adds +1)
+            addBtn.addEventListener('click', () => {
+                if (!currentKey) return;
+
+                cart[currentKey] = (cart[currentKey] || 0) + 1;
+
+                saveCart(cart);
+                updateBadge();
+                syncModalControls(currentKey);
+                syncCardControls(currentKey);
+            });
+
+            // Wire up click on each product card image + title
+            document.querySelectorAll('.card').forEach(card => {
+                const img = card.querySelector('img');
+                const title = card.querySelector('h2');
+
+                if (img) {
+                    img.style.cursor = 'pointer';
+                    img.addEventListener('click', () => openForCard(card));
+                }
+                if (title) {
+                    title.style.cursor = 'pointer';
+                    title.addEventListener('click', () => openForCard(card));
+                }
+            });
+        }
+
+
         // ==== LOAD PRICES FROM SUPABASE ====
         async function loadPricesFromSupabase() {
             const notice = document.getElementById('shopNotice');
@@ -472,7 +729,7 @@
 
             const { data, error } = await supabase
                 .from('products')
-                .select('id, price_cents');
+                .select('id, price_cents, description');
 
             if (error) {
                 console.error('Supabase error loading products:', error);
@@ -484,10 +741,11 @@
                 });
                 notice.textContent = 'Unable to load live prices from Supabase. Using fallback prices.';
             } else {
-                // Fill PRICES map from Supabase
+                // Fill PRICES map from Supabase (cents -> dollars)
                 data.forEach(p => {
-                    const priceNumber = Number(p.price_cents) || 0;
+                    const priceNumber = (Number(p.price_cents) || 0) / 100;
                     PRICES[p.id] = priceNumber;
+                    DESCRIPTIONS[p.id] = p.description || '';
                 });
 
                 // Update visible prices
@@ -498,11 +756,12 @@
                     }
                 });
 
-                notice.textContent = 'Prices loaded from Supabase.';
+                notice.style.display = "none";
             }
 
             updateBadge();
             initControls();
+            initModals();
         }
 
         document.getElementById('year').textContent = new Date().getFullYear();
