@@ -531,10 +531,11 @@ footer {background: #fff;border-top: 1px solid #eee;padding: 24px 18px;color: #6
 
             PRODUCTS = Object.fromEntries(data.map(p => [p.id, p]));
             PRICES = Object.fromEntries(
-                data.map(p => [p, id, (Number(p.price_cents) || 0) / 100])
+                data.map(p => [p.id, (Number(p.price_cents) || 0) / 100])
             );
             TITLES = Object.fromEntries(data.map(p => [p.id, p.title]));
             THUMBS = Object.fromEntries(data.map(p => [p.id, p.thumb || '']));
+
 
             render();
             document.getElementById('year').textContent = new Date().getFullYear();
