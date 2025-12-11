@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Cart – K&A Farms</title>
-<script src="https://www.ka-farms.com/js/Products.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 <link rel="shortcut icon" type="image/x-icon" href="https://raw.githubusercontent.com/austinblack905-rgb/ka-farms/refs/heads/main/assets/KA_logo.png">
@@ -64,433 +64,483 @@ footer {background: #fff;border-top: 1px solid #eee;padding: 24px 18px;color: #6
 </script>
 </head>
 <body>
-<header>
-  <div class="nav">
-    <div style="display:flex;align-items:center;gap:10px">
-      <a href="https://www.ka-farms.com" style="text-decoration:none;color:inherit"><strong>K&A Farms</strong></a>
-    </div>
-    <nav class="links">
-      <a href="https://www.ka-farms.com/Shop">Shop</a>
-      <a href="https://www.ka-farms.com/cart" class="cartpill" title="View cart">
-        <span><i class="fa-solid fa-cart-shopping"></i></span>
-        <b id="cartCount">0</b>
-        <span>· $<span id="cartTotal">0.00</span></span>
-      </a>
-    </nav>
-  </div>
-</header>
-
-<main class="container" style="flex:1">
-  <h1 class="h1">Your Cart</h1>
-  <div id="cartBox"></div>
-
-  <div class="grid2" style="margin-top:18px">
-    <section>
-      <div class="totals"><span>Order total</span><span>$ <span id="grand">0.00</span></span></div>
-      <p id="review" class="notice" style="margin-top:10px">Review your cart. Then add your details and click <strong>Continue to payment</strong>. We’ll save your order and show payment options (Cash App, Venmo, or Cash).</p>
-      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px">
-        <button id="clearBtn" class="btn danger">Clear cart</button>
-        <button id="toShop" class="btn">Continue shopping</button>
-      </div>
-    </section>
-
-    <section>
-      <div class="card" id="detailsCard">
-        <div class="pad">
-          <h2 style="margin:0 0 10px; font-size:18px">Your Details</h2>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
-            <div>
-              <label for="oName">Full name</label>
-              <input id="oName" placeholder="Jane Doe" required>
+    <header>
+        <div class="nav">
+            <div style="display:flex;align-items:center;gap:10px">
+                <a href="https://www.ka-farms.com" style="text-decoration:none;color:inherit"><strong>K&A Farms</strong></a>
             </div>
-            <div>
-              <label for="oPhone">Phone</label>
-              <input id="oPhone" placeholder="(555) 555-5555" required>
-            </div>
-          </div>
-          <div style="margin-top:12px">
-            <label for="oEmail">Email</label>
-            <input id="oEmail" type="email" placeholder="you@example.com" required>
-          </div>
-		  <div style="margin-top:12px;">
-			<label for="oDate">Pickup Date and Time</label>
-			<input id="oDate" type="datetime-local" required>
-		  </div>	
-          <div style="margin-top:12px">
-            <label for="oNotes">Notes (optional)</label>
-            <textarea id="oNotes" rows="3" placeholder="Preferred pickup time, directions, allergies, etc."></textarea>
-          </div>
-          <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap">
-            <button id="toPayBtn" class="btn primary">Continue to payment</button>
-          </div>
-          <p id="sendStatus" class="notice" style="margin-top:12px; display:none"></p>
+            <nav class="links">
+                <a href="https://www.ka-farms.com/Shop">Shop</a>
+                <a href="https://www.ka-farms.com/cart" class="cartpill" title="View cart">
+                    <span><i class="fa-solid fa-cart-shopping"></i></span>
+                    <b id="cartCount">0</b>
+                    <span>· $<span id="cartTotal">0.00</span></span>
+                </a>
+            </nav>
         </div>
-      </div>
+    </header>
 
-      <!-- Appears after successful email send -->
-      <div class="card" id="paymentCard" style="display:none">
-        <div class="pad" id="paymentInner"></div>
-      </div>
-    </section>
-  </div>
-</main>
+    <main class="container" style="flex:1">
+        <h1 class="h1">Your Cart</h1>
+        <div id="cartBox"></div>
 
-<footer>
-    <div class="container" style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
-        <span><span id="year"></span>K&A Farms</span>
-        <span class="muted">Private link — please don’t share publicly</span>
-    </div>
-</footer>
+        <div class="grid2" style="margin-top:18px">
+            <section>
+                <div class="totals"><span>Order total</span><span>$ <span id="grand">0.00</span></span></div>
+                <p id="review" class="notice" style="margin-top:10px">Review your cart. Then add your details and click <strong>Continue to payment</strong>. We’ll save your order and show payment options (Cash App, Venmo, or Cash).</p>
+                <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px">
+                    <button id="clearBtn" class="btn danger">Clear cart</button>
+                    <button id="toShop" class="btn">Continue shopping</button>
+                </div>
+            </section>
 
-<script>
-let pendingOrderPayload = null;
-let emailSent = false;
+            <section>
+                <div class="card" id="detailsCard">
+                    <div class="pad">
+                        <h2 style="margin:0 0 10px; font-size:18px">Your Details</h2>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
+                            <div>
+                                <label for="oName">Full name</label>
+                                <input id="oName" placeholder="Jane Doe" required>
+                            </div>
+                            <div>
+                                <label for="oPhone">Phone</label>
+                                <input id="oPhone" placeholder="(555) 555-5555" required>
+                            </div>
+                        </div>
+                        <div style="margin-top:12px">
+                            <label for="oEmail">Email</label>
+                            <input id="oEmail" type="email" placeholder="you@example.com" required>
+                        </div>
+                        <div style="margin-top:12px;">
+                            <label for="oDate">Pickup Date and Time</label>
+                            <input id="oDate" type="datetime-local" required>
+                        </div>
+                        <div style="margin-top:12px">
+                            <label for="oNotes">Notes (optional)</label>
+                            <textarea id="oNotes" rows="3" placeholder="Preferred pickup time, directions, allergies, etc."></textarea>
+                        </div>
+                        <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap">
+                            <button id="toPayBtn" class="btn primary">Continue to payment</button>
+                        </div>
+                        <p id="sendStatus" class="notice" style="margin-top:12px; display:none"></p>
+                    </div>
+                </div>
 
-// === CONFIG ===
-const STORAGE_KEY = 'ka_cart';
-const PRODUCTS = window.PRODUCTS;
-const TOTAL_KEY   = 'ka_cart_total';
-const PRICES = Object.fromEntries(
-    Object.entries(PRODUCTS).map(([k,v])=>[k,v.price])
-);
-const TITLES = Object.fromEntries(
-    Object.entries(PRODUCTS).map(([k,v])=>[k,v.title])
-);
-const THUMBS = Object.fromEntries(
-    Object.entries(PRODUCTS).map(([k,v])=>[k,v.thumb])
-);
+                <!-- Appears after successful email send -->
+                <div class="card" id="paymentCard" style="display:none">
+                    <div class="pad" id="paymentInner"></div>
+                </div>
+            </section>
+        </div>
+    </main>
 
-// Payment identities
-const CASH_TAG   = 'AustinBlack17';        // no $ here
-const VENMO_USER = 'Austin-Black-222';  // no @ here
+    <footer>
+        <div class="container" style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
+            <span><span id="year"></span>K&A Farms</span>
+            <span class="muted">Private link — please don’t share publicly</span>
+        </div>
+    </footer>
 
-// === CART UTIL ===
-function loadCart(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch{ return {}; } }
-function saveCart(c){ localStorage.setItem(STORAGE_KEY, JSON.stringify(c)); }
-function currency(n){ return (Math.round(n*100)/100).toFixed(2); }
-function itemsCount(c){ return Object.values(c).reduce((a,b)=>a+(b||0),0); }
-function total(c){ return Object.entries(c).reduce((s,[k,q])=> s + (PRICES[k]||0)*(q||0), 0); }
+    <script>
+        let pendingOrderPayload = null;
+        let emailSent = false;
 
-const cart = loadCart();
+        // === CONFIG ===
+        const STORAGE_KEY = 'ka_cart';
+        const TOTAL_KEY = 'ka_cart_total';
 
-// Header badge
-function updateBadge(){
-  document.getElementById('cartCount').textContent = itemsCount(cart);
-  document.getElementById('cartTotal').textContent = currency(total(cart));
-}
+        // Supabase config – FILL THESE IN
+        const SUPABASE_URL = 'https://mxuqexwylasphrnldhmx.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14dXFleHd5bGFzcGhybmxkaG14Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzOTQ3NzMsImV4cCI6MjA4MDk3MDc3M30.u1mS0rM6EWH5BlJ6qvz4bXRCy5LQSqaF_9R0eUlPuLc';
 
-// Order ID
-function orderId(){
-  const t=new Date();
-  return 'KA-'+t.getFullYear().toString().slice(-2)
-        +(t.getMonth()+1+'').padStart(2,'0')
-        +t.getDate().toString().padStart(2,'0')
-        +'-'+Math.random().toString(36).slice(2,6).toUpperCase();
-}
-let lastOrderId = orderId();
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Render cart lines
-function render(){
-  const box = document.getElementById('cartBox');
-  box.innerHTML = '';
+        // Product maps (filled from Supabase)
+        let PRODUCTS = {};
+        let PRICES = {};
+        let TITLES = {};
+        let THUMBS = {};
 
-  if(itemsCount(cart) === 0){
-    box.innerHTML = `<div class="empty">Your cart is empty. <a href='https://www.ka-farms.com/Shop'>Go to the shop</a>.</div>`;
-    document.getElementById('grand').textContent = '0.00';
-    localStorage.setItem(TOTAL_KEY, 0);
-    updateBadge();
-    return;
-  }
+        // Payment identities
+        const CASH_TAG = 'AustinBlack17';     // no $ here
+        const VENMO_USER = 'Austin-Black-222';  // no @ here
 
-  const head = document.createElement('div');
-  head.className = 'row head pad';
-  head.innerHTML = `<div>Item</div><div>Price</div><div>Qty</div><div>Line total</div><div></div>`;
-  box.appendChild(head);
+        // === CART UTIL ===
+        function loadCart() {
+            try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+            catch { return {}; }
+        }
+        function saveCart(c) { localStorage.setItem(STORAGE_KEY, JSON.stringify(c)); }
+        function currency(n) { return (Math.round(n * 100) / 100).toFixed(2); }
+        function itemsCount(c) { return Object.values(c).reduce((a, b) => a + (b || 0), 0); }
+        function total(c) {
+            return Object.entries(c).reduce((s, [k, q]) =>
+                s + (PRICES[k] || 0) * (q || 0), 0
+            );
+        }
 
-  Object.keys(cart).forEach(key => {
-    const qty = cart[key]||0; if(!qty) return;
-    const line = document.createElement('div');
-    line.className = 'row pad';
-    line.innerHTML = `
-      <div class="line"><img class="thumb" src="${THUMBS[key]||''}" alt="${TITLES[key]}"><div>${TITLES[key]}</div></div>
-      <div>$ ${currency(PRICES[key]||0)}</div>
-      <div class="actions" data-key="${key}">
-        <button class="step" aria-label="Decrease">–</button>
-        <strong class="qty">${qty}</strong>
-        <button class="step" aria-label="Increase">+</button>
-      </div>
-      <div class="money">$ <span class="lineTotal">${currency((PRICES[key]||0)*qty)}</span></div>
-      <div class="actions"><button class="btn danger" data-remove>Remove</button></div>`;
-    box.appendChild(line);
-  });
+        const cart = loadCart();
 
-  // +/- and remove
-  box.querySelectorAll('.actions').forEach(group => {
-    const key = group.dataset.key; if(!key) return;
-    const dec = group.querySelectorAll('.step')[0];
-    const inc = group.querySelectorAll('.step')[1];
-    const qtyEl = group.querySelector('.qty');
-    const lineTotalEl = group.parentElement.querySelector('.lineTotal');
+        // Header badge
+        function updateBadge() {
+            document.getElementById('cartCount').textContent = itemsCount(cart);
+            document.getElementById('cartTotal').textContent = currency(total(cart));
+        }
 
-    dec.addEventListener('click', ()=>{
-      cart[key] = Math.max(0,(cart[key]||0)-1);
-      if(cart[key]===0){ delete cart[key]; group.parentElement.remove(); }
-      qtyEl.textContent = cart[key]||0;
-      lineTotalEl.textContent = currency((PRICES[key]||0)*(cart[key]||0));
-      finalize();
-    });
-    inc.addEventListener('click', ()=>{
-      cart[key] = (cart[key]||0)+1;
-      qtyEl.textContent = cart[key];
-      lineTotalEl.textContent = currency((PRICES[key]||0)*(cart[key]||0));
-      finalize();
-    });
-  });
+        // Order ID
+        function orderId() {
+            const t = new Date();
+            return 'KA-' + t.getFullYear().toString().slice(-2)
+                + (t.getMonth() + 1 + '').padStart(2, '0')
+                + t.getDate().toString().padStart(2, '0')
+                + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
+        }
+        let lastOrderId = orderId();
 
-  box.querySelectorAll('[data-remove]').forEach(btn => {
-    btn.addEventListener('click', ()=>{
-      const row = btn.closest('.row');
-      const key = row.querySelector('.actions').dataset.key;
-      delete cart[key];
-      row.remove();
-      finalize();
-    });
-  });
+        // Render cart lines
+        function render() {
+            const box = document.getElementById('cartBox');
+            box.innerHTML = '';
 
-  finalize();
-}
+            if (itemsCount(cart) === 0) {
+                box.innerHTML = `<div class="empty">Your cart is empty. <a href='https://www.ka-farms.com/Shop'>Go to the shop</a>.</div>`;
+                document.getElementById('grand').textContent = '0.00';
+                localStorage.setItem(TOTAL_KEY, 0);
+                updateBadge();
+                return;
+            }
 
-function finalize(){
-  Object.keys(cart).forEach(k => { if(!cart[k]) delete cart[k]; });
-  saveCart(cart);
-  const g = total(cart);
-  document.getElementById('grand').textContent = currency(g);
-  localStorage.setItem(TOTAL_KEY, g);
-  updateBadge();
-}
+            const head = document.createElement('div');
+            head.className = 'row head pad';
+            head.innerHTML = `<div>Item</div><div>Price</div><div>Qty</div><div>Line total</div><div></div>`;
+            box.appendChild(head);
 
-function summaryLines(){
-  return Object.entries(cart)
-    .filter(([,q])=>q>0)
-    .map(([k,q])=>`• ${q}× ${TITLES[k]} @ $${(PRICES[k]||0).toFixed(2)}`)
-    .join('\n');
-}
+            Object.keys(cart).forEach(key => {
+                const qty = cart[key] || 0;
+                if (!qty) return;
 
-// ===== EMAILJS FLOW (stay on page) =====
-function prettyDate(iso) {
-  try { const d = new Date(iso); return d.toLocaleString([], { dateStyle:'medium', timeStyle:'short' }); }
-  catch { return ''; }
-}
+                const title = TITLES[key] || key;
+                const price = PRICES[key] || 0;
+                const thumb = THUMBS[key] || '';
 
-function cartTableHTML() {
-  const rows = Object.entries(cart)
-    .filter(([, q]) => q > 0)
-    .map(([k, q]) => {
-      const unit  = (PRICES[k]||0).toFixed(2);
-      const line  = (q * (PRICES[k]||0)).toFixed(2);
-      return `<tr>
-        <td style="padding:8px;border-top:1px solid #eee">${q}</td>
-        <td style="padding:8px;border-top:1px solid #eee">${TITLES[k]}</td>
-        <td style="padding:8px;border-top:1px solid #eee;text-align:right">$${unit}</td>
-        <td style="padding:8px;border-top:1px solid #eee;text-align:right">$${line}</td>
-      </tr>`;
-    }).join('');
-  if (!rows) return '';
-  return `<table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse">
-    <thead>
-      <tr>
-        <th align="left" style="padding:8px;border-bottom:1px solid #ddd">Qty</th>
-        <th align="left" style="padding:8px;border-bottom:1px solid #ddd">Item</th>
-        <th align="right" style="padding:8px;border-bottom:1px solid #ddd">Unit</th>
-        <th align="right" style="padding:8px;border-bottom:1px solid #ddd">Line</th>
-      </tr>
-    </thead>
-    <tbody>${rows}</tbody>
-  </table>`;
-}
+                const line = document.createElement('div');
+                line.className = 'row pad';
+                line.innerHTML = `
+          <div class="line">
+            <img class="thumb" src="${thumb}" alt="${title}">
+            <div>${title}</div>
+          </div>
+          <div>$ ${currency(price)}</div>
+          <div class="actions" data-key="${key}">
+            <button class="step" aria-label="Decrease">–</button>
+            <strong class="qty">${qty}</strong>
+            <button class="step" aria-label="Increase">+</button>
+          </div>
+          <div class="money">$ <span class="lineTotal">${currency(price * qty)}</span></div>
+          <div class="actions"><button class="btn danger" data-remove>Remove</button></div>`;
+                box.appendChild(line);
+            });
 
-function buildOrderPayload(generatedId) {
-  const name   = document.getElementById('oName').value.trim();
-  const email  = document.getElementById('oEmail').value.trim();
-  const phone  = document.getElementById('oPhone').value.trim();
-  const notes  = document.getElementById('oNotes').value.trim();
-  const date   = document.getElementById('oDate').value.trim();
-  const totalStr = document.getElementById('grand').textContent;
+            // +/- and remove
+            box.querySelectorAll('.actions').forEach(group => {
+                const key = group.dataset.key;
+                if (!key) return;
 
-  return {
-    order_id: generatedId,
-    name, email, phone,
-    pickup_iso: date,
-    pickup_pretty: prettyDate(date),
-    notes,
-    items_text: Object.entries(cart)
-      .filter(([, q]) => q > 0)
-      .map(([k, q]) => `${q} × ${TITLES[k]} @ $${(PRICES[k]||0).toFixed(2)}`)
-      .join('\n'),
-    cart_table_html: cartTableHTML(),
-    total: totalStr,
-    created_at: new Date().toLocaleString()
-  };
-}
+                const dec = group.querySelectorAll('.step')[0];
+                const inc = group.querySelectorAll('.step')[1];
+                const qtyEl = group.querySelector('.qty');
+                const lineTotalEl = group.parentElement.querySelector('.lineTotal');
 
+                dec.addEventListener('click', () => {
+                    cart[key] = Math.max(0, (cart[key] || 0) - 1);
+                    if (cart[key] === 0) {
+                        delete cart[key];
+                        group.parentElement.remove();
+                    }
+                    qtyEl.textContent = cart[key] || 0;
+                    lineTotalEl.textContent = currency((PRICES[key] || 0) * (cart[key] || 0));
+                    finalize();
+                });
 
-async function sendOrderEmail(payload) {
-  const templateParams = {
-    order_id: payload.order_id,
-    name: payload.name,
-    email: payload.email,
-    phone: payload.phone,
-    pickup_iso: payload.pickup_iso,
-    pickup_pretty: payload.pickup_pretty,
-    notes: payload.notes || '—',
-    items_text: payload.items_text,
-    cart_table_html: payload.cart_table_html,
-    total: payload.total,
-    created_at: payload.created_at,
-    payment_method: payload.payment_method || ''
-  };
+                inc.addEventListener('click', () => {
+                    cart[key] = (cart[key] || 0) + 1;
+                    qtyEl.textContent = cart[key];
+                    lineTotalEl.textContent = currency((PRICES[key] || 0) * cart[key]);
+                    finalize();
+                });
+            });
 
-  return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
-}
+            box.querySelectorAll('[data-remove]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const row = btn.closest('.row');
+                    const key = row.querySelector('.actions').dataset.key;
+                    delete cart[key];
+                    row.remove();
+                    finalize();
+                });
+            });
 
-async function handlePaymentChoice(methodLabel, afterSend) {
-  if (!pendingOrderPayload) {
-    alert('Something went wrong: no pending order found.');
-    return;
-  }
+            finalize();
+        }
 
-  // If we've already sent the email once, just proceed
-  if (emailSent) {
-    afterSend();
-    return;
-  }
+        function finalize() {
+            Object.keys(cart).forEach(k => { if (!cart[k]) delete cart[k]; });
+            saveCart(cart);
+            const g = total(cart);
+            document.getElementById('grand').textContent = currency(g);
+            localStorage.setItem(TOTAL_KEY, g);
+            updateBadge();
+        }
 
-  const statusEl = document.getElementById('sendStatus');
-  statusEl.style.display = 'block';
-  statusEl.textContent = `Saving your order with payment method: ${methodLabel}…`;
+        function summaryLines() {
+            return Object.entries(cart)
+                .filter(([, q]) => q > 0)
+                .map(([k, q]) => `• ${q}× ${TITLES[k] || k} @ $${(PRICES[k] || 0).toFixed(2)}`)
+                .join('\n');
+        }
 
-  try {
-    const payloadWithMethod = {
-      ...pendingOrderPayload,
-      payment_method: methodLabel
-    };
-    await sendOrderEmail(payloadWithMethod);
-    emailSent = true;
-    statusEl.textContent = `Order ${pendingOrderPayload.order_id} saved with payment method: ${methodLabel}.`;
-    afterSend();
-  } catch (err) {
-    console.error(err);
-    statusEl.textContent = 'Could not save your order with payment method. Please try again or email kafarmsorders@gmail.com.';
-  }
-}
+        // ===== EMAILJS FLOW (stay on page) =====
+        function prettyDate(iso) {
+            try {
+                const d = new Date(iso);
+                return d.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+            } catch {
+                return '';
+            }
+        }
 
+        function cartTableHTML() {
+            const rows = Object.entries(cart)
+                .filter(([, q]) => q > 0)
+                .map(([k, q]) => {
+                    const unit = (PRICES[k] || 0).toFixed(2);
+                    const line = (q * (PRICES[k] || 0)).toFixed(2);
+                    return `<tr>
+            <td style="padding:8px;border-top:1px solid #eee">${q}</td>
+            <td style="padding:8px;border-top:1px solid #eee">${TITLES[k] || k}</td>
+            <td style="padding:8px;border-top:1px solid #eee;text-align:right">$${unit}</td>
+            <td style="padding:8px;border-top:1px solid #eee;text-align:right">$${line}</td>
+          </tr>`;
+                }).join('');
+            if (!rows) return '';
+            return `<table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr>
+            <th align="left" style="padding:8px;border-bottom:1px solid #ddd">Qty</th>
+            <th align="left" style="padding:8px;border-bottom:1px solid #ddd">Item</th>
+            <th align="right" style="padding:8px;border-bottom:1px solid #ddd">Unit</th>
+            <th align="right" style="padding:8px;border-bottom:1px solid #ddd">Line</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+        }
 
-// ===== PAYMENT SCREEN =====
-function openCashAppWithTotal(total, note) {
-  // Cash App cannot prefill note; we display/copy it instead
-  const amount = Number(total).toFixed(2);
-  const url = `https://cash.app/$${CASH_TAG}`;
-  window.location.href = url;
-}
+        function buildOrderPayload(generatedId) {
+            const name = document.getElementById('oName').value.trim();
+            const email = document.getElementById('oEmail').value.trim();
+            const phone = document.getElementById('oPhone').value.trim();
+            const notes = document.getElementById('oNotes').value.trim();
+            const date = document.getElementById('oDate').value.trim();
+            const totalStr = document.getElementById('grand').textContent;
 
-function openVenmoWithTotal(total, note) {
-  const amount = Number(total).toFixed(2);
-  const encodedNote = encodeURIComponent(note || '');
-  const url = `https://venmo.com/u/${VENMO_USER}?txn=pay&amount=${amount}&note=${encodedNote}`;
-  window.location.href = url;
-}
+            return {
+                order_id: generatedId,
+                name, email, phone,
+                pickup_iso: date,
+                pickup_pretty: prettyDate(date),
+                notes,
+                items_text: Object.entries(cart)
+                    .filter(([, q]) => q > 0)
+                    .map(([k, q]) => `${q} × ${TITLES[k] || k} @ $${(PRICES[k] || 0).toFixed(2)}`)
+                    .join('\n'),
+                cart_table_html: cartTableHTML(),
+                total: totalStr,
+                created_at: new Date().toLocaleString()
+            };
+        }
 
-function renderPaymentScreen(orderId, customerName, payload) {
-  document.getElementById('detailsCard').style.display = 'none';
-  document.getElementById('review').style.display = 'none';
+        async function sendOrderEmail(payload) {
+            const templateParams = {
+                order_id: payload.order_id,
+                name: payload.name,
+                email: payload.email,
+                phone: payload.phone,
+                pickup_iso: payload.pickup_iso,
+                pickup_pretty: payload.pickup_pretty,
+                notes: payload.notes || '—',
+                items_text: payload.items_text,
+                cart_table_html: payload.cart_table_html,
+                total: payload.total,
+                created_at: payload.created_at,
+                payment_method: payload.payment_method || ''
+            };
 
-  const payCard = document.getElementById('paymentCard');
-  const inner   = document.getElementById('paymentInner');
-  const total   = document.getElementById('grand').textContent;
-  const noteStr = `Order ${orderId} • ${customerName}`;
+            return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+        }
 
-  inner.innerHTML = `
-	<p class="notice" style="margin:0 0 12px">
-	  Pickup: <strong>${payload.pickup_pretty}</strong><br>
-	  <span class="small">Include this note with payment:</span>
-	  <br>
-	  <br>
-	  <span class="code">${noteStr}</span>
-	</p>
+        async function handlePaymentChoice(methodLabel, afterSend) {
+            if (!pendingOrderPayload) {
+                alert('Something went wrong: no pending order found.');
+                return;
+            }
 
-    <div style="display:grid; gap:10px">
-      <button class="btn cashapp" id="btnCashApp">Pay with $CashApp</button>
-      <button class="btn venmo" id="btnVenmo">Pay with Venmo</button>
-	  <button class="btn primary" id="btnCash">Pay with Cash</button>
-      <div id="thanks" class="notice" style="display:none;">
-       Thank you for your order! 
-	   We’ll confirm your pickup time by text/email.
-      </div>
-    </div>
-  `;
-  payCard.style.display = 'block';
+            // If we've already sent the email once, just proceed
+            if (emailSent) {
+                afterSend();
+                return;
+            }
 
-document.getElementById('btnCashApp').onclick = () =>
-  handlePaymentChoice('Cash App', () => openCashAppWithTotal(total, noteStr));
+            const statusEl = document.getElementById('sendStatus');
+            statusEl.style.display = 'block';
+            statusEl.textContent = `Saving your order with payment method: ${methodLabel}…`;
 
-document.getElementById('btnVenmo').onclick = () =>
-  handlePaymentChoice('Venmo', () => openVenmoWithTotal(total, noteStr));
-  
-document.getElementById('btnCash').onclick = () =>
-	handlePaymentChoice('Cash', () => {document.getElementById('thanks').style.display = 'block'});
+            try {
+                const payloadWithMethod = {
+                    ...pendingOrderPayload,
+                    payment_method: methodLabel
+                };
+                await sendOrderEmail(payloadWithMethod);
+                emailSent = true;
+                statusEl.textContent = `Order ${pendingOrderPayload.order_id} saved with payment method: ${methodLabel}.`;
+                afterSend();
+            } catch (err) {
+                console.error(err);
+                statusEl.textContent = 'Could not save your order with payment method. Please try again or email kafarmsorders@gmail.com.';
+            }
+        }
 
-}
+        // ===== PAYMENT SCREEN =====
+        function openCashAppWithTotal(total, note) {
+            const amount = Number(total).toFixed(2);
+            const url = `https://cash.app/$${CASH_TAG}`;
+            window.location.href = url;
+        }
 
-// ===== BUTTONS =====
-document.getElementById('toPayBtn').addEventListener('click', ()=>{
-  if (itemsCount(cart) === 0) { alert('Your cart is empty.'); return; }
+        function openVenmoWithTotal(total, note) {
+            const amount = Number(total).toFixed(2);
+            const encodedNote = encodeURIComponent(note || '');
+            const url = `https://venmo.com/u/${VENMO_USER}?txn=pay&amount=${amount}&note=${encodedNote}`;
+            window.location.href = url;
+        }
 
-  const name  = document.getElementById('oName').value.trim();
-  const email = document.getElementById('oEmail').value.trim();
-  const phone = document.getElementById('oPhone').value.trim();
-  const date  = document.getElementById('oDate').value.trim();
+        function renderPaymentScreen(orderId, customerName, payload) {
+            document.getElementById('detailsCard').style.display = 'none';
+            document.getElementById('review').style.display = 'none';
 
-  if (!name || !email || !phone) {
-    alert('Please fill in your name, email, and phone.');
-    return;
-  }
-  if (!date) {
-    alert('Please choose a pickup date/time');
-    return;
-  }
+            const payCard = document.getElementById('paymentCard');
+            const inner = document.getElementById('paymentInner');
+            const total = document.getElementById('grand').textContent;
+            const noteStr = `Order ${orderId} • ${customerName}`;
 
-  const id = lastOrderId;
-  const payload = buildOrderPayload(id);
-  pendingOrderPayload = payload;     // save for later
-  emailSent = false;                 // reset flag if they come back/retry
+            inner.innerHTML = `
+        <p class="notice" style="margin:0 0 12px">
+          Pickup: <strong>${payload.pickup_pretty}</strong><br>
+          <span class="small">Include this note with payment:</span>
+          <br><br>
+          <span class="code">${noteStr}</span>
+        </p>
 
-  const statusEl = document.getElementById('sendStatus');
-  statusEl.style.display = 'block';
-  statusEl.textContent = 'Order details ready. Choose a payment method below to finish.';
+        <div style="display:grid; gap:10px">
+          <button class="btn cashapp" id="btnCashApp">Pay with $CashApp</button>
+          <button class="btn venmo" id="btnVenmo">Pay with Venmo</button>
+          <button class="btn primary" id="btnCash">Pay with Cash</button>
+          <div id="thanks" class="notice" style="display:none;">
+           Thank you for your order!
+           We’ll confirm your pickup time by text/email.
+          </div>
+        </div>
+      `;
+            payCard.style.display = 'block';
 
-  // Go straight to payment screen (no email yet)
-  renderPaymentScreen(id, name, payload);
+            document.getElementById('btnCashApp').onclick = () =>
+                handlePaymentChoice('Cash App', () => openCashAppWithTotal(total, noteStr));
 
-  // Optionally disable the details button so they don't double-start the flow
-  document.getElementById('toPayBtn').disabled = true;
-});
+            document.getElementById('btnVenmo').onclick = () =>
+                handlePaymentChoice('Venmo', () => openVenmoWithTotal(total, noteStr));
 
+            document.getElementById('btnCash').onclick = () =>
+                handlePaymentChoice('Cash', () => {
+                    document.getElementById('thanks').style.display = 'block';
+                });
+        }
 
-document.getElementById('clearBtn').addEventListener('click', ()=>{
-  localStorage.removeItem(STORAGE_KEY);
-  localStorage.setItem(TOTAL_KEY, 0);
-  Object.keys(cart).forEach(k=>delete cart[k]);
-  render();
-});
+        // ===== BUTTONS =====
+        document.getElementById('toPayBtn').addEventListener('click', () => {
+            if (itemsCount(cart) === 0) {
+                alert('Your cart is empty.');
+                return;
+            }
 
-document.getElementById('toShop').addEventListener('click', ()=>{
-  window.location.href = 'https://www.ka-farms.com/Shop';
-});
+            const name = document.getElementById('oName').value.trim();
+            const email = document.getElementById('oEmail').value.trim();
+            const phone = document.getElementById('oPhone').value.trim();
+            const date = document.getElementById('oDate').value.trim();
 
-// Init
-render();
-updateBadge();
-document.getElementById('year').textContent = new Date().getFullYear();
-</script>
+            if (!name || !email || !phone) {
+                alert('Please fill in your name, email, and phone.');
+                return;
+            }
+            if (!date) {
+                alert('Please choose a pickup date/time');
+                return;
+            }
+
+            const id = lastOrderId;
+            const payload = buildOrderPayload(id);
+            pendingOrderPayload = payload;
+            emailSent = false;
+
+            const statusEl = document.getElementById('sendStatus');
+            statusEl.style.display = 'block';
+            statusEl.textContent = 'Order details ready. Choose a payment method below to finish.';
+
+            renderPaymentScreen(id, name, payload);
+            document.getElementById('toPayBtn').disabled = true;
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.setItem(TOTAL_KEY, 0);
+            Object.keys(cart).forEach(k => delete cart[k]);
+            render();
+        });
+
+        document.getElementById('toShop').addEventListener('click', () => {
+            window.location.href = 'https://www.ka-farms.com/Shop';
+        });
+
+        // === SUPABASE LOAD ===
+        async function fetchProductsAndInit() {
+            const box = document.getElementById('cartBox');
+            box.innerHTML = `<div class="empty">Loading your cart…</div>`;
+
+            const { data, error } = await supabase
+                .from('products')
+                .select('id, title, price_cents, thumb');
+
+            if (error) {
+                console.error('Error loading products from Supabase', error);
+                box.innerHTML = `<div class="empty">Could not load product data. Please refresh or try again later.</div>`;
+                document.getElementById('grand').textContent = '0.00';
+                localStorage.setItem(TOTAL_KEY, 0);
+                updateBadge();
+                return;
+            }
+
+            PRODUCTS = Object.fromEntries(data.map(p => [p.id, p]));
+            PRICES = Object.fromEntries(data.map(p => [p.id, p.price_cents]));
+            TITLES = Object.fromEntries(data.map(p => [p.id, p.title]));
+            THUMBS = Object.fromEntries(data.map(p => [p.id, p.thumb || '']));
+
+            render();
+            document.getElementById('year').textContent = new Date().getFullYear();
+        }
+
+        // Init
+        fetchProductsAndInit();
+    </script>
+
 </body>
 </html>
