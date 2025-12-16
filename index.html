@@ -27,6 +27,32 @@
     h2{margin-top:0;color:var(--brand);}
     footer{background:#fff;border-top:1px solid #eee;padding:24px 20px;text-align:center;color:var(--muted);}
     img.hero-img{width:100%;max-width:800px;border-radius:16px;margin:30px auto;display:block;}
+      .snowcap::before {
+          content: "";
+          position: absolute;
+          left: -8%;
+          top: -14px;
+          width: 116%;
+          height: 30px;
+          background: rgba(255,255,255,0.96);
+          border-radius: 999px;
+          transform: rotate(-1.5deg);
+          box-shadow: 0 8px 12px rgba(0,0,0,0.08), inset 0 -6px 10px rgba(0,0,0,0.06);
+          pointer-events: none;
+      }
+
+      /* little snow bumps */
+      .snowcap::after {
+          content: "";
+          position: absolute;
+          left: 10%;
+          top: -6px;
+          width: 80%;
+          height: 26px;
+          background: radial-gradient(circle at 12% 60%, rgba(255,255,255,1) 0 10px, transparent 11px), radial-gradient(circle at 32% 30%, rgba(255,255,255,1) 0 12px, transparent 13px), radial-gradient(circle at 55% 55%, rgba(255,255,255,1) 0 9px, transparent 10px), radial-gradient(circle at 78% 35%, rgba(255,255,255,1) 0 11px, transparent 12px);
+          filter: drop-shadow(0 2px 2px rgba(0,0,0,0.08));
+          pointer-events: none;
+      }
   </style>
 </head>
 <body>
@@ -39,7 +65,7 @@
   <section class="hero">
     <img src="https://www.ka-farms.com/assets/KA_logo_xmas.png" alt="K&A Farms banner image" class="hero-img">
     <p>Our family homestead offers <strong>farm-fresh eggs</strong> with deep orange yolks, <strong>homemade vanilla extract</strong>, and small-batch seasonal goods made with care. We keep things simple, local, and full of heart.</p>
-    <a class="btn" href="https:\\www.ka-farms.com\Shop">Visit the Shop</a>
+    <a id="btn" class="btn" href="https:\\www.ka-farms.com\Shop">Visit the Shop</a>
   </section>
 
   <main>
@@ -105,114 +131,131 @@
 
     // Footer year
       document.getElementById('year').textContent = new Date().getFullYear();
-    // Snow
-    (function () {
+      (function () {
+          // ✅ Set your window (YYYY-MM-DD). END is inclusive.
+          const START = "2025-12-01";
+          const END = "2026-01-05";
 
-        const START = "2025-12-01";
-        const END = "2026-01-31";
+          function inWindowLocal(startYmd, endYmd) {
+              const now = new Date();
+              const start = new Date(startYmd + "T00:00:00");
+              const end = new Date(endYmd + "T23:59:59");
+              return now >= start && now <= end;
+          }
 
-        function inWindowLocal(startYmd, endYmd) {
-            const now = new Date();
-            const start = new Date(startYmd + "T00:00:00");
-            const end = new Date(endYmd + "T23:59:59");
-            return now >= start && now <= end;
-        }
+          function applySnowcap(enabled) {
+              const btn = document.getElementById("btn");
+              if (!btn) return;
+              btn.classList.toggle("snowcap", enabled);
+          }
 
-        if (!inWindowLocal(START, END)) return;
+          let snow = null;
 
-        // --- Snow canvas setup ---
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        canvas.style.position = "fixed";
-        canvas.style.left = "0";
-        canvas.style.top = "0";
-        canvas.style.width = "100%";
-        canvas.style.height = "100%";
-        canvas.style.pointerEvents = "none";
-        canvas.style.zIndex = "9999";
-        document.body.appendChild(canvas);
+          function startSnowfall() {
+              if (snow) return; // already running
 
-        function resize() {
-            const dpr = window.devicePixelRatio || 1;
-            canvas.width = Math.floor(window.innerWidth * dpr);
-            canvas.height = Math.floor(window.innerHeight * dpr);
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        }
-        resize();
-        window.addEventListener("resize", resize);
+              // --- Canvas setup ---
+              const canvas = document.createElement("canvas");
+              const ctx = canvas.getContext("2d");
 
-        // --- Snow particles ---
-        const COUNT = 220; // more flakes
-        const flakes = Array.from({ length: COUNT }, () => ({
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
-            r: 2 + Math.random() * 4,   // bigger flakes
-            vx: -0.4 + Math.random() * 0.8,
-            vy: 1.2 + Math.random() * 2.2, // slightly faster
-            wobble: Math.random() * Math.PI * 2,
-        }));
+              canvas.style.position = "fixed";
+              canvas.style.left = "0";
+              canvas.style.top = "0";
+              canvas.style.width = "100%";
+              canvas.style.height = "100%";
+              canvas.style.pointerEvents = "none";
+              canvas.style.zIndex = "999999"; // above all
+              document.body.appendChild(canvas);
 
+              // IMPORTANT: canvas resize resets context styles (iOS issue) -> re-apply styles after resize.
+              function applySnowStyle() {
+                  ctx.fillStyle = "rgba(255,255,255,1)";
+                  ctx.shadowColor = "rgba(255,255,255,0.9)";
+                  ctx.shadowBlur = 8;
+              }
 
+              function resize() {
+                  const dpr = window.devicePixelRatio || 1;
+                  canvas.width = Math.floor(window.innerWidth * dpr);
+                  canvas.height = Math.floor(window.innerHeight * dpr);
+                  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                  applySnowStyle(); // ✅ fixes “snow turns black after scroll/resize”
+              }
+              resize();
 
-        let running = true;
-        function tick() {
-            if (!running) return;
-            ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+              // iOS Safari often fires resize while scrolling (address bar). This is why we must re-apply style.
+              window.addEventListener("resize", resize);
 
-            for (const f of flakes) {
-                f.wobble += 0.02;
-                f.x += f.vx + Math.sin(f.wobble) * 0.4;
-                f.y += f.vy;
+              // --- Particles ---
+              const COUNT = 220; // denser so it's easier to see
+              const flakes = Array.from({ length: COUNT }, () => ({
+                  x: Math.random() * window.innerWidth,
+                  y: Math.random() * window.innerHeight,
+                  r: 2 + Math.random() * 4,
+                  vx: -0.4 + Math.random() * 0.8,
+                  vy: 1.2 + Math.random() * 2.2,
+                  wobble: Math.random() * Math.PI * 2,
+              }));
 
-                // wrap around
-                if (f.y > window.innerHeight + 10) {
-                    f.y = -10;
-                    f.x = Math.random() * window.innerWidth;
-                }
-                if (f.x > window.innerWidth + 10) f.x = -10;
-                if (f.x < -10) f.x = window.innerWidth + 10;
+              let running = true;
 
-                ctx.beginPath();
-                ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-                ctx.fill();
-            }
+              function tick() {
+                  if (!running) return;
 
-            requestAnimationFrame(tick);
-        }
+                  applySnowStyle();
 
-        // default fill color (white)
-        ctx.fillStyle = "rgba(255,255,255,1)";
-        ctx.shadowColor = "rgba(255,255,255,0.9)";
-        ctx.shadowBlur = 8;
-        tick();
+                  ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
-        // Optional: stop after leaving the window (if page stays open past midnight)
-        setInterval(() => {
-            if (!inWindowLocal(START, END)) {
-                running = false;
-                canvas.remove();
-            }
-        }, 60_000);
-    })();
+                  for (const f of flakes) {
+                      f.wobble += 0.02;
+                      f.x += f.vx + Math.sin(f.wobble) * 0.45;
+                      f.y += f.vy;
 
-      function applySnowStyle() {
-          ctx.fillStyle = "rgba(255.255.255.1)";
-          ctx.shadowColor = "rgba(255.255.255.0.9)";
-          ctx.shadowBlur = 8;
-      }
+                      // wrap
+                      if (f.y > window.innerHeight + 12) {
+                          f.y = -12;
+                          f.x = Math.random() * window.innerWidth;
+                      }
+                      if (f.x > window.innerWidth + 12) f.x = -12;
+                      if (f.x < -12) f.x = window.innerWidth + 12;
 
-      function resize() {
-          const dpr = window.devicePixelRatio || 1;
-          canvas.width = Math.floor(window.innerWidh * dpr);
-          canvas.height = Math.floor(window.innerHeight * dpr);
-          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                      ctx.beginPath();
+                      ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+                      ctx.fill();
+                  }
 
-          applySnowStyle();
-      }
+                  requestAnimationFrame(tick);
+              }
+              tick();
 
+              snow = {
+                  stop() {
+                      running = false;
+                      window.removeEventListener("resize", resize);
+                      canvas.remove();
+                      snow = null;
+                  }
+              };
+          }
 
-      applySnowStyle();
+          function syncHolidayMode() {
+              const enabled = inWindowLocal(START, END);
+              applySnowcap(enabled);
 
+              if (enabled) {
+                  startSnowfall();
+              } else if (snow) {
+                  snow.stop();
+              }
+          }
+
+          // Initial sync
+          syncHolidayMode();
+
+          // Optional: if the page stays open across midnight, update within a minute.
+          setInterval(syncHolidayMode, 60_000);
+      })();
   </script>
 </body>
 </html>
+
