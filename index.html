@@ -194,6 +194,25 @@
             }
         }, 60_000);
     })();
+
+      function applySnowStyle() {
+          ctx.fillStyle = "rgba(255.255.255.1)";
+          ctx.shadowColor = "rgba(255.255.255.0.9)";
+          ctx.shadowBlur = 8;
+      }
+
+      function resize() {
+          const dpr = window.devicePixelRatio || 1;
+          canvas.width = Math.floor(window.innerWidh * dpr);
+          canvas.height = Math.floor(window.innerHeight * dpr);
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+          applySnowStyle();
+      }
+
+
+      applySnowStyle();
+
   </script>
 </body>
 </html>
