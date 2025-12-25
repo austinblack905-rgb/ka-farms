@@ -1,0 +1,499 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>K&A Farms – Raccoon Hunt</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    #game-container {
+      margin-top: 20px;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 16px;
+      max-width: 900px;
+      width: 100%;
+      position: relative; /* needed so overlay centers over this area */
+    }
+
+    #game-container h2 {
+      margin: 0 0 8px;
+    }
+
+    #hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 14px;
+      flex-wrap: wrap;
+      gap: 4px 8px;
+    }
+
+    #hud span {
+      margin-right: 12px;
+    }
+
+    #startButton {
+      margin-top: 8px;
+      padding: 8px 16px;
+      border-radius: 4px;
+      border: none;
+      background: #2f855a;
+      color: #ffffff;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    #startButton:disabled {
+      background: #a0aec0;
+      cursor: default;
+    }
+
+    #raccoonGame {
+      display: block;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      background: linear-gradient(#87ceeb, #87ceeb 55%, #228b22 55%, #228b22); /* sky + grass */
+      cursor: none; /* we draw our own crosshair */
+      max-width: 100%;
+    }
+
+    @media (max-width: 600px) {
+      #raccoonGame {
+        width: 100%;
+        height: auto;
+      }
+    }
+
+    /* === Round summary modal === */
+    .hidden {
+      display: none;
+    }
+
+    #summaryOverlay {
+      position: absolute;  /* overlay is over the game container, not full viewport */
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    #summaryModal {
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 20px 24px;
+      max-width: 360px;
+      width: 90%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+
+    #summaryModal h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+
+    #summaryStats {
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    #summaryStats p {
+      margin: 4px 0;
+    }
+
+    #summaryButtons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .summary-btn {
+      padding: 6px 12px;
+      border-radius: 4px;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    #playAgainButton {
+      background: #2f855a;
+      color: #ffffff;
+    }
+
+    #closeSummaryButton {
+      background: #e2e8f0;
+      color: #2d3748;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <h2>K&A Farms: Raccoon Hunt</h2>
+    <div id="hud">
+      <div>
+        <span>Score: <strong id="score">0</strong></span>
+        <span>Shots: <strong id="shots">0</strong>/<span id="maxShots">10</span></span>
+        <span>Raccoons Escaped: <strong id="escaped">0</strong></span>
+      </div>
+      <div>
+        <span>Round Time: <strong id="timeLeft">30.0</strong>s</span>
+      </div>
+    </div>
+
+    <canvas id="raccoonGame" width="800" height="450"></canvas>
+    <button id="startButton">Start Round</button>
+
+    <!-- Round summary popup (now visually tied to the game container) -->
+    <div id="summaryOverlay" class="hidden">
+      <div id="summaryModal">
+        <h3>Round Complete</h3>
+        <div id="summaryStats">
+          <p>Score: <strong id="summaryScore">0</strong></p>
+          <p>Shots used: <strong id="summaryShots">0</strong>/<span id="summaryMaxShots">10</span></p>
+          <p>Raccoons escaped: <strong id="summaryEscaped">0</strong></p>
+        </div>
+        <div id="summaryButtons">
+          <button id="closeSummaryButton" class="summary-btn" type="button">Close</button>
+          <button id="playAgainButton" class="summary-btn" type="button">Play Again</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const canvas = document.getElementById("raccoonGame");
+      const ctx = canvas.getContext("2d");
+
+      const scoreEl = document.getElementById("score");
+      const shotsEl = document.getElementById("shots");
+      const maxShotsEl = document.getElementById("maxShots");
+      const escapedEl = document.getElementById("escaped");
+      const timeLeftEl = document.getElementById("timeLeft");
+      const startButton = document.getElementById("startButton");
+
+      // Summary modal elements
+      const summaryOverlay = document.getElementById("summaryOverlay");
+      const summaryScoreEl = document.getElementById("summaryScore");
+      const summaryShotsEl = document.getElementById("summaryShots");
+      const summaryMaxShotsEl = document.getElementById("summaryMaxShots");
+      const summaryEscapedEl = document.getElementById("summaryEscaped");
+      const closeSummaryButton = document.getElementById("closeSummaryButton");
+      const playAgainButton = document.getElementById("playAgainButton");
+
+      // Game config
+      const ROUND_DURATION = 30_000; // 30 seconds
+      const MAX_SHOTS = 10;
+      const SPAWN_INTERVAL_START = 1200; // ms between spawns at start
+      const SPAWN_INTERVAL_MIN = 500;    // faster as time passes
+      const RACCOON_RADIUS = 25;
+      const RACCOON_SPEED_MIN = 100;     // pixels / second
+      const RACCOON_SPEED_MAX = 220;
+
+      // Game state
+      let raccoons = [];
+      let score = 0;
+      let shots = 0;
+      let escaped = 0;
+      let lastTime = 0;
+      let roundStartTime = 0;
+      let lastSpawnTime = 0;
+      let roundActive = false;
+
+      let mouseX = canvas.width / 2;
+      let mouseY = canvas.height / 2;
+
+      maxShotsEl.textContent = MAX_SHOTS.toString();
+      summaryMaxShotsEl.textContent = MAX_SHOTS.toString();
+
+      function resetGameState() {
+        raccoons = [];
+        score = 0;
+        shots = 0;
+        escaped = 0;
+        lastTime = 0;
+        roundStartTime = performance.now();
+        lastSpawnTime = roundStartTime;
+        roundActive = true;
+        updateHUD(ROUND_DURATION);
+      }
+
+      function updateHUD(remainingMs) {
+        scoreEl.textContent = score.toString();
+        shotsEl.textContent = shots.toString();
+        escapedEl.textContent = escaped.toString();
+        const t = Math.max(remainingMs, 0) / 1000;
+        timeLeftEl.textContent = t.toFixed(1);
+      }
+
+      function startRound() {
+        hideSummary();       // ensure modal is gone
+        resetGameState();
+        startButton.disabled = true;
+        requestAnimationFrame(gameLoop);
+      }
+
+      startButton.addEventListener("click", startRound);
+
+      // Mouse / touch for aiming and shooting
+      canvas.addEventListener("mousemove", (e) => {
+        const rect = canvas.getBoundingClientRect();
+        mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
+        mouseY = (e.clientY - rect.top) * (canvas.height / rect.height);
+      });
+
+      canvas.addEventListener("click", (e) => {
+        handleShot(e.clientX, e.clientY);
+      });
+
+      canvas.addEventListener("touchstart", (e) => {
+        const touch = e.touches[0];
+        handleShot(touch.clientX, touch.clientY);
+      });
+
+      function handleShot(clientX, clientY) {
+        if (!roundActive) return;
+        if (shots >= MAX_SHOTS) return;
+
+        shots++;
+
+        const rect = canvas.getBoundingClientRect();
+        const x = (clientX - rect.left) * (canvas.width / rect.width);
+        const y = (clientY - rect.top) * (canvas.height / rect.height);
+
+        // Check for hit: first raccoon under crosshair
+        for (let i = 0; i < raccoons.length; i++) {
+          const r = raccoons[i];
+          if (!r.alive) continue;
+          const dx = x - r.x;
+          const dy = y - r.y;
+          if (Math.hypot(dx, dy) <= RACCOON_RADIUS) {
+            r.alive = false;
+            r.hit = true;
+            score += 10;
+            break;
+          }
+        }
+      }
+
+function spawnRaccoon(now) {
+        const elapsed = now - roundStartTime;
+        const progress = Math.min(elapsed / ROUND_DURATION, 1);
+        const spawnInterval = SPAWN_INTERVAL_START - (SPAWN_INTERVAL_START - SPAWN_INTERVAL_MIN) * progress;
+
+        if (now - lastSpawnTime >= spawnInterval) {
+          lastSpawnTime = now;
+
+          const fromLeft = Math.random() < 0.5;
+
+          // === Only spawn in the grass area ===
+          // CSS gradient splits at 55%: sky (0–55%), grass (55–100%)
+          const grassTop = canvas.height * 0.55;
+          const minY = grassTop + RACCOON_RADIUS;
+          const maxY = canvas.height - RACCOON_RADIUS;
+          const y = minY + Math.random() * (maxY - minY);
+
+          const speed = RACCOON_SPEED_MIN + Math.random() * (RACCOON_SPEED_MAX - RACCOON_SPEED_MIN);
+          const vx = fromLeft ? speed : -speed;
+          const x = fromLeft ? -RACCOON_RADIUS : canvas.width + RACCOON_RADIUS;
+
+          raccoons.push({
+            x,
+            y,
+            vx,
+            radius: RACCOON_RADIUS,
+            alive: true,
+            hit: false
+          });
+        }
+      }
+
+      function update(dt) {
+        const dtSeconds = dt / 1000;
+
+        for (let i = raccoons.length - 1; i >= 0; i--) {
+          const r = raccoons[i];
+
+          if (r.alive) {
+            r.x += r.vx * dtSeconds;
+
+            // Off-screen
+            if (r.x < -r.radius || r.x > canvas.width + r.radius) {
+              r.alive = false;
+              if (!r.hit) {
+                escaped++;
+              }
+            }
+          } else {
+            // Already dead, fade out quickly (optional)
+            r.y += 80 * dtSeconds;
+            r.radius *= 0.95;
+            if (r.radius < 5) {
+              raccoons.splice(i, 1);
+            }
+          }
+        }
+      }
+
+      function drawBackground() {
+        // Background is mostly handled by CSS gradient on the canvas,
+        // but you can add extra details here (trees, barn, etc.)
+        ctx.save();
+        ctx.fillStyle = "#8b0000";
+        const barnWidth = 120;
+        const barnHeight = 100;
+        const barnX = canvas.width - barnWidth - 40;
+        const barnY = canvas.height - barnHeight - 20;
+        ctx.fillRect(barnX, barnY, barnWidth, barnHeight);
+        ctx.beginPath();
+        ctx.moveTo(barnX, barnY);
+        ctx.lineTo(barnX + barnWidth / 2, barnY - 40);
+        ctx.lineTo(barnX + barnWidth, barnY);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function drawRaccoons() {
+        for (const r of raccoons) {
+          if (r.alive) {
+            // Placeholder: gray circle with mask-like face
+            ctx.save();
+            ctx.beginPath();
+            ctx.fillStyle = "#555";
+            ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Face mask
+            ctx.fillStyle = "#333";
+            ctx.beginPath();
+            ctx.ellipse(r.x, r.y, r.radius * 0.9, r.radius * 0.5, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Eyes
+            ctx.fillStyle = "#fff";
+            ctx.beginPath();
+            ctx.arc(r.x - r.radius * 0.35, r.y, r.radius * 0.18, 0, Math.PI * 2);
+            ctx.arc(r.x + r.radius * 0.35, r.y, r.radius * 0.18, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = "#000";
+            ctx.beginPath();
+            ctx.arc(r.x - r.radius * 0.35, r.y, r.radius * 0.08, 0, Math.PI * 2);
+            ctx.arc(r.x + r.radius * 0.35, r.y, r.radius * 0.08, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          } else if (r.hit) {
+            // Hit raccoon falling / fading
+            ctx.save();
+            ctx.globalAlpha = Math.max(r.radius / RACCOON_RADIUS, 0);
+            ctx.fillStyle = "#444";
+            ctx.beginPath();
+            ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
+        }
+      }
+
+      function drawCrosshair() {
+        ctx.save();
+        ctx.strokeStyle = "red";
+        ctx.lineWidth = 2;
+        const size = 18;
+        ctx.beginPath();
+        ctx.arc(mouseX, mouseY, size, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(mouseX - size - 4, mouseY);
+        ctx.lineTo(mouseX - 4, mouseY);
+        ctx.moveTo(mouseX + size + 4, mouseY);
+        ctx.lineTo(mouseX + 4, mouseY);
+        ctx.moveTo(mouseX, mouseY - size - 4);
+        ctx.lineTo(mouseX, mouseY - 4);
+        ctx.moveTo(mouseX, mouseY + size + 4);
+        ctx.lineTo(mouseX, mouseY + 4);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function gameLoop(timestamp) {
+        if (!roundActive) return;
+
+        if (!lastTime) lastTime = timestamp;
+        const dt = timestamp - lastTime;
+        lastTime = timestamp;
+
+        const elapsed = timestamp - roundStartTime;
+        const remaining = ROUND_DURATION - elapsed;
+
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // End-of-round conditions
+        if (remaining <= 0 || shots >= MAX_SHOTS) {
+          update(dt);
+          drawBackground();
+          drawRaccoons();
+          drawCrosshair();
+          updateHUD(0);
+          endRound();
+          return;
+        }
+
+        spawnRaccoon(timestamp);
+        update(dt);
+
+        // Draw
+        drawBackground();
+        drawRaccoons();
+        drawCrosshair();
+
+        updateHUD(remaining);
+
+        requestAnimationFrame(gameLoop);
+      }
+
+      function showSummary() {
+        summaryScoreEl.textContent = score.toString();
+        summaryShotsEl.textContent = shots.toString();
+        summaryEscapedEl.textContent = escaped.toString();
+        summaryOverlay.style.display = "flex";
+      }
+
+      function hideSummary() {
+        summaryOverlay.style.display = "none";
+      }
+
+      function endRound() {
+        roundActive = false;
+        startButton.disabled = false;
+        showSummary();
+      }
+
+      closeSummaryButton.addEventListener("click", () => {
+        hideSummary();
+      });
+
+      playAgainButton.addEventListener("click", () => {
+        hideSummary();
+        startRound();
+      });
+    })();
+  </script>
+</body>
+</html>
