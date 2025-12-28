@@ -519,34 +519,41 @@ footer {background: #fff;border-top: 1px solid #eee;padding: 24px 18px;color: #6
         });
 
         // === SUPABASE LOAD ===
-        async function fetchProductsAndInit() {
-            const box = document.getElementById('cartBox');
-            box.innerHTML = `<div class="empty">Loading your cart…</div>`;
-
-            const { data, error } = await supabase
-                .from('products')
-                .select('id, title, price_cents, thumb');
-
-            if (error) {
-                console.error('Error loading products from Supabase', error);
-                box.innerHTML = `<div class="empty">Could not load product data. Please refresh or try again later.</div>`;
-                document.getElementById('grand').textContent = '0.00';
-                localStorage.setItem(TOTAL_KEY, 0);
-                updateBadge();
-                return;
-            }
-
-            PRODUCTS = Object.fromEntries(data.map(p => [p.id, p]));
-            PRICES = Object.fromEntries(
-                data.map(p => [p.id, (Number(p.price_cents) || 0) / 100])
-            );
-            TITLES = Object.fromEntries(data.map(p => [p.id, p.title]));
-            THUMBS = Object.fromEntries(data.map(p => [p.id, p.thumb || '']));
-
-
-            render();
-            document.getElementById('year').textContent = new Date().getFullYear();
-        }
+      async function fetchProductsAndInit() {
+          const box = document.getElementById('cartBox');
+          box.innerHTML = `<div class="empty">Loading your cart…</div>`;
+      
+          // If Supabase SDK or client isn't available, render cart with $0 prices
+          if (!supabaseClient) {
+              console.error('Supabase client not available; rendering cart with no price data.');
+              // PRICES/TITLES stay empty, but we can still show items & qty (totals will be $0.00)
+              render();
+              document.getElementById('year').textContent = new Date().getFullYear();
+              return;
+          }
+      
+          const { data, error } = await supabaseClient
+              .from('products')
+              .select('id, title, price_cents, thumb');
+      
+          if (error) {
+              console.error('Error loading products from Supabase', error);
+              box.innerHTML = `<div class="empty">Could not load product data. Please refresh or try again later.</div>`;
+              document.getElementById('grand').textContent = '0.00';
+              localStorage.setItem(TOTAL_KEY, 0);
+              updateBadge();
+              document.getElementById('year').textContent = new Date().getFullYear();
+              return;
+          }
+      
+          PRODUCTS = Object.fromEntries(data.map(p => [p.id, p]));
+          PRICES   = Object.fromEntries(data.map(p => [p.id, (Number(p.price_cents) || 0) / 100]));
+          TITLES   = Object.fromEntries(data.map(p => [p.id, p.title]));
+          THUMBS   = Object.fromEntries(data.map(p => [p.id, p.thumb || '']));
+      
+          render();
+          document.getElementById('year').textContent = new Date().getFullYear();
+      }
 
           // Footer year
       document.getElementById('year').textContent = new Date().getFullYear();
@@ -681,5 +688,6 @@ footer {background: #fff;border-top: 1px solid #eee;padding: 24px 18px;color: #6
 
 </body>
 </html>
+
 
 
