@@ -498,7 +498,13 @@
         const SUPABASE_URL = 'https://mxuqexwylasphrnldhmx.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14dXFleHd5bGFzcGhybmxkaG14Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzOTQ3NzMsImV4cCI6MjA4MDk3MDc3M30.u1mS0rM6EWH5BlJ6qvz4bXRCy5LQSqaF_9R0eUlPuLc';
 
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let supabaseClient = null;
+
+        if (window.supabase && typeof window.supabase.createClient === 'function') {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } else {
+        console.error('Supabase JS SDK not available; using static prices from HTML.');
+        }
 
         // ==== CART HELPERS ====
         function loadCart() {
@@ -724,46 +730,62 @@
 
         // ==== LOAD PRICES FROM SUPABASE ====
         async function loadPricesFromSupabase() {
-            const notice = document.getElementById('shopNotice');
-            notice.style.display = 'block';
-            notice.textContent = 'Loading live prices…';
-
-            const { data, error } = await supabase
-                .from('products')
-                .select('id, price_cents, description');
-
-            if (error) {
-                console.error('Supabase error loading products:', error);
-                // Fallback: read prices from HTML spans
-                document.querySelectorAll('[data-price]').forEach(span => {
-                    const key = span.dataset.price;
-                    const val = parseFloat(span.textContent);
-                    if (!isNaN(val)) PRICES[key] = val;
-                });
-                notice.textContent = 'Unable to load live prices from Supabase. Using fallback prices.';
-            } else {
-                // Fill PRICES map from Supabase (cents -> dollars)
-                data.forEach(p => {
-                    const priceNumber = (Number(p.price_cents) || 0) / 100;
-                    PRICES[p.id] = priceNumber;
-                    DESCRIPTIONS[p.id] = p.description || '';
-                });
-
-                // Update visible prices
-                document.querySelectorAll('[data-price]').forEach(span => {
-                    const key = span.dataset.price;
-                    if (key in PRICES) {
-                        span.textContent = PRICES[key].toFixed(2);
-                    }
-                });
-
-                notice.style.display = "none";
-            }
-
+        const notice = document.getElementById('shopNotice');
+        notice.style.display = 'block';
+        notice.textContent = 'Loading live prices…';
+        
+        // If Supabase didn’t load, fall back to the prices in the HTML
+        if (!supabaseClient) {
+            document.querySelectorAll('[data-price]').forEach(span => {
+                const key = span.dataset.price;
+                const val = parseFloat(span.textContent);
+                if (!isNaN(val)) PRICES[key] = val;
+            });
+        
+            notice.textContent = 'Using local fallback prices.';
             updateBadge();
             initControls();
             initModals();
+            return;
         }
+        
+        const { data, error } = await supabaseClient
+            .from('products')
+            .select('id, price_cents, description');
+        
+        if (error) {
+            console.error('Supabase error loading products:', error);
+            // Fallback: read prices from HTML spans
+            document.querySelectorAll('[data-price]').forEach(span => {
+                const key = span.dataset.price;
+                const val = parseFloat(span.textContent);
+                if (!isNaN(val)) PRICES[key] = val;
+            });
+            notice.textContent = 'Unable to load live prices from Supabase. Using fallback prices.';
+        } else {
+            // Fill PRICES map from Supabase (cents -> dollars)
+            data.forEach(p => {
+                const priceNumber = (Number(p.price_cents) || 0) / 100;
+                PRICES[p.id] = priceNumber;
+                DESCRIPTIONS[p.id] = p.description || '';
+            });
+        
+            // Update visible prices
+            document.querySelectorAll('[data-price]').forEach(span => {
+                const key = span.dataset.price;
+                if (key in PRICES) {
+                    span.textContent = PRICES[key].toFixed(2);
+                }
+            });
+        
+            notice.style.display = "none";
+        }
+        
+        updateBadge();
+        initControls();
+        initModals();
+        }
+
 
         document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -776,6 +798,7 @@
     </script>
 </body>
 </html>
+
 
 
 
