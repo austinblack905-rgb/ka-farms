@@ -6,55 +6,9 @@
 <title>Cart – K&A Farms</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://www.ka-farms.com/css/cartstyle.css" />  
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 <link rel="shortcut icon" type="image/x-icon" href="https://raw.githubusercontent.com/austinblack905-rgb/ka-farms/refs/heads/main/assets/KA_logo.png">
-<style>
-html,body {height:100%}
-:root {--bg:#faf8f6;--ink:#1f2937;--muted:#667085;--brand:#a18c00;--accent:#fffce8}
-*{box-sizing:border-box} html,body{margin:0}
-body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column}
-header{background:#fff;border-bottom:1px solid #eee;position:sticky;top:0;z-index:10}
-.nav{max-width:1000px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.links{display:flex;align-items:center;gap:14px}
-.links a{color:var(--ink);text-decoration:none;font-weight:600}
-.links a:hover{color:var(--brand)}
-.cartpill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #eee;border-radius:999px;background:#fff}
-.cartpill b{min-width:2ch;display:inline-block;text-align:right}
-.container{max-width:1000px;margin:0 auto;padding:28px 18px}
-.h1{font-size:28px;font-weight:700;margin:0 0 10px}
-.card{background:#fff;border:1px solid #eee;border-radius:16px}
-.pad{padding:14px}
-.row{display:grid;grid-template-columns:1.4fr .9fr .9fr .9fr .6fr;gap:12px;align-items:center}
-@media (max-width:780px){.row{grid-template-columns:1.4fr .9fr .9fr 1fr}}
-.head{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.step{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #e5e7eb;border-radius:10px;background:#fff;cursor:pointer;font-size:18px}
-.qty{min-width:2ch;text-align:center;font-weight:700}
-.line{display:flex;align-items:center;gap:10px}
-.thumb{width:56px;height:56px;border-radius:10px;border:1px solid #eee;object-fit:cover;background:#fff}
-.money{font-weight:700}
-.actions{display:flex;gap:8px;align-items:center}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 12px;border-radius:12px;border:1px solid var(--brand);background:#fff; color:var(--brand); font-weight:700;cursor:pointer}
-.btn:hover {background:var(--brand); color:#fff;}
-.btn.primary{background:var(--brand);color:#fff;border:1px solid var(--brand);}
-.btn.primary:hover {background:#fff; color:var(--brand);}
-.btn.danger{border-color:#b91c1c;background:#fff;color:#b91c1c}
-.btn.danger:hover {background:#b91c1c; color:#fff;}
-.btn.cashapp {background-color:#00CF31; color:#fff; border:1px solid #00CF31;}
-.btn.cashapp:hover {background:#fff; color:#00CF31;}
-.btn.venmo {background-color:#008cff; color:#fff; border:1px solid #008cff;}
-.btn.venmo:hover {background:#fff; color:#008cff;}
-.notice{padding:12px 14px;border:1px dashed #e5e7eb;border-radius:12px;background:#fff;color:var(--muted)}
-.totals{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid #eee;border-radius:12px;background:#fff;font-weight:700}
-.grid2{display:grid;grid-template-columns:1fr 360px;gap:18px}
-@media (max-width:900px){.grid2{grid-template-columns:1fr}}
-.empty{padding:20px;border:1px dashed #e5e7eb;border-radius:12px;background:#fff;text-align:center}
-label{font-weight:700; font-size:14px}
-input,select,textarea{width:100%; padding:12px 14px; border-radius:12px; border:1px solid #e5e7eb; background:#fff}
-.small{font-size:12px;color:var(--muted)}
-footer {background: #fff;border-top: 1px solid #eee;padding: 24px 18px;color: #6b7280;margin-bottom:0}
-.code{font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; background:#fff; border:1px solid #eee; border-radius:10px; padding:8px}
-</style>
-
 <!-- EmailJS (client-side mail) -->
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
@@ -141,7 +95,9 @@ footer {background: #fff;border-top: 1px solid #eee;padding: 24px 18px;color: #6
             <span class="muted">Private link — please don’t share publicly</span>
         </div>
     </footer>
-
+    <!--Snow Filter-->
+    <script src="https://www.ka-farms.com/js/Snow.js"></script>
+    <!--Main Script-->
     <script>
         let pendingOrderPayload = null;
         let emailSent = false;
@@ -555,139 +511,13 @@ footer {background: #fff;border-top: 1px solid #eee;padding: 24px 18px;color: #6
           document.getElementById('year').textContent = new Date().getFullYear();
       }
 
-          // Footer year
-      document.getElementById('year').textContent = new Date().getFullYear();
-      (function () {
-          // ✅ Set your window (YYYY-MM-DD). END is inclusive.
-          const START = "2025-12-01";
-          const END = "2026-01-05";
-
-          function inWindowLocal(startYmd, endYmd) {
-              const now = new Date();
-              const start = new Date(startYmd + "T00:00:00");
-              const end = new Date(endYmd + "T23:59:59");
-              return now >= start && now <= end;
-          }
-
-          function applySnowcap(enabled) {
-              const btn = document.getElementById("btn");
-              if (!btn) return;
-              btn.classList.toggle("snowcap", enabled);
-          }
-
-          let snow = null;
-
-          function startSnowfall() {
-              if (snow) return; // already running
-
-              // --- Canvas setup ---
-              const canvas = document.createElement("canvas");
-              const ctx = canvas.getContext("2d");
-
-              canvas.style.position = "fixed";
-              canvas.style.left = "0";
-              canvas.style.top = "0";
-              canvas.style.width = "100%";
-              canvas.style.height = "100%";
-              canvas.style.pointerEvents = "none";
-              canvas.style.zIndex = "999999"; // above all
-              document.body.appendChild(canvas);
-
-              // IMPORTANT: canvas resize resets context styles (iOS issue) -> re-apply styles after resize.
-              function applySnowStyle() {
-                  ctx.fillStyle = "rgba(255,255,255,1)";
-                  ctx.shadowColor = "rgba(255,255,255,0.9)";
-                  ctx.shadowBlur = 8;
-              }
-
-              function resize() {
-                  const dpr = window.devicePixelRatio || 1;
-                  canvas.width = Math.floor(window.innerWidth * dpr);
-                  canvas.height = Math.floor(window.innerHeight * dpr);
-                  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-                  applySnowStyle(); // ✅ fixes “snow turns black after scroll/resize”
-              }
-              resize();
-
-              // iOS Safari often fires resize while scrolling (address bar). This is why we must re-apply style.
-              window.addEventListener("resize", resize);
-
-              // --- Particles ---
-              const COUNT = 220; // denser so it's easier to see
-              const flakes = Array.from({ length: COUNT }, () => ({
-                  x: Math.random() * window.innerWidth,
-                  y: Math.random() * window.innerHeight,
-                  r: 2 + Math.random() * 4,
-                  vx: -0.4 + Math.random() * 0.8,
-                  vy: 1.2 + Math.random() * 2.2,
-                  wobble: Math.random() * Math.PI * 2,
-              }));
-
-              let running = true;
-
-              function tick() {
-                  if (!running) return;
-
-                  applySnowStyle();
-
-                  ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-
-                  for (const f of flakes) {
-                      f.wobble += 0.02;
-                      f.x += f.vx + Math.sin(f.wobble) * 0.45;
-                      f.y += f.vy;
-
-                      // wrap
-                      if (f.y > window.innerHeight + 12) {
-                          f.y = -12;
-                          f.x = Math.random() * window.innerWidth;
-                      }
-                      if (f.x > window.innerWidth + 12) f.x = -12;
-                      if (f.x < -12) f.x = window.innerWidth + 12;
-
-                      ctx.beginPath();
-                      ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-                      ctx.fill();
-                  }
-
-                  requestAnimationFrame(tick);
-              }
-              tick();
-
-              snow = {
-                  stop() {
-                      running = false;
-                      window.removeEventListener("resize", resize);
-                      canvas.remove();
-                      snow = null;
-                  }
-              };
-          }
-
-          function syncHolidayMode() {
-              const enabled = inWindowLocal(START, END);
-              applySnowcap(enabled);
-
-              if (enabled) {
-                  startSnowfall();
-              } else if (snow) {
-                  snow.stop();
-              }
-          }
-
-          // Initial sync
-          syncHolidayMode();
-
-          // Optional: if the page stays open across midnight, update within a minute.
-          setInterval(syncHolidayMode, 60_000);
-      })();
-
         // Init
         fetchProductsAndInit();
     </script>
 
 </body>
 </html>
+
 
 
 
