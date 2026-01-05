@@ -8,7 +8,7 @@ header{background:#fff;border-bottom:1px solid #eee;position:sticky;top:0;z-inde
 .links a:hover{color:var(--brand)}
 .cartpill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #eee;border-radius:999px;background:#fff}
 .cartpill b{min-width:2ch;display:inline-block;text-align:right}
-.hero{background:linear-gradient(180deg,#be0101 0%,transparent 100%);padding:80px 20px;text-align:center;}
+.hero{background:linear-gradient(180deg,var(--muted) 0%,transparent 100%);padding:80px 20px;text-align:center;}
 .hero h1{font-size:48px;margin:0 0 12px;}
 .hero p{max-width:700px;margin:0 auto 20px;color:var(--muted);font-size:18px;}
 .btn{background:var(--brand);color:#fff;padding:12px 22px;border:none;border-radius:10px;font-weight:600;cursor:pointer;text-decoration:none;}
@@ -17,4 +17,5 @@ main{max-width:900px;margin:auto;padding:40px 20px;}
 section{margin-bottom:40px;}
 h2{margin-top:0;color:var(--brand);}
 footer{background:#fff;border-top:1px solid #eee;padding:24px 20px;text-align:center;color:var(--muted);}
+
 img.hero-img{width:100%;max-width:800px;border-radius:16px;margin:30px auto;display:block;}
