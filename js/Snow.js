@@ -3,7 +3,7 @@
       (function () {
           // ✅ Set your window (YYYY-MM-DD). END is inclusive.
           const START = "2025-12-01";
-          const END = "2026-01-05";
+          const END = "2026-01-01";
 
           function inWindowLocal(startYmd, endYmd) {
               const now = new Date();
