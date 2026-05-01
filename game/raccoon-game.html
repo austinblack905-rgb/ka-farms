@@ -416,6 +416,7 @@ function drawBackground(){
   ctx.fillStyle=v;
   ctx.fillRect(0,0,canvas.width,canvas.height);
 }
+function drawCrosshair(){ctx.save();ctx.strokeStyle="rgba(255,255,255,.85)";ctx.lineWidth=3;const size=18,gap=9;ctx.beginPath();ctx.moveTo(mouseX-size-gap,mouseY);ctx.lineTo(mouseX-gap,mouseY);ctx.moveTo(mouseX+gap,mouseY);ctx.lineTo(mouseX+size+gap,mouseY);ctx.moveTo(mouseX,mouseY-size-gap);ctx.lineTo(mouseX,mouseY-gap);ctx.moveTo(mouseX,mouseY+gap);ctx.lineTo(mouseX,mouseY+size+gap);ctx.stroke();ctx.fillStyle="rgba(255,255,255,.9)";ctx.beginPath();ctx.arc(mouseX,mouseY,2.5,0,Math.PI*2);ctx.fill();ctx.restore()}
 
 function drawRaccoons(){
   // Fallback only: if the 3D raccoon model has not loaded, keep simple 2D targets visible.
@@ -473,7 +474,6 @@ function drawRaccoons(){
 
 function drawScreenFlash(){if(screenFlashTimer<=0)return;const a=Math.max(screenFlashTimer/38,0)*.18;ctx.save();ctx.fillStyle=`rgba(255,235,170,${a})`;ctx.fillRect(0,0,canvas.width,canvas.height);ctx.restore()}
 function drawDamageFlash(){if(damageFlashTimer<=0)return;const a=Math.max(damageFlashTimer/170,0)*.36;ctx.save();ctx.fillStyle=`rgba(255,0,0,${a})`;ctx.fillRect(0,0,canvas.width,canvas.height);ctx.restore()}
-function drawCrosshair(){ctx.save();ctx.strokeStyle="rgba(255,255,255,.85)";ctx.lineWidth=3;const size=18,gap=9;ctx.beginPath();ctx.moveTo(mouseX-size-gap,mouseY);ctx.lineTo(mouseX-gap,mouseY);ctx.moveTo(mouseX+gap,mouseY);ctx.lineTo(mouseX+size+gap,mouseY);ctx.moveTo(mouseX,mouseY-size-gap);ctx.lineTo(mouseX,mouseY-gap);ctx.moveTo(mouseX,mouseY+gap);ctx.lineTo(mouseX,mouseY+size+gap);ctx.stroke();ctx.fillStyle="rgba(255,255,255,.9)";ctx.beginPath();ctx.arc(mouseX,mouseY,2.5,0,Math.PI*2);ctx.fill();ctx.restore()}
 function drawScene(){ctx.clearRect(0,0,canvas.width,canvas.height);drawBackground();drawRaccoons();
                      //drawMuzzleFlash();
                      drawScreenFlash();drawDamageFlash();drawCrosshair();updateHUD()}
