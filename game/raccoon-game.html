@@ -59,9 +59,28 @@ body{margin:0;min-height:100vh;background:#050505;display:flex;justify-content:c
 <div id="endOverlay"><div id="endTitle">SUMMARY</div><div id="endStats"><div>SCORE<strong id="summaryScore">0</strong></div><div>SHOTS HIT<strong id="summaryShotsHit">0</strong></div><div>SHOTS MISSED<strong id="summaryShotsMissed">0</strong></div><div>HEALTH REMAINING<div id="summaryHealthText">❤️❤️❤️</div></div></div><div id="endButtons"><button id="closeSummaryButton" class="summary-btn secondary" type="button">MENU</button><button id="playAgainButton" class="summary-btn" type="button">PLAY AGAIN</button></div></div>
 </div>
 
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
 <script type="module">
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
-import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+
+const DEBUG_THREE = true;
+window.addEventListener("error", (e) => {
+  console.error("Runtime error:", e.message, e.error);
+  try { drawScene(); } catch (_) {}
+});
+window.addEventListener("unhandledrejection", (e) => {
+  console.error("Unhandled promise rejection:", e.reason);
+  try { drawScene(); } catch (_) {}
+});
 
 const canvas=document.getElementById("raccoonGame"),ctx=canvas.getContext("2d");
 const gunCanvas=document.getElementById("gunCanvas");
@@ -125,7 +144,7 @@ new GLTFLoader().load("m2HeavyModel.glb",(gltf)=>{
   gunRoot.add(gunModel);
   updateGunTransform();
 },undefined,(err)=>{
-  console.error("Could not load gun model:",err);
+  console.error("Could not load gun model:",err); gunCanvas.style.display="none";
 });
 
 function updateGunTransform(){
@@ -164,7 +183,7 @@ function updateHUD(){scoreEl.textContent=score;ammoLeftEl.textContent=Math.max(M
 function resetGameState(){raccoons=[];score=0;shots=0;shotsHit=0;shotsMissed=0;reloadsLeft=MAX_RELOADS;health=MAX_HEALTH;lastTime=0;lastSpawnTime=performance.now();lastShotTime=0;roundActive=true;isFiring=false;isReloading=false;muzzleFlashTimer=0;screenFlashTimer=0;damageFlashTimer=0;recoilOffset=0;updateHUD()}
 function startRound(){hideSummary();titleScreen.style.display="none";resetGameState();requestAnimationFrame(gameLoop)}
 function returnToMenu(){hideSummary();titleScreen.style.display="flex";roundActive=false;isFiring=false;isReloading=false;raccoons=[];drawScene()}
-titleStartButton.onclick=startRound;closeSummaryButton.onclick=returnToMenu;playAgainButton.onclick=startRound;
+titleStartButton.addEventListener("click", startRound); closeSummaryButton.addEventListener("click", returnToMenu); playAgainButton.addEventListener("click", startRound);
 window.addEventListener("keydown",e=>{if(e.key.toLowerCase()==="r")reloadWeapon();if(e.key==="Escape")returnToMenu()});
 function updateMousePosition(clientX,clientY){const rect=canvas.getBoundingClientRect();mouseX=(clientX-rect.left)*(canvas.width/rect.width);mouseY=(clientY-rect.top)*(canvas.height/rect.height)}
 canvas.addEventListener("mousemove",e=>updateMousePosition(e.clientX,e.clientY));canvas.addEventListener("mousedown",e=>{updateMousePosition(e.clientX,e.clientY);isFiring=true;fireWeapon(performance.now())});window.addEventListener("mouseup",()=>isFiring=false);canvas.addEventListener("mouseleave",()=>isFiring=false);
@@ -178,7 +197,64 @@ function ensureAudioContext(){if(!audioCtx)audioCtx=new(window.AudioContext||win
 function playGunshotSound(){ensureAudioContext();const duration=.055,sampleRate=audioCtx.sampleRate,buffer=audioCtx.createBuffer(1,sampleRate*duration,sampleRate),data=buffer.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,2);const noise=audioCtx.createBufferSource();noise.buffer=buffer;const gain=audioCtx.createGain();gain.gain.setValueAtTime(1.05,audioCtx.currentTime);gain.gain.exponentialRampToValueAtTime(.01,audioCtx.currentTime+duration);const filter=audioCtx.createBiquadFilter();filter.type="lowpass";filter.frequency.setValueAtTime(900,audioCtx.currentTime);noise.connect(filter);filter.connect(gain);gain.connect(audioCtx.destination);noise.start()}
 function playRaccoonDeathSound(){ensureAudioContext();const now=audioCtx.currentTime,osc=audioCtx.createOscillator();osc.type="triangle";osc.frequency.setValueAtTime(900,now);osc.frequency.linearRampToValueAtTime(1400,now+.03);osc.frequency.exponentialRampToValueAtTime(300,now+.18);const gain=audioCtx.createGain();gain.gain.setValueAtTime(.08,now);gain.gain.exponentialRampToValueAtTime(.001,now+.18);const lfo=audioCtx.createOscillator(),lfoGain=audioCtx.createGain();lfo.frequency.value=35;lfoGain.gain.value=40;lfo.connect(lfoGain);lfoGain.connect(osc.frequency);osc.connect(gain);gain.connect(audioCtx.destination);osc.start(now);lfo.start(now);osc.stop(now+.18);lfo.stop(now+.18)}
 
-function drawBackground(){if(bgImage.complete){ctx.drawImage(bgImage,0,0,canvas.width,canvas.height)}else{const sky=ctx.createLinearGradient(0,0,0,canvas.height);sky.addColorStop(0,"#07101a");sky.addColorStop(.47,"#101f18");sky.addColorStop(1,"#18240f");ctx.fillStyle=sky;ctx.fillRect(0,0,canvas.width,canvas.height)}}
+function drawBackground(){
+  const sky=ctx.createLinearGradient(0,0,0,canvas.height);
+  sky.addColorStop(0,"#07101a");
+  sky.addColorStop(.47,"#101f18");
+  sky.addColorStop(1,"#18240f");
+  ctx.fillStyle=sky;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  if(bgImage.complete && bgImage.naturalWidth>0){
+    ctx.drawImage(bgImage,0,0,canvas.width,canvas.height);
+  }else{
+    ctx.save();
+
+    ctx.fillStyle="rgba(255,255,235,.88)";
+    ctx.beginPath();
+    ctx.arc(canvas.width*.64,canvas.height*.17,23,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle="#06100d";
+    for(let i=0;i<34;i++){
+      const x=i*42-20;
+      const h=60+Math.sin(i*1.7)*25;
+      ctx.beginPath();
+      ctx.moveTo(x,HORIZON_Y);
+      ctx.lineTo(x+20,HORIZON_Y-h);
+      ctx.lineTo(x+42,HORIZON_Y);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    ctx.fillStyle="#2b2617";
+    ctx.beginPath();
+    ctx.moveTo(canvas.width*.42,HORIZON_Y);
+    ctx.lineTo(canvas.width*.58,HORIZON_Y);
+    ctx.lineTo(canvas.width*.74,canvas.height);
+    ctx.lineTo(canvas.width*.24,canvas.height);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle="rgba(120,85,55,.75)";
+    ctx.lineWidth=8;
+    ctx.beginPath();
+    ctx.moveTo(canvas.width*.82,HORIZON_Y+50);
+    ctx.lineTo(canvas.width,HORIZON_Y+12);
+    ctx.moveTo(canvas.width*.82,HORIZON_Y+85);
+    ctx.lineTo(canvas.width,HORIZON_Y+50);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  const v=ctx.createRadialGradient(canvas.width/2,canvas.height/2,canvas.width*.2,canvas.width/2,canvas.height/2,canvas.width*.72);
+  v.addColorStop(0,"rgba(0,0,0,0)");
+  v.addColorStop(1,"rgba(0,0,0,.52)");
+  ctx.fillStyle=v;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+}
+
 function drawRaccoons(){const sorted=[...raccoons].sort((a,b)=>a.z-b.z);for(const r of sorted){const p=getRaccoonScreenPosition(r);ctx.save();if(!r.alive)ctx.globalAlpha=Math.max(1-r.deathTimer/430,0);ctx.fillStyle="rgba(0,0,0,.45)";ctx.beginPath();ctx.ellipse(p.x,p.y+p.radius*.75,p.radius*.9,p.radius*.22,0,0,Math.PI*2);ctx.fill();ctx.fillStyle="#3f4140";ctx.beginPath();ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);ctx.fill();ctx.fillStyle="#111";ctx.beginPath();ctx.ellipse(p.x,p.y,p.radius*.9,p.radius*.43,0,0,Math.PI*2);ctx.fill();ctx.fillStyle="#e6e6d6";ctx.beginPath();ctx.arc(p.x-p.radius*.33,p.y,p.radius*.13,0,Math.PI*2);ctx.arc(p.x+p.radius*.33,p.y,p.radius*.13,0,Math.PI*2);ctx.fill();ctx.fillStyle="#000";ctx.beginPath();ctx.arc(p.x-p.radius*.33,p.y,p.radius*.06,0,Math.PI*2);ctx.arc(p.x+p.radius*.33,p.y,p.radius*.06,0,Math.PI*2);ctx.fill();ctx.restore()}}
 function drawMuzzleFlash(){if(muzzleFlashTimer<=0)return;const a=Math.max(muzzleFlashTimer/55,0);ctx.save();ctx.fillStyle=`rgba(255,226,90,${.75*a})`;ctx.beginPath();ctx.arc(mouseX,mouseY+42,34,0,Math.PI*2);ctx.fill();ctx.fillStyle=`rgba(255,95,15,${.55*a})`;ctx.beginPath();ctx.arc(mouseX,mouseY+42,17,0,Math.PI*2);ctx.fill();ctx.restore()}
 function drawScreenFlash(){if(screenFlashTimer<=0)return;const a=Math.max(screenFlashTimer/38,0)*.18;ctx.save();ctx.fillStyle=`rgba(255,235,170,${a})`;ctx.fillRect(0,0,canvas.width,canvas.height);ctx.restore()}
@@ -188,7 +264,7 @@ function drawScene(){ctx.clearRect(0,0,canvas.width,canvas.height);drawBackgroun
 function gameLoop(t){if(!roundActive)return;if(!lastTime)lastTime=t;const dt=t-lastTime;lastTime=t;if(health<=0||(shots>=MAX_SHOTS&&reloadsLeft<=0)){isFiring=false;update(dt,t);drawScene();endRound();return}spawnRaccoon(t);update(dt,t);drawScene();requestAnimationFrame(gameLoop)}
 function showSummary(){summaryScoreEl.textContent=score;summaryShotsHitEl.textContent=shotsHit;summaryShotsMissedEl.textContent=shotsMissed;summaryHealthTextEl.textContent=heartsString(health);if(health<=0){endTitleEl.textContent="GAME OVER";endTitleEl.style.color="#ff0000"}else if(shots>=MAX_SHOTS&&reloadsLeft<=0){endTitleEl.textContent="OUT OF AMMO";endTitleEl.style.color="#ff1f1f"}else{endTitleEl.textContent="SUMMARY";endTitleEl.style.color="#fff"}endOverlay.style.display="block"}
 function hideSummary(){endOverlay.style.display="none"}function endRound(){roundActive=false;isReloading=false;showSummary()}
-bgImage.onload=()=>drawScene();
+bgImage.onload=()=>drawScene(); bgImage.onerror=()=>{ console.warn("Background image failed to load; using fallback background."); drawScene(); };
 drawScene();
 </script>
 </body>
