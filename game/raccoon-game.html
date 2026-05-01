@@ -44,10 +44,10 @@ body{margin:0;min-height:100vh;background:#050505;display:flex;justify-content:c
 <canvas id="raccoonGame" width="1200" height="675"></canvas>
 <canvas id="gunCanvas"></canvas>
 
-<div id="titleScreen"><div id="titleContent"><h1>RED JUSTICE</h1><p>Bandit Road</p><button id="titleStartButton" class="red-button" type="button">START</button></div></div>
+<div id="titleScreen"><div id="titleContent"><h1 style="color:red;">RED JUSTICE</h1><p style="font-size:150px">Bandit Road</p><button id="titleStartButton" class="red-button" type="button">START</button></div></div>
 
 <div id="leftHud" class="hud-panel">
-<div class="hud-group"><span class="icon bullet"></span><div><div class="hud-label">AMMO</div><div class="hud-value"><strong id="ammoLeft">100</strong> / <span id="maxAmmo">100</span></div></div></div>
+<div class="hud-group"><span class="icon bullet"></span><div><div class="hud-label">AMMO</div><div class="hud-value"><strong id="ammoLeft">--</strong> / <span id="maxAmmo">--</span></div></div></div>
 <div class="hud-group"><span class="icon mag"></span><div><div class="hud-label">RELOADS LEFT</div><div class="hud-small-value"><strong id="reloadsLeft">3</strong> / <span id="maxReloads">3</span></div></div></div>
 <div class="hud-group"><div class="hud-label" style="grid-column:1/span 2;">HEALTH</div><div id="healthDisplay">❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️</div></div>
 <div class="hud-group"><div class="hud-label" style="grid-column:1/span 2;">WEAPON</div><div class="hud-small-value" style="grid-column:1/span 2;"><strong id="weaponName">Revolver</strong></div></div>
@@ -113,7 +113,7 @@ const WEAPONS = {
 let currentWeapon = WEAPONS.revolver;
 let m2Ready = false;
 let m2ChargeStartTime = performance.now();
-let m2ChargeMs = 15000;
+let m2ChargeMs = 30000;
 
 let raccoons=[],score=0,shots=0,shotsHit=0,shotsMissed=0,reloadsLeft=MAX_RELOADS,health=MAX_HEALTH,lastTime=0,lastSpawnTime=0,roundActive=false,mouseX=canvas.width/2,mouseY=canvas.height/2,isFiring=false,isReloading=false,lastShotTime=0,muzzleFlashTimer=0,screenFlashTimer=0,damageFlashTimer=0,recoilOffset=0,audioCtx=null;
 
@@ -125,12 +125,18 @@ let scene = null;
 let camera = null;
 let gunRoot = null;
 let gunModel = null;
+let revolverModel = null;
+let m2Model = null;
 let raccoonTemplate = null;
 let raccoonModelPool = new Map();
 
 // Tweak these if needed.
 const GUN_POSITION = new THREE.Vector3(0.0, -1.35, -2.55);
+const REVOLVER_GUN_POSITION = new THREE.Vector3(0.0, -1.35, -2.55);
+const M2_GUN_POSITION = new THREE.Vector3(0.0, -1.45, -2.60);
 const GUN_SCALE_TARGET = 2.00;
+const REVOLVER_GUN_SCALE_TARGET = 2.00;
+const M2_GUN_SCALE_TARGET = 2.95;
 const AIM_YAW_AMOUNT = 0.95;
 const AIM_PITCH_AMOUNT = 0.62;
 
@@ -176,41 +182,62 @@ try {
 
   const loader = new GLTFLoader();
 
-  loader.load(
-    "Revolver.glb",
-    (gltf) => {
-      gunModel = gltf.scene;
+  function loadGunModel(path, weaponKey) {
+    loader.load(
+      path,
+      (gltf) => {
+        const model = gltf.scene;
 
-      gunModel.traverse((child) => {
-        if (child.isMesh) {
-          child.frustumCulled = false;
-          if (child.material) {
-            child.material.side = THREE.DoubleSide;
-            child.material.needsUpdate = true;
+        model.traverse((child) => {
+          if (child.isMesh) {
+            child.frustumCulled = false;
+            if (child.material) {
+              child.material.side = THREE.DoubleSide;
+              child.material.needsUpdate = true;
+            }
           }
+        });
+
+        const box = new THREE.Box3().setFromObject(model);
+        const size = new THREE.Vector3();
+        const center = new THREE.Vector3();
+        box.getSize(size);
+        box.getCenter(center);
+
+        model.position.sub(center);
+
+        const maxDim = Math.max(size.x, size.y, size.z) || 1;
+
+        const scaleTarget = weaponKey === "m2"
+          ? M2_GUN_SCALE_TARGET
+          : REVOLVER_GUN_SCALE_TARGET;
+
+        model.scale.setScalar(scaleTarget / maxDim);
+        model.visible = false;
+
+        gunRoot.add(model);
+
+        if (weaponKey === "revolver") {
+          revolverModel = model;
+          gunModel = model;
         }
-      });
 
-      const box = new THREE.Box3().setFromObject(gunModel);
-      const size = new THREE.Vector3();
-      const center = new THREE.Vector3();
-      box.getSize(size);
-      box.getCenter(center);
+        if (weaponKey === "m2") {
+          m2Model = model;
+        }
 
-      gunModel.position.sub(center);
+        updateGunModelVisibility();
+        updateGunTransform();
+      },
+      undefined,
+      (err) => {
+        console.error(`Could not load ${weaponKey} model:`, err);
+      }
+    );
+  }
 
-      const maxDim = Math.max(size.x, size.y, size.z) || 1;
-      gunModel.scale.setScalar(GUN_SCALE_TARGET / maxDim);
-
-      gunRoot.add(gunModel);
-      updateGunTransform();
-    },
-    undefined,
-    (err) => {
-      console.error("Could not load gun model:", err);
-      gunCanvas.style.display = "none";
-    }
-  );
+  loadGunModel("Revolver.glb", "revolver");
+  loadGunModel("m2HeavyModel.glb", "m2");
 
   loader.load(
     "raccoonModel.glb",
@@ -311,6 +338,18 @@ try {
     }
   }
 
+  function updateGunModelVisibility() {
+    if (revolverModel) {
+      revolverModel.visible = currentWeapon === WEAPONS.revolver;
+    }
+
+    if (m2Model) {
+      m2Model.visible = currentWeapon === WEAPONS.m2;
+    }
+
+    gunModel = currentWeapon === WEAPONS.m2 ? m2Model : revolverModel;
+  }
+
   function updateGunTransform() {
     if (!gunRoot) return;
 
@@ -320,7 +359,11 @@ try {
     const pan = THREE.MathUtils.clamp(nx * AIM_YAW_AMOUNT, -MAX_PAN, MAX_PAN);
     const tilt = THREE.MathUtils.clamp(ny * AIM_PITCH_AMOUNT, -MAX_TILT, MAX_TILT);
 
-    gunRoot.position.copy(GUN_POSITION);
+    const activeGunPosition = currentWeapon === WEAPONS.m2
+      ? M2_GUN_POSITION
+      : REVOLVER_GUN_POSITION;
+
+    gunRoot.position.copy(activeGunPosition);
     gunRoot.position.z += recoilOffset * 0.018;
 
     const base = GUN_ORIENTATION_TRIES[currentOrientationIndex];
@@ -405,9 +448,9 @@ function updateHUD(){
     reloadWarningEl.style.display = "none";
   }
 }
-function resetGameState(){raccoons=[];score=0;shots=0;shotsHit=0;shotsMissed=0;reloadsLeft=MAX_RELOADS;health=MAX_HEALTH;currentWeapon=WEAPONS.revolver;m2Ready=false;m2ChargeStartTime=performance.now();lastTime=0;lastSpawnTime=performance.now();lastShotTime=0;roundActive=true;isFiring=false;isReloading=false;muzzleFlashTimer=0;screenFlashTimer=0;damageFlashTimer=0;recoilOffset=0;updateHUD()}
+function resetGameState(){raccoons=[];score=0;shots=0;shotsHit=0;shotsMissed=0;reloadsLeft=MAX_RELOADS;health=MAX_HEALTH;currentWeapon=WEAPONS.revolver;updateGunModelVisibility();m2Ready=false;m2ChargeStartTime=performance.now();lastTime=0;lastSpawnTime=performance.now();lastShotTime=0;roundActive=true;isFiring=false;isReloading=false;muzzleFlashTimer=0;screenFlashTimer=0;damageFlashTimer=0;recoilOffset=0;updateHUD()}
 function startRound(){hideSummary();titleScreen.style.display="none";resetGameState();requestAnimationFrame(gameLoop)}
-function returnToMenu(){hideSummary();titleScreen.style.display="flex";roundActive=false;isFiring=false;isReloading=false;raccoons=[];drawScene()}
+function returnToMenu(){hideSummary();titleScreen.style.display="flex";roundActive=false;isFiring=false;isReloading=false;raccoons=[];currentWeapon=WEAPONS.revolver;updateGunModelVisibility();drawScene()}
 titleStartButton.addEventListener("click", startRound); closeSummaryButton.addEventListener("click", returnToMenu); playAgainButton.addEventListener("click", startRound);
 window.addEventListener("keydown",e=>{
   if(e.key.toLowerCase()==="r")reloadWeapon();
@@ -458,6 +501,7 @@ function activateM2(){
   if(currentWeapon===WEAPONS.m2)return;
 
   currentWeapon=WEAPONS.m2;
+  updateGunModelVisibility();
   shots=0;
   lastShotTime=0;
   isReloading=false;
@@ -468,6 +512,7 @@ function activateM2(){
 
 function switchToRevolver(){
   currentWeapon=WEAPONS.revolver;
+  updateGunModelVisibility();
   shots=0;
   lastShotTime=0;
   isFiring=false;
