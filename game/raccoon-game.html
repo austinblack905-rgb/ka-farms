@@ -92,7 +92,7 @@ const titleScreen=document.getElementById("titleScreen"),titleStartButton=docume
 const bgImage=new Image();
 bgImage.src="farmNightBackground.png";
 
-const MAX_SHOTS=6,MAX_RELOADS=6,MAX_HEALTH=10,FIRE_INTERVAL=92,RELOAD_TIME=1400,SPAWN_INTERVAL_START=1050,SPAWN_INTERVAL_MIN=390,DIFFICULTY_SCORE_TARGET=350,RACCOON_BASE_RADIUS=16,RACCOON_MAX_RADIUS=86,RACCOON_SPEED_MIN=.16,RACCOON_SPEED_MAX=.34;
+const MAX_SHOTS=6,MAX_RELOADS=6,MAX_HEALTH=10,FIRE_INTERVAL=150,RELOAD_TIME=500,SPAWN_INTERVAL_START=1050,SPAWN_INTERVAL_MIN=390,DIFFICULTY_SCORE_TARGET=350,RACCOON_BASE_RADIUS=16,RACCOON_MAX_RADIUS=86,RACCOON_SPEED_MIN=.16,RACCOON_SPEED_MAX=.34;
 const HORIZON_Y=canvas.height*.47,GROUND_Y=canvas.height*.93;
 //--------Weapons--------
 const WEAPONS = {
@@ -113,7 +113,7 @@ const WEAPONS = {
 let currentWeapon = WEAPONS.revolver;
 let m2Ready = false;
 let m2ChargeStartTime = performance.now();
-let m2ChargeMs = 30000;
+let m2ChargeMs = 15000;
 
 let raccoons=[],score=0,shots=0,shotsHit=0,shotsMissed=0,reloadsLeft=MAX_RELOADS,health=MAX_HEALTH,lastTime=0,lastSpawnTime=0,roundActive=false,mouseX=canvas.width/2,mouseY=canvas.height/2,isFiring=false,isReloading=false,lastShotTime=0,muzzleFlashTimer=0,screenFlashTimer=0,damageFlashTimer=0,recoilOffset=0,audioCtx=null;
 
