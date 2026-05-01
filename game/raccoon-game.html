@@ -44,7 +44,7 @@ body{margin:0;min-height:100vh;background:#050505;display:flex;justify-content:c
 <canvas id="raccoonGame" width="1200" height="675"></canvas>
 <canvas id="gunCanvas"></canvas>
 
-<div id="titleScreen"><div id="titleContent"><h1>RACCOON HUNT</h1><p>K&amp;A Farms Night Defense<br><small>Tripod-mounted center gun. Press G during gameplay to cycle gun orientation if needed.</small></p><button id="titleStartButton" class="red-button" type="button">START</button></div></div>
+<div id="titleScreen"><div id="titleContent"><h1>RACCOON HUNT</h1><p>K&amp;A Farms Night Defense<br><small>Tripod-mounted center gun. Press G to cycle gun orientation; press H to flip raccoon facing.</small></p><button id="titleStartButton" class="red-button" type="button">START</button></div></div>
 
 <div id="leftHud" class="hud-panel">
 <div class="hud-group"><span class="icon bullet"></span><div><div class="hud-label">AMMO</div><div class="hud-value"><strong id="ammoLeft">100</strong> / <span id="maxAmmo">100</span></div></div></div>
@@ -107,20 +107,24 @@ let raccoonTemplate = null;
 let raccoonModelPool = new Map();
 
 // Tweak these if needed.
-const GUN_POSITION = new THREE.Vector3(0.0, -1.45, -2.55);
+const GUN_POSITION = new THREE.Vector3(0.0, -1.35, -2.55);
 const GUN_SCALE_TARGET = 2.95;
-const AIM_YAW_AMOUNT = 0.24;
-const AIM_PITCH_AMOUNT = 0.16;
+const AIM_YAW_AMOUNT = 0.95;
+const AIM_PITCH_AMOUNT = 0.62;
 
 // Tripod-mounted center feel: lower, centered, with limited traverse.
 const GUN_ORIENTATION_TRIES = [
-  new THREE.Euler(-0.08, Math.PI, 0),
+  new THREE.Euler(-0.18, Math.PI, 0),
+  new THREE.Euler(-0.18, 0, 0),
   new THREE.Euler(-Math.PI / 2, Math.PI, 0),
   new THREE.Euler(0, Math.PI / 2, 0),
   new THREE.Euler(0, -Math.PI / 2, 0),
   new THREE.Euler(Math.PI / 2, Math.PI, 0)
 ];
 let currentOrientationIndex = 0;
+const MAX_PAN = 0.72;
+const MAX_TILT = 0.42;
+let raccoonFacingY = 0;
 
 try {
   renderer = new THREE.WebGLRenderer({ canvas: gunCanvas, alpha: true, antialias: true });
@@ -226,6 +230,11 @@ try {
       updateGunTransform();
       console.log("Gun orientation index:", currentOrientationIndex);
     }
+
+    if (e.key.toLowerCase() === "h") {
+      raccoonFacingY = raccoonFacingY === 0 ? Math.PI : 0;
+      console.log("Raccoon facing Y:", raccoonFacingY);
+    }
   });
 
   function screenToWorld(screenX, screenY, distance) {
@@ -266,8 +275,8 @@ try {
       const scale = 0.22 + r.z * 0.52;
       model.scale.setScalar(scale);
 
-      // Face camera, with a slight low-poly creature stance.
-      model.rotation.set(0.05, Math.PI, 0);
+      // Face toward the player/camera. Press H during gameplay to flip if a model export needs it.
+      model.rotation.set(0.05, raccoonFacingY, 0);
 
       if (!r.alive) {
         model.rotation.z = 0.85;
@@ -288,8 +297,11 @@ try {
   function updateGunTransform() {
     if (!gunRoot) return;
 
-    const nx = (mouseX / canvas.width - 0.5);
-    const ny = (mouseY / canvas.height - 0.5);
+    const nx = (mouseX / canvas.width - 0.5) * 2;
+    const ny = (mouseY / canvas.height - 0.5) * 2;
+
+    const pan = THREE.MathUtils.clamp(nx * AIM_YAW_AMOUNT, -MAX_PAN, MAX_PAN);
+    const tilt = THREE.MathUtils.clamp(ny * AIM_PITCH_AMOUNT, -MAX_TILT, MAX_TILT);
 
     gunRoot.position.copy(GUN_POSITION);
     gunRoot.position.z += recoilOffset * 0.018;
@@ -297,8 +309,8 @@ try {
     const base = GUN_ORIENTATION_TRIES[currentOrientationIndex];
 
     gunRoot.rotation.set(
-      base.x - ny * AIM_PITCH_AMOUNT,
-      base.y + nx * AIM_YAW_AMOUNT,
+      base.x - tilt,
+      base.y + pan,
       base.z
     );
   }
@@ -449,8 +461,8 @@ function drawMuzzleFlash(){
   const a=Math.max(muzzleFlashTimer/55,0);
   const baseX=canvas.width*.5,baseY=canvas.height*.83;
   const angle=Math.atan2(mouseY-baseY,mouseX-baseX);
-  const mx=baseX+Math.cos(angle)*260;
-  const my=baseY+Math.sin(angle)*260;
+  const mx=baseX+Math.cos(angle)*330;
+  const my=baseY+Math.sin(angle)*330;
   ctx.save();
   ctx.fillStyle=`rgba(255,226,90,${.75*a})`;
   ctx.beginPath();
