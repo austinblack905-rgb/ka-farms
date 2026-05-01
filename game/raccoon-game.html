@@ -1,925 +1,195 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>K&A Farms – Raccoon Hunt</title>
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f4f4f4;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-    }
-
-    #game-container {
-      margin-top: 20px;
-      background: #ffffff;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      padding: 16px;
-      max-width: 900px;
-      width: 100%;
-      position: relative;
-    }
-
-    #game-container h2 {
-      margin: 0 0 8px;
-    }
-
-    #game-stage {
-      position: relative;
-      width: 800px;
-      max-width: 100%;
-    }
-
-    #titleScreen {
-      position: absolute;
-      inset: 0;
-      z-index: 60;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0, 0, 0, 0.48);
-      color: #ffffff;
-      text-align: center;
-      text-shadow: 0 3px 8px rgba(0,0,0,0.95);
-      border-radius: 8px;
-    }
-
-    #titleContent h1 {
-      margin: 0 0 22px;
-      font-size: 44px;
-      line-height: 1.1;
-      letter-spacing: 1px;
-    }
-
-    #titleStartButton {
-      padding: 12px 34px;
-      border-radius: 6px;
-      border: 2px solid rgba(255,255,255,0.75);
-      background: #2f855a;
-      color: #ffffff;
-      font-size: 22px;
-      font-weight: 900;
-      letter-spacing: 2px;
-      cursor: pointer;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.35);
-    }
-
-    #titleStartButton:hover {
-      background: #276749;
-    }
-
-
-    .hud-overlay {
-      position: absolute;
-      z-index: 20;
-      color: #ffffff;
-      font-weight: 700;
-      font-size: 16px;
-      line-height: 1.35;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-      pointer-events: none;
-      background: rgba(0, 0, 0, 0.28);
-      border: 1px solid rgba(255,255,255,0.18);
-      border-radius: 8px;
-      padding: 8px 10px;
-      backdrop-filter: blur(2px);
-    }
-
-    #scoreOverlay {
-      top: 12px;
-      left: 12px;
-    }
-
-    #ammoOverlay {
-      bottom: 12px;
-      left: 12px;
-    }
-
-    #endOverlay {
-      position: absolute;
-      inset: 0;
-      display: none;
-      z-index: 40;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      text-align: center;
-      pointer-events: auto;
-      color: #ffffff;
-      text-shadow: 0 3px 6px rgba(0,0,0,0.9);
-      background: rgba(0,0,0,0.18);
-    }
-
-    #endTitle {
-      color: #ff1f1f;
-      font-size: 56px;
-      line-height: 1;
-      font-weight: 900;
-      letter-spacing: 2px;
-      margin-bottom: 18px;
-    }
-
-    #endStats {
-      font-size: 18px;
-      font-weight: 700;
-      line-height: 1.5;
-      margin-bottom: 18px;
-    }
-
-    #endButtons {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    #raccoonGame {
-      display: block;
-      border: 2px solid #ccc;
-      border-radius: 8px;
-      background: #87ceeb;
-      cursor: none;
-      max-width: 100%;
-    }
-
-    @media (max-width: 600px) {
-      #raccoonGame {
-        width: 100%;
-        height: auto;
-      }
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    .summary-btn {
-      padding: 6px 12px;
-      border-radius: 4px;
-      border: none;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    #playAgainButton {
-      background: #2f855a;
-      color: #ffffff;
-    }
-
-    #closeSummaryButton {
-      background: #e2e8f0;
-      color: #2d3748;
-    }
-  
-.hud-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.icon {
-  display: inline-block;
-}
-
-.icon.bullet {
-  width: 10px;
-  height: 18px;
-  background: linear-gradient(to bottom, #d4af37, #a67c00);
-  border-radius: 3px 3px 6px 6px;
-  box-shadow: 0 0 2px rgba(0,0,0,0.6);
-}
-
-.icon.mag {
-  width: 14px;
-  height: 22px;
-  background: #444;
-  border-radius: 2px;
-  box-shadow: inset 0 0 3px rgba(0,0,0,0.6);
-}
-
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>K&A Farms – Raccoon Hunt</title>
+<style>
+:root{--gold:#f6d94a;--red:#ff2a1f;--white:#f4f4f4}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:#050505;display:flex;justify-content:center;align-items:center;font-family:Impact,Haettenschweiler,"Arial Narrow Bold",system-ui,sans-serif;color:var(--white);overflow:hidden}
+#game-shell{width:min(100vw,1200px);aspect-ratio:16/9;position:relative;background:#000;overflow:hidden;border:2px solid #101010;box-shadow:0 0 45px rgba(0,0,0,.8)}
+#raccoonGame,#gunCanvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+#raccoonGame{z-index:1;cursor:none;background:#0a0d0f}
+#gunCanvas{z-index:12;pointer-events:none}
+.hud-panel{position:absolute;z-index:20;color:var(--white);text-shadow:0 3px 3px rgba(0,0,0,.95);pointer-events:none;letter-spacing:1px}
+#leftHud{top:22px;left:24px;width:255px;padding:10px 14px 14px;background:linear-gradient(90deg,rgba(0,0,0,.72),rgba(0,0,0,.28),transparent);border-left:3px solid rgba(255,255,255,.25)}
+.hud-group{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:center;padding:8px 0 12px;border-bottom:2px solid rgba(255,255,255,.35)}
+.hud-group:last-child{border-bottom:none;padding-bottom:0}.hud-label{font-size:19px;line-height:1}.hud-value{font-size:38px;color:var(--gold);line-height:1;margin-top:4px}.hud-small-value{font-size:26px;color:var(--gold);line-height:1;margin-top:4px}
+#scoreHud{top:24px;right:28px;text-align:right}#scoreHud .hud-label{font-size:24px}#scoreHud .hud-value{font-size:46px}
+#healthDisplay{grid-column:1/span 2;font-size:24px;letter-spacing:3px;margin-top:6px;color:var(--red);filter:drop-shadow(0 2px 1px rgba(0,0,0,.75))}
+.icon{width:28px;height:42px;display:inline-block;position:relative;filter:drop-shadow(0 2px 1px rgba(0,0,0,.8))}
+.icon.bullet:before{content:"";position:absolute;left:8px;top:0;width:12px;height:35px;background:linear-gradient(#f9f9f9 0 24%,#e8e8e8 25% 80%,#c9c9c9 81%);clip-path:polygon(50% 0%,88% 18%,88% 100%,12% 100%,12% 18%);border:1px solid rgba(255,255,255,.65)}
+.icon.bullet:after{content:"";position:absolute;left:5px;bottom:0;width:18px;height:5px;background:#e8e8e8;border:1px solid rgba(255,255,255,.65)}
+.icon.mag:before{content:"";position:absolute;left:6px;top:2px;width:18px;height:36px;background:linear-gradient(90deg,#f3f3f3,#cfcfcf);border:2px solid #f4f4f4;box-shadow:inset 0 0 0 2px rgba(0,0,0,.2)}
+.icon.mag:after{content:"";position:absolute;left:8px;top:7px;width:14px;height:26px;border-left:2px solid rgba(0,0,0,.5);border-right:2px solid rgba(0,0,0,.35)}
+#controlsHint{left:24px;bottom:86px;font-size:17px;line-height:1.55;background:linear-gradient(90deg,rgba(0,0,0,.72),rgba(0,0,0,.28),transparent);padding:10px 14px;width:190px}
+.key{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border:2px solid #fff;margin-right:9px;font-size:14px;line-height:1}
+#reloadWarning{position:absolute;top:21%;left:50%;transform:translate(-50%,-50%);z-index:35;color:var(--red);font-size:56px;font-weight:900;letter-spacing:3px;text-shadow:0 5px 7px rgba(0,0,0,.95);display:none;pointer-events:none}
+#titleScreen{position:absolute;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 45%,rgba(255,255,255,.08),transparent 28%),linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.82));text-align:center;text-shadow:0 5px 8px rgba(0,0,0,.95)}
+#titleContent{transform:translateY(-10px)}#titleContent h1{margin:0 0 12px;font-size:clamp(48px,8vw,92px);letter-spacing:4px;color:#fff}#titleContent p{margin:0 0 28px;font-family:system-ui,sans-serif;letter-spacing:1px;color:rgba(255,255,255,.78)}
+.red-button{border:0;color:#fff;background:linear-gradient(90deg,transparent 0 7%,#8e2119 7% 93%,transparent 93%),linear-gradient(#b83325,#76190f);padding:14px 48px;font-size:28px;font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif;letter-spacing:3px;cursor:pointer;text-shadow:0 2px 2px rgba(0,0,0,.85);box-shadow:0 8px 18px rgba(0,0,0,.45)}
+.red-button:hover{filter:brightness(1.15)}
+#endOverlay{position:absolute;left:0;right:0;bottom:0;min-height:210px;z-index:70;display:none;background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent) top center/84% 2px no-repeat,rgba(0,0,0,.88);padding:22px 40px 24px;color:#fff;text-align:center;box-shadow:0 -18px 35px rgba(0,0,0,.55)}
+#endTitle{font-size:42px;letter-spacing:3px;color:var(--red);margin-bottom:14px;text-shadow:0 4px 6px rgba(0,0,0,.9)}
+#endStats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;align-items:start;margin-bottom:18px}
+#endStats div{font-size:22px;letter-spacing:1px}#endStats strong{display:block;color:var(--gold);font-size:34px;margin-top:4px}
+#summaryHealthText{color:var(--red);font-size:26px!important;letter-spacing:2px;margin-top:6px}
+#endButtons{display:flex;justify-content:center;gap:12px}.summary-btn{border:0;cursor:pointer;padding:10px 28px;font-size:22px;font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif;color:#fff;letter-spacing:2px;background:#8e2119}.summary-btn.secondary{background:#242424;color:#ddd}
+@media(max-width:800px){#leftHud{top:12px;left:12px;width:190px}.hud-label{font-size:14px}.hud-value{font-size:28px}.hud-small-value{font-size:20px}#healthDisplay{font-size:18px;letter-spacing:1px}#scoreHud .hud-value{font-size:34px}#endStats{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
-
 <body>
-  <div id="game-container">
-
-    <div id="game-stage">
-      <div id="titleScreen">
-        <div id="titleContent">
-          <h1>K&A Farms: Raccoon Hunt</h1>
-          <button id="titleStartButton" type="button">START</button>
-        </div>
-      </div>
-
-      <canvas id="raccoonGame" width="800" height="450"></canvas>
-
-      <div id="scoreOverlay" class="hud-overlay">
-        <div>Score: <strong id="score">0</strong></div>
-        <div class="hud-row"><span id="healthDisplay"></span></div>
-      </div>
-
-      <div id="ammoOverlay" class="hud-overlay">
-        <div class="hud-row">
-      <span class="icon bullet"></span>
-      <strong id="shots">100</strong>/<span id="maxShots">100</span>
-    </div>
-        <div class="hud-row">
-      <span class="icon mag"></span>
-      <strong id="reloadsLeft">3</strong>/<span id="maxReloads">3</span>
-    </div>
-      </div>
-
-      <div id="endOverlay">
-        <div id="endTitle">OUT OF AMMO</div>
-        <div id="endStats">
-          <div>Score: <strong id="summaryScore">0</strong></div>
-          <div>Shots Hit: <strong id="summaryShotsHit">0</strong></div>
-          <div>Shots Missed: <strong id="summaryShotsMissed">0</strong></div>
-          <div>Health Remaining: <strong id="summaryHealth">0</strong></div>
-        </div>
-        <div id="endButtons">
-          <button id="closeSummaryButton" class="summary-btn" type="button">Close</button>
-          <button id="playAgainButton" class="summary-btn" type="button">Play Again</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  </div>
-
-  <script>
-    (function () {
-      const canvas = document.getElementById("raccoonGame");
-      const ctx = canvas.getContext("2d");
-
-      const scoreEl = document.getElementById("score");
-      const shotsEl = document.getElementById("shots");
-      const maxShotsEl = document.getElementById("maxShots");
-      const healthDisplayEl = document.getElementById("healthDisplay");
-      const reloadsLeftEl = document.getElementById("reloadsLeft");
-      const maxReloadsEl = document.getElementById("maxReloads");
-      const titleScreen = document.getElementById("titleScreen");
-      const titleStartButton = document.getElementById("titleStartButton");
-
-      const endOverlay = document.getElementById("endOverlay");
-      const endTitleEl = document.getElementById("endTitle");
-      const summaryScoreEl = document.getElementById("summaryScore");
-      const summaryShotsHitEl = document.getElementById("summaryShotsHit");
-      const summaryShotsMissedEl = document.getElementById("summaryShotsMissed");
-      const summaryHealthEl = document.getElementById("summaryHealth");
-      const closeSummaryButton = document.getElementById("closeSummaryButton");
-      const playAgainButton = document.getElementById("playAgainButton");
-
-      const m2Image = new Image();
-        m2Image.src = "data:image/png;base64,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";
-      const MAX_SHOTS = 100;
-      const FIRE_INTERVAL = 95;
-      const RELOAD_TIME = 1500;
-      const MAX_RELOADS = 3;
-
-      const SPAWN_INTERVAL_START = 1100;
-      const SPAWN_INTERVAL_MIN = 450;
-      const DIFFICULTY_SCORE_TARGET = 250;
-const RACCOON_BASE_RADIUS = 14;
-      const RACCOON_MAX_RADIUS = 80;
-      const RACCOON_SPEED_MIN = 0.20;
-      const RACCOON_SPEED_MAX = 0.42;
-
-      const HORIZON_Y = canvas.height * 0.46;
-      const GROUND_Y = canvas.height * 0.92;
-
-      let raccoons = [];
-      let score = 0;
-      let shots = 0;
-      let shotsHit = 0;
-      let shotsMissed = 0;
-      const MAX_HEALTH = 10;
-      let health = MAX_HEALTH;
-      let lastTime = 0;
-      let lastSpawnTime = 0;
-      let roundActive = false;
-
-      let mouseX = canvas.width / 2;
-      let mouseY = canvas.height / 2;
-
-      let isFiring = false;
-      let lastShotTime = 0;
-      let muzzleFlashTimer = 0;
-      let screenFlashTimer = 0;
-      let damageFlashTimer = 0;
-      let recoilOffset = 0;
-      let isReloading = false;
-      let reloadsLeft = MAX_RELOADS;
-
-      maxShotsEl.textContent = MAX_SHOTS.toString();
-      maxReloadsEl.textContent = MAX_RELOADS.toString();
-
-      function resetGameState() {
-        raccoons = [];
-        score = 0;
-        shots = 0;
-        shotsHit = 0;
-        shotsMissed = 0;
-        health = MAX_HEALTH;
-        lastTime = 0;
-        lastSpawnTime = performance.now();
-        lastShotTime = 0;
-        roundActive = true;
-        isFiring = false;
-        muzzleFlashTimer = 0;
-        screenFlashTimer = 0;
-        damageFlashTimer = 0;
-        recoilOffset = 0;
-        isReloading = false;
-        reloadsLeft = MAX_RELOADS;
-        updateHUD();
-      }      function updateHUD() {
-        scoreEl.textContent = score.toString();
-        shotsEl.textContent = Math.max(MAX_SHOTS - shots, 0).toString();
-        reloadsLeftEl.textContent = reloadsLeft.toString();
-
-        let hearts = "";
-        for (let i = 0; i < health; i++) hearts += "❤️";
-        for (let i = health; i < MAX_HEALTH; i++) hearts += "🖤";
-        healthDisplayEl.textContent = hearts;
-      }
-
-        function startRound() {
-            hideSummary();
-            titleScreen.style.display = "none";
-            resetGameState();
-            requestAnimationFrame(gameLoop);
-        }
-
-      function reloadWeapon() {
-        if (!roundActive) return;
-        if (isReloading) return;
-        if (shots === 0) return;
-        if (reloadsLeft <= 0) return;
-
-        isReloading = true;
-        isFiring = false;
-        updateHUD();
-
-        setTimeout(() => {
-          if (!roundActive) return;
-
-          shots = 0;
-          reloadsLeft--;
-          isReloading = false;
-          lastShotTime = 0;
-          updateHUD();
-        }, RELOAD_TIME);
-      }
-
-      titleStartButton.addEventListener("click", startRound);
-
-      window.addEventListener("keydown", (e) => {
-        if (e.key.toLowerCase() === "r") {
-          reloadWeapon();
-        }
-      });
-
-      function updateMousePosition(clientX, clientY) {
-        const rect = canvas.getBoundingClientRect();
-        mouseX = (clientX - rect.left) * (canvas.width / rect.width);
-        mouseY = (clientY - rect.top) * (canvas.height / rect.height);
-      }
-
-      canvas.addEventListener("mousemove", (e) => {
-        updateMousePosition(e.clientX, e.clientY);
-      });
-
-      canvas.addEventListener("mousedown", (e) => {
-        updateMousePosition(e.clientX, e.clientY);
-        isFiring = true;
-        fireWeapon(performance.now());
-      });
-
-      window.addEventListener("mouseup", () => {
-        isFiring = false;
-      });
-
-      canvas.addEventListener("mouseleave", () => {
-        isFiring = false;
-      });
-
-      canvas.addEventListener("touchstart", (e) => {
-        e.preventDefault();
-        const touch = e.touches[0];
-        updateMousePosition(touch.clientX, touch.clientY);
-        isFiring = true;
-        fireWeapon(performance.now());
-      }, { passive: false });
-
-      canvas.addEventListener("touchmove", (e) => {
-        e.preventDefault();
-        const touch = e.touches[0];
-        updateMousePosition(touch.clientX, touch.clientY);
-      }, { passive: false });
-
-      window.addEventListener("touchend", () => {
-        isFiring = false;
-      });
-
-      function fireWeapon(now) {
-        if (!roundActive || isReloading) return;
-        if (shots >= MAX_SHOTS) return;
-        if (now - lastShotTime < FIRE_INTERVAL) return;
-
-        lastShotTime = now;
-          shots++;
-          playGunshotSound();
-
-
-        muzzleFlashTimer = 55;
-        screenFlashTimer = 45;
-        recoilOffset = 10;
-
-        let didHit = false;
-
-        for (let i = raccoons.length - 1; i >= 0; i--) {
-          const r = raccoons[i];
-          if (!r.alive) continue;
-
-          const pos = getRaccoonScreenPosition(r);
-          const dx = mouseX - pos.x;
-          const dy = mouseY - pos.y;
-
-          if (Math.hypot(dx, dy) <= pos.radius) {
-            r.alive = false;
-            r.hit = true;
-            score += 10;
-            shotsHit++;
-            playRaccoonDeathSound();
-            didHit = true;
-            break;
-          }
-        }
-
-        if (!didHit) {
-          shotsMissed++;
-        }
-
-        updateHUD();
-      }
-
-      function spawnRaccoon(now) {
-        const difficulty = Math.min(score / DIFFICULTY_SCORE_TARGET, 1);
-        const spawnInterval = SPAWN_INTERVAL_START -
-          (SPAWN_INTERVAL_START - SPAWN_INTERVAL_MIN) * difficulty;
-
-        if (now - lastSpawnTime < spawnInterval) return;
-
-        lastSpawnTime = now;
-
-        const laneX = canvas.width * 0.16 + Math.random() * canvas.width * 0.68;
-        const speedMultiplier = 1 + difficulty * 0.45;
-        const speed = (RACCOON_SPEED_MIN + Math.random() *
-          (RACCOON_SPEED_MAX - RACCOON_SPEED_MIN)) * speedMultiplier;
-
-        raccoons.push({
-          laneX,
-          z: 0.03,
-          speed,
-          alive: true,
-          hit: false,
-          deathTimer: 0
-        });
-      }
-
-      function update(dt, now) {
-        const dtSeconds = dt / 1000;
-
-        if (isFiring) {
-          fireWeapon(now);
-        }
-
-        if (muzzleFlashTimer > 0) muzzleFlashTimer -= dt;
-        if (screenFlashTimer > 0) screenFlashTimer -= dt;
-        if (damageFlashTimer > 0) damageFlashTimer -= dt;
-
-        if (recoilOffset > 0) {
-          recoilOffset *= 0.78;
-          if (recoilOffset < 0.2) recoilOffset = 0;
-        }
-
-        for (let i = raccoons.length - 1; i >= 0; i--) {
-          const r = raccoons[i];
-
-          if (r.alive) {
-            r.z += r.speed * dtSeconds;
-
-            if (r.z >= 1) {
-              r.alive = false;
-              r.hit = false;
-              health = Math.max(health - 1, 0);
-              damageFlashTimer = 160;
-            }
-          } else {
-            r.deathTimer += dt;
-            r.z += 0.18 * dtSeconds;
-
-            if (r.deathTimer > 450 || r.z > 1.2) {
-              raccoons.splice(i, 1);
-            }
-          }
-        }
-      }
-
-      function getRaccoonScreenPosition(r) {
-        const z = Math.max(0.03, Math.min(r.z, 1));
-        const centerX = canvas.width / 2;
-
-        const x = centerX + (r.laneX - centerX) * z;
-        const y = HORIZON_Y + (GROUND_Y - HORIZON_Y) * z;
-        const radius = RACCOON_BASE_RADIUS +
-          (RACCOON_MAX_RADIUS - RACCOON_BASE_RADIUS) * z;
-
-        return { x, y, radius };
-      }
-
-        function playRaccoonDeathSound() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-
-            const now = audioCtx.currentTime;
-
-            // Main tone (the squeak)
-            const osc = audioCtx.createOscillator();
-            osc.type = "triangle";
-
-            // Quick upward then downward pitch (squeak shape)
-            osc.frequency.setValueAtTime(900, now);
-            osc.frequency.linearRampToValueAtTime(1400, now + 0.03);
-            osc.frequency.exponentialRampToValueAtTime(300, now + 0.18);
-
-            // Volume envelope
-            const gain = audioCtx.createGain();
-            gain.gain.setValueAtTime(0.08, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
-
-            // Add slight wobble 
-            const lfo = audioCtx.createOscillator();
-            const lfoGain = audioCtx.createGain();
-
-            lfo.frequency.value = 35; // wobble speed
-            lfoGain.gain.value = 40;  // wobble amount
-
-            lfo.connect(lfoGain);
-            lfoGain.connect(osc.frequency);
-
-            // Connect chain
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-
-            osc.start(now);
-            lfo.start(now);
-
-            osc.stop(now + 0.18);
-            lfo.stop(now + 0.18);
-        }
-
-      function drawBackground() {
-        ctx.save();
-
-        const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-        skyGradient.addColorStop(0, "#87ceeb");
-        skyGradient.addColorStop(0.52, "#b7e2ff");
-        skyGradient.addColorStop(0.53, "#4d9f3a");
-        skyGradient.addColorStop(1, "#1f6f2c");
-
-        ctx.fillStyle = skyGradient;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.strokeStyle = "rgba(255,255,255,0.35)";
-        ctx.lineWidth = 2;
-
-        for (let i = -3; i <= 3; i++) {
-          const startX = canvas.width / 2 + i * 45;
-          ctx.beginPath();
-          ctx.moveTo(startX, HORIZON_Y);
-          ctx.lineTo(canvas.width / 2 + i * 190, canvas.height);
-          ctx.stroke();
-        }
-
-        ctx.restore();
-      }
-
-      function drawRaccoons() {
-        const sorted = [...raccoons].sort((a, b) => a.z - b.z);
-
-        for (const r of sorted) {
-          const pos = getRaccoonScreenPosition(r);
-
-          ctx.save();
-
-          if (!r.alive) {
-            ctx.globalAlpha = Math.max(1 - r.deathTimer / 450, 0);
-          }
-
-          ctx.fillStyle = "rgba(0,0,0,0.25)";
-          ctx.beginPath();
-          ctx.ellipse(
-            pos.x,
-            pos.y + pos.radius * 0.72,
-            pos.radius * 0.85,
-            pos.radius * 0.22,
-            0,
-            0,
-            Math.PI * 2
-          );
-          ctx.fill();
-
-          ctx.fillStyle = "#5a5a5a";
-          ctx.beginPath();
-          ctx.arc(pos.x, pos.y, pos.radius, 0, Math.PI * 2);
-          ctx.fill();
-
-          ctx.fillStyle = "#777";
-          ctx.beginPath();
-          ctx.arc(pos.x - pos.radius * 0.48, pos.y - pos.radius * 0.52, pos.radius * 0.28, 0, Math.PI * 2);
-          ctx.arc(pos.x + pos.radius * 0.48, pos.y - pos.radius * 0.52, pos.radius * 0.28, 0, Math.PI * 2);
-          ctx.fill();
-
-          ctx.fillStyle = "#2b2b2b";
-          ctx.beginPath();
-          ctx.ellipse(pos.x, pos.y, pos.radius * 0.9, pos.radius * 0.43, 0, 0, Math.PI * 2);
-          ctx.fill();
-
-          ctx.fillStyle = "#f5f5f5";
-          ctx.beginPath();
-          ctx.arc(pos.x - pos.radius * 0.33, pos.y, pos.radius * 0.13, 0, Math.PI * 2);
-          ctx.arc(pos.x + pos.radius * 0.33, pos.y, pos.radius * 0.13, 0, Math.PI * 2);
-          ctx.fill();
-
-          ctx.fillStyle = "#000";
-          ctx.beginPath();
-          ctx.arc(pos.x - pos.radius * 0.33, pos.y, pos.radius * 0.06, 0, Math.PI * 2);
-          ctx.arc(pos.x + pos.radius * 0.33, pos.y, pos.radius * 0.06, 0, Math.PI * 2);
-          ctx.fill();
-
-          ctx.fillStyle = "#111";
-          ctx.beginPath();
-          ctx.arc(pos.x, pos.y + pos.radius * 0.22, pos.radius * 0.08, 0, Math.PI * 2);
-          ctx.fill();
-
-          ctx.restore();
-        }
-      }
-
-      function drawM2HeavyMachineGun() {
-        if (!m2Image.complete) return;
-
-        const gunWidth = 255;
-        const gunHeight = 255;
-
-        const anchorX = canvas.width - 150;
-        const anchorY = canvas.height - 15;
-
-        const angle = Math.atan2(mouseY - anchorY, mouseX - anchorX);
-
-        const recoilX = Math.cos(angle) * -recoilOffset;
-        const recoilY = Math.sin(angle) * -recoilOffset;
-
-        ctx.save();
-        ctx.translate(anchorX + recoilX, anchorY + recoilY);
-        ctx.rotate(angle + Math.PI / 1.5);
-
-        ctx.drawImage(
-          m2Image,
-          -gunWidth * 0.45,
-          -gunHeight * 0.55,
-          gunWidth,
-          gunHeight
-        );
-
-        if (muzzleFlashTimer > 0) {
-            const flashAlpha = Math.max(muzzleFlashTimer / 55, 0);
-
-            const muzzleDistance = 220;
-
-          const muzzleX = -gunWidth * 0.25;
-          const muzzleY = -gunHeight * 0.58;
-
-          ctx.fillStyle = `rgba(255, 230, 110, ${0.9 * flashAlpha})`;
-          ctx.beginPath();
-          ctx.arc(muzzleX, muzzleY, 30, 0, Math.PI * 2);
-          ctx.fill();
-
-          ctx.fillStyle = `rgba(255, 130, 25, ${0.75 * flashAlpha})`;
-          ctx.beginPath();
-          ctx.arc(muzzleX, muzzleY, 15, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        ctx.restore();
-      }
-
-      function drawScreenFlash() {
-        if (screenFlashTimer <= 0) return;
-
-        const alpha = Math.max(screenFlashTimer / 45, 0) * 0.22;
-
-        ctx.save();
-        ctx.fillStyle = `rgba(255, 245, 190, ${alpha})`;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.restore();
-      }
-
-      function drawDamageFlash() {
-        if (damageFlashTimer <= 0) return;
-
-        const alpha = Math.max(damageFlashTimer / 160, 0) * 0.36;
-
-        ctx.save();
-        ctx.fillStyle = `rgba(255, 0, 0, ${alpha})`;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.restore();
-      }
-
-        let audioCtx = null;
-
-      function playGunshotSound() {
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
-
-  const duration = 0.055;
-  const sampleRate = audioCtx.sampleRate;
-  const buffer = audioCtx.createBuffer(1, sampleRate * duration, sampleRate);
-  const data = buffer.getChannelData(0);
-
-  for (let i = 0; i < data.length; i++) {
-    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 2);
-  }
-
-  const noise = audioCtx.createBufferSource();
-  noise.buffer = buffer;
-
-  const gain = audioCtx.createGain();
-  gain.gain.setValueAtTime(3, audioCtx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-
-  const filter = audioCtx.createBiquadFilter();
-  filter.type = "lowpass";
-  filter.frequency.setValueAtTime(900, audioCtx.currentTime);
-
-  noise.connect(filter);
-  filter.connect(gain);
-  gain.connect(audioCtx.destination);
-
-  noise.start();
-}
-      function drawReloadWarning() {
-        if (!roundActive) return;
-        if (shots < MAX_SHOTS && !isReloading) return;
-        if (reloadsLeft <= 0 && !isReloading) return;
-
-        const pulse = 0.6 + Math.sin(performance.now() / 100) * 0.4;
-
-        ctx.save();
-        ctx.fillStyle = isReloading ? "rgba(255, 220, 75, 0.95)" : `rgba(255, 0, 0, ${pulse})`;
-        ctx.font = "bold 52px Arial";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(isReloading ? "RELOADING..." : "RELOAD", canvas.width / 2, canvas.height * 0.22);
-        ctx.restore();
-      }
-
-      function drawCrosshair() {
-        ctx.save();
-
-        ctx.strokeStyle = "red";
-        ctx.lineWidth = 2;
-
-        const size = 18;
-
-        ctx.beginPath();
-        ctx.arc(mouseX, mouseY, size, 0, Math.PI * 2);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(mouseX - size - 4, mouseY);
-        ctx.lineTo(mouseX - 4, mouseY);
-
-        ctx.moveTo(mouseX + size + 4, mouseY);
-        ctx.lineTo(mouseX + 4, mouseY);
-
-        ctx.moveTo(mouseX, mouseY - size - 4);
-        ctx.lineTo(mouseX, mouseY - 4);
-
-        ctx.moveTo(mouseX, mouseY + size + 4);
-        ctx.lineTo(mouseX, mouseY + 4);
-
-        ctx.stroke();
-
-        ctx.restore();
-      }
-
-      function gameLoop(timestamp) {
-        if (!roundActive) return;
-
-        if (!lastTime) lastTime = timestamp;
-
-        const dt = timestamp - lastTime;
-        lastTime = timestamp;
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        if (health <= 0 || (shots >= MAX_SHOTS && reloadsLeft <= 0)) {
-          isFiring = false;
-          update(dt, timestamp);
-          drawBackground();
-          drawRaccoons();
-          drawM2HeavyMachineGun();
-          drawScreenFlash();
-          drawDamageFlash();
-          drawCrosshair();
-          drawReloadWarning();
-          updateHUD();
-          endRound();
-          return;
-        }
-
-        spawnRaccoon(timestamp);
-        update(dt, timestamp);
-
-        drawBackground();
-        drawRaccoons();
-        drawM2HeavyMachineGun();
-        drawScreenFlash();
-        drawDamageFlash();
-        drawCrosshair();
-          drawReloadWarning();
-
-        updateHUD();
-
-        requestAnimationFrame(gameLoop);
-      }
-
-      function showSummary() {
-        summaryScoreEl.textContent = score.toString();
-        summaryShotsHitEl.textContent = shotsHit.toString();
-        summaryShotsMissedEl.textContent = shotsMissed.toString();
-        summaryHealthEl.textContent = health.toString();
-
-        if (health <= 0) {
-          endTitleEl.textContent = "GAME OVER";
-          endTitleEl.style.color = "#ff0000";
-        } else if (shots >= MAX_SHOTS && reloadsLeft <= 0) {
-          endTitleEl.textContent = "OUT OF AMMO";
-          endTitleEl.style.color = "#ff1f1f";
-        } else {
-          endTitleEl.textContent = "ROUND COMPLETE";
-          endTitleEl.style.color = "#ff1f1f";
-        }
-
-        endOverlay.style.display = "flex";
-      }
-
-      function hideSummary() {
-        endOverlay.style.display = "none";
-      }
-
-      function endRound() {
-        roundActive = false;
-        isReloading = false;
-        showSummary();
-      }
-
-      closeSummaryButton.addEventListener("click", () => {
-  hideSummary();
-  titleScreen.style.display = "flex";
-  roundActive = false;
-
-  raccoons = [];
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawBackground();
-  drawCrosshair();
-          drawReloadWarning();
+<div id="game-shell">
+<canvas id="raccoonGame" width="1200" height="675"></canvas>
+<canvas id="gunCanvas"></canvas>
+
+<div id="titleScreen"><div id="titleContent"><h1>RACCOON HUNT</h1><p>K&amp;A Farms Night Defense</p><button id="titleStartButton" class="red-button" type="button">START</button></div></div>
+
+<div id="leftHud" class="hud-panel">
+<div class="hud-group"><span class="icon bullet"></span><div><div class="hud-label">AMMO</div><div class="hud-value"><strong id="ammoLeft">100</strong> / <span id="maxAmmo">100</span></div></div></div>
+<div class="hud-group"><span class="icon mag"></span><div><div class="hud-label">RELOADS LEFT</div><div class="hud-small-value"><strong id="reloadsLeft">3</strong> / <span id="maxReloads">3</span></div></div></div>
+<div class="hud-group"><div class="hud-label" style="grid-column:1/span 2;">HEALTH</div><div id="healthDisplay">❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️</div></div>
+</div>
+
+<div id="scoreHud" class="hud-panel"><div class="hud-label">SCORE</div><div class="hud-value" id="score">0</div></div>
+<div id="controlsHint" class="hud-panel"><div><span class="key">LMB</span>SHOOT</div><div><span class="key">R</span>RELOAD</div><div><span class="key">ESC</span>MENU</div></div>
+<div id="reloadWarning">RELOAD</div>
+
+<div id="endOverlay"><div id="endTitle">SUMMARY</div><div id="endStats"><div>SCORE<strong id="summaryScore">0</strong></div><div>SHOTS HIT<strong id="summaryShotsHit">0</strong></div><div>SHOTS MISSED<strong id="summaryShotsMissed">0</strong></div><div>HEALTH REMAINING<div id="summaryHealthText">❤️❤️❤️</div></div></div><div id="endButtons"><button id="closeSummaryButton" class="summary-btn secondary" type="button">MENU</button><button id="playAgainButton" class="summary-btn" type="button">PLAY AGAIN</button></div></div>
+</div>
+
+<script type="module">
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
+
+const canvas=document.getElementById("raccoonGame"),ctx=canvas.getContext("2d");
+const gunCanvas=document.getElementById("gunCanvas");
+const scoreEl=document.getElementById("score"),ammoLeftEl=document.getElementById("ammoLeft"),maxAmmoEl=document.getElementById("maxAmmo"),reloadsLeftEl=document.getElementById("reloadsLeft"),maxReloadsEl=document.getElementById("maxReloads"),healthDisplayEl=document.getElementById("healthDisplay"),reloadWarningEl=document.getElementById("reloadWarning");
+const titleScreen=document.getElementById("titleScreen"),titleStartButton=document.getElementById("titleStartButton"),endOverlay=document.getElementById("endOverlay"),endTitleEl=document.getElementById("endTitle"),summaryScoreEl=document.getElementById("summaryScore"),summaryShotsHitEl=document.getElementById("summaryShotsHit"),summaryShotsMissedEl=document.getElementById("summaryShotsMissed"),summaryHealthTextEl=document.getElementById("summaryHealthText"),closeSummaryButton=document.getElementById("closeSummaryButton"),playAgainButton=document.getElementById("playAgainButton");
+
+const bgImage=new Image();
+bgImage.src="farmNightBackground.png";
+
+const MAX_SHOTS=100,MAX_RELOADS=3,MAX_HEALTH=10,FIRE_INTERVAL=92,RELOAD_TIME=1400,SPAWN_INTERVAL_START=1050,SPAWN_INTERVAL_MIN=390,DIFFICULTY_SCORE_TARGET=350,RACCOON_BASE_RADIUS=16,RACCOON_MAX_RADIUS=86,RACCOON_SPEED_MIN=.16,RACCOON_SPEED_MAX=.34;
+const HORIZON_Y=canvas.height*.47,GROUND_Y=canvas.height*.93;
+
+let raccoons=[],score=0,shots=0,shotsHit=0,shotsMissed=0,reloadsLeft=MAX_RELOADS,health=MAX_HEALTH,lastTime=0,lastSpawnTime=0,roundActive=false,mouseX=canvas.width/2,mouseY=canvas.height/2,isFiring=false,isReloading=false,lastShotTime=0,muzzleFlashTimer=0,screenFlashTimer=0,damageFlashTimer=0,recoilOffset=0,audioCtx=null;
+
+maxAmmoEl.textContent=MAX_SHOTS;maxReloadsEl.textContent=MAX_RELOADS;
+
+// ---------- Three.js gun layer ----------
+const renderer=new THREE.WebGLRenderer({canvas:gunCanvas,alpha:true,antialias:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+renderer.setSize(canvas.width,canvas.height,false);
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(45,canvas.width/canvas.height,.1,100);
+camera.position.set(0,0,5);
+
+const ambient=new THREE.AmbientLight(0xffffff,.65);
+scene.add(ambient);
+const keyLight=new THREE.DirectionalLight(0xffffff,1.6);
+keyLight.position.set(3,4,6);
+scene.add(keyLight);
+const moonLight=new THREE.DirectionalLight(0x7fb7ff,.8);
+moonLight.position.set(-4,3,2);
+scene.add(moonLight);
+
+const gunRoot=new THREE.Group();
+scene.add(gunRoot);
+let gunModel=null;
+
+// Tweak these if the gun appears offset or angled wrong.
+const GUN_POSITION=new THREE.Vector3(1.25,-1.1,0.35);
+const GUN_BASE_ROTATION=new THREE.Euler(-0.05,0.05,-0.18);
+const GUN_SCALE_TARGET=2.15;
+const AIM_YAW_AMOUNT=0.42;
+const AIM_PITCH_AMOUNT=0.26;
+
+new GLTFLoader().load("m2HeavyModel.glb",(gltf)=>{
+  gunModel=gltf.scene;
+
+  const box=new THREE.Box3().setFromObject(gunModel);
+  const size=new THREE.Vector3();
+  const center=new THREE.Vector3();
+  box.getSize(size);
+  box.getCenter(center);
+
+  gunModel.position.sub(center);
+  const maxDim=Math.max(size.x,size.y,size.z);
+  const scale=GUN_SCALE_TARGET/maxDim;
+  gunModel.scale.setScalar(scale);
+
+  gunRoot.add(gunModel);
+  updateGunTransform();
+},undefined,(err)=>{
+  console.error("Could not load gun model:",err);
 });
 
-      playAgainButton.addEventListener("click", () => {
-        hideSummary();
-        startRound();
-      });
+function updateGunTransform(){
+  if(!gunRoot)return;
+  const nx=(mouseX/canvas.width-.5);
+  const ny=(mouseY/canvas.height-.5);
+  gunRoot.position.copy(GUN_POSITION);
+  gunRoot.position.z += recoilOffset*.018;
+  gunRoot.rotation.set(
+    GUN_BASE_ROTATION.x - ny*AIM_PITCH_AMOUNT,
+    GUN_BASE_ROTATION.y + nx*AIM_YAW_AMOUNT,
+    GUN_BASE_ROTATION.z
+  );
+}
 
-      m2Image.onload = () => {
-        drawBackground();
-        drawM2HeavyMachineGun();
-        drawCrosshair();
-          drawReloadWarning();
-      };
+function renderGun(){
+  updateGunTransform();
+  renderer.render(scene,camera);
+  requestAnimationFrame(renderGun);
+}
+renderGun();
 
-      drawBackground();
-      drawCrosshair();
-          drawReloadWarning();
-    })();
-  </script>
+function resizeLayers(){
+  const rect=canvas.getBoundingClientRect();
+  gunCanvas.width=canvas.width;
+  gunCanvas.height=canvas.height;
+  renderer.setSize(canvas.width,canvas.height,false);
+  camera.aspect=canvas.width/canvas.height;
+  camera.updateProjectionMatrix();
+}
+window.addEventListener("resize",resizeLayers);
+
+// ---------- Game logic ----------
+function heartsString(v){let h="";for(let i=0;i<v;i++)h+="❤️";for(let i=v;i<MAX_HEALTH;i++)h+="🖤";return h}
+function updateHUD(){scoreEl.textContent=score;ammoLeftEl.textContent=Math.max(MAX_SHOTS-shots,0);reloadsLeftEl.textContent=reloadsLeft;healthDisplayEl.textContent=heartsString(health);if(isReloading){reloadWarningEl.textContent="RELOADING...";reloadWarningEl.style.display="block";reloadWarningEl.style.color="#f6d94a"}else if(shots>=MAX_SHOTS&&reloadsLeft>0&&roundActive){reloadWarningEl.textContent="RELOAD";reloadWarningEl.style.display="block";reloadWarningEl.style.color="#ff2a1f"}else reloadWarningEl.style.display="none"}
+function resetGameState(){raccoons=[];score=0;shots=0;shotsHit=0;shotsMissed=0;reloadsLeft=MAX_RELOADS;health=MAX_HEALTH;lastTime=0;lastSpawnTime=performance.now();lastShotTime=0;roundActive=true;isFiring=false;isReloading=false;muzzleFlashTimer=0;screenFlashTimer=0;damageFlashTimer=0;recoilOffset=0;updateHUD()}
+function startRound(){hideSummary();titleScreen.style.display="none";resetGameState();requestAnimationFrame(gameLoop)}
+function returnToMenu(){hideSummary();titleScreen.style.display="flex";roundActive=false;isFiring=false;isReloading=false;raccoons=[];drawScene()}
+titleStartButton.onclick=startRound;closeSummaryButton.onclick=returnToMenu;playAgainButton.onclick=startRound;
+window.addEventListener("keydown",e=>{if(e.key.toLowerCase()==="r")reloadWeapon();if(e.key==="Escape")returnToMenu()});
+function updateMousePosition(clientX,clientY){const rect=canvas.getBoundingClientRect();mouseX=(clientX-rect.left)*(canvas.width/rect.width);mouseY=(clientY-rect.top)*(canvas.height/rect.height)}
+canvas.addEventListener("mousemove",e=>updateMousePosition(e.clientX,e.clientY));canvas.addEventListener("mousedown",e=>{updateMousePosition(e.clientX,e.clientY);isFiring=true;fireWeapon(performance.now())});window.addEventListener("mouseup",()=>isFiring=false);canvas.addEventListener("mouseleave",()=>isFiring=false);
+canvas.addEventListener("touchstart",e=>{e.preventDefault();const t=e.touches[0];updateMousePosition(t.clientX,t.clientY);isFiring=true;fireWeapon(performance.now())},{passive:false});canvas.addEventListener("touchmove",e=>{e.preventDefault();const t=e.touches[0];updateMousePosition(t.clientX,t.clientY)},{passive:false});window.addEventListener("touchend",()=>isFiring=false);
+function reloadWeapon(){if(!roundActive||isReloading||shots===0||reloadsLeft<=0)return;isReloading=true;isFiring=false;updateHUD();setTimeout(()=>{if(!roundActive)return;shots=0;reloadsLeft--;isReloading=false;lastShotTime=0;updateHUD()},RELOAD_TIME)}
+function fireWeapon(now){if(!roundActive||isReloading)return;if(shots>=MAX_SHOTS){updateHUD();return}if(now-lastShotTime<FIRE_INTERVAL)return;lastShotTime=now;shots++;playGunshotSound();muzzleFlashTimer=55;screenFlashTimer=38;recoilOffset=11;let didHit=false;for(let i=raccoons.length-1;i>=0;i--){const r=raccoons[i];if(!r.alive)continue;const pos=getRaccoonScreenPosition(r),dx=mouseX-pos.x,dy=mouseY-pos.y;if(Math.hypot(dx,dy)<=pos.radius){r.alive=false;r.hit=true;score+=10;shotsHit++;didHit=true;playRaccoonDeathSound();break}}if(!didHit)shotsMissed++;updateHUD()}
+function spawnRaccoon(now){const d=Math.min(score/DIFFICULTY_SCORE_TARGET,1),interval=SPAWN_INTERVAL_START-(SPAWN_INTERVAL_START-SPAWN_INTERVAL_MIN)*d;if(now-lastSpawnTime<interval)return;lastSpawnTime=now;const laneX=canvas.width*.16+Math.random()*canvas.width*.68,speed=(RACCOON_SPEED_MIN+Math.random()*(RACCOON_SPEED_MAX-RACCOON_SPEED_MIN))*(1+d*.48);raccoons.push({laneX,z:.03,speed,alive:true,hit:false,deathTimer:0})}
+function update(dt,now){const s=dt/1000;if(isFiring)fireWeapon(now);if(muzzleFlashTimer>0)muzzleFlashTimer-=dt;if(screenFlashTimer>0)screenFlashTimer-=dt;if(damageFlashTimer>0)damageFlashTimer-=dt;if(recoilOffset>0){recoilOffset*=.78;if(recoilOffset<.2)recoilOffset=0}for(let i=raccoons.length-1;i>=0;i--){const r=raccoons[i];if(r.alive){r.z+=r.speed*s;if(r.z>=1){r.alive=false;r.hit=false;health=Math.max(health-1,0);damageFlashTimer=170;updateHUD()}}else{r.deathTimer+=dt;r.z+=.2*s;if(r.deathTimer>430||r.z>1.2)raccoons.splice(i,1)}}}
+function getRaccoonScreenPosition(r){const z=Math.max(.03,Math.min(r.z,1)),cx=canvas.width/2;return{x:cx+(r.laneX-cx)*z,y:HORIZON_Y+(GROUND_Y-HORIZON_Y)*z,radius:RACCOON_BASE_RADIUS+(RACCOON_MAX_RADIUS-RACCOON_BASE_RADIUS)*z}}
+function ensureAudioContext(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)()}
+function playGunshotSound(){ensureAudioContext();const duration=.055,sampleRate=audioCtx.sampleRate,buffer=audioCtx.createBuffer(1,sampleRate*duration,sampleRate),data=buffer.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,2);const noise=audioCtx.createBufferSource();noise.buffer=buffer;const gain=audioCtx.createGain();gain.gain.setValueAtTime(1.05,audioCtx.currentTime);gain.gain.exponentialRampToValueAtTime(.01,audioCtx.currentTime+duration);const filter=audioCtx.createBiquadFilter();filter.type="lowpass";filter.frequency.setValueAtTime(900,audioCtx.currentTime);noise.connect(filter);filter.connect(gain);gain.connect(audioCtx.destination);noise.start()}
+function playRaccoonDeathSound(){ensureAudioContext();const now=audioCtx.currentTime,osc=audioCtx.createOscillator();osc.type="triangle";osc.frequency.setValueAtTime(900,now);osc.frequency.linearRampToValueAtTime(1400,now+.03);osc.frequency.exponentialRampToValueAtTime(300,now+.18);const gain=audioCtx.createGain();gain.gain.setValueAtTime(.08,now);gain.gain.exponentialRampToValueAtTime(.001,now+.18);const lfo=audioCtx.createOscillator(),lfoGain=audioCtx.createGain();lfo.frequency.value=35;lfoGain.gain.value=40;lfo.connect(lfoGain);lfoGain.connect(osc.frequency);osc.connect(gain);gain.connect(audioCtx.destination);osc.start(now);lfo.start(now);osc.stop(now+.18);lfo.stop(now+.18)}
+
+function drawBackground(){if(bgImage.complete){ctx.drawImage(bgImage,0,0,canvas.width,canvas.height)}else{const sky=ctx.createLinearGradient(0,0,0,canvas.height);sky.addColorStop(0,"#07101a");sky.addColorStop(.47,"#101f18");sky.addColorStop(1,"#18240f");ctx.fillStyle=sky;ctx.fillRect(0,0,canvas.width,canvas.height)}}
+function drawRaccoons(){const sorted=[...raccoons].sort((a,b)=>a.z-b.z);for(const r of sorted){const p=getRaccoonScreenPosition(r);ctx.save();if(!r.alive)ctx.globalAlpha=Math.max(1-r.deathTimer/430,0);ctx.fillStyle="rgba(0,0,0,.45)";ctx.beginPath();ctx.ellipse(p.x,p.y+p.radius*.75,p.radius*.9,p.radius*.22,0,0,Math.PI*2);ctx.fill();ctx.fillStyle="#3f4140";ctx.beginPath();ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);ctx.fill();ctx.fillStyle="#111";ctx.beginPath();ctx.ellipse(p.x,p.y,p.radius*.9,p.radius*.43,0,0,Math.PI*2);ctx.fill();ctx.fillStyle="#e6e6d6";ctx.beginPath();ctx.arc(p.x-p.radius*.33,p.y,p.radius*.13,0,Math.PI*2);ctx.arc(p.x+p.radius*.33,p.y,p.radius*.13,0,Math.PI*2);ctx.fill();ctx.fillStyle="#000";ctx.beginPath();ctx.arc(p.x-p.radius*.33,p.y,p.radius*.06,0,Math.PI*2);ctx.arc(p.x+p.radius*.33,p.y,p.radius*.06,0,Math.PI*2);ctx.fill();ctx.restore()}}
+function drawMuzzleFlash(){if(muzzleFlashTimer<=0)return;const a=Math.max(muzzleFlashTimer/55,0);ctx.save();ctx.fillStyle=`rgba(255,226,90,${.75*a})`;ctx.beginPath();ctx.arc(mouseX,mouseY+42,34,0,Math.PI*2);ctx.fill();ctx.fillStyle=`rgba(255,95,15,${.55*a})`;ctx.beginPath();ctx.arc(mouseX,mouseY+42,17,0,Math.PI*2);ctx.fill();ctx.restore()}
+function drawScreenFlash(){if(screenFlashTimer<=0)return;const a=Math.max(screenFlashTimer/38,0)*.18;ctx.save();ctx.fillStyle=`rgba(255,235,170,${a})`;ctx.fillRect(0,0,canvas.width,canvas.height);ctx.restore()}
+function drawDamageFlash(){if(damageFlashTimer<=0)return;const a=Math.max(damageFlashTimer/170,0)*.36;ctx.save();ctx.fillStyle=`rgba(255,0,0,${a})`;ctx.fillRect(0,0,canvas.width,canvas.height);ctx.restore()}
+function drawCrosshair(){ctx.save();ctx.strokeStyle="rgba(255,255,255,.85)";ctx.lineWidth=3;const size=18,gap=9;ctx.beginPath();ctx.moveTo(mouseX-size-gap,mouseY);ctx.lineTo(mouseX-gap,mouseY);ctx.moveTo(mouseX+gap,mouseY);ctx.lineTo(mouseX+size+gap,mouseY);ctx.moveTo(mouseX,mouseY-size-gap);ctx.lineTo(mouseX,mouseY-gap);ctx.moveTo(mouseX,mouseY+gap);ctx.lineTo(mouseX,mouseY+size+gap);ctx.stroke();ctx.fillStyle="rgba(255,255,255,.9)";ctx.beginPath();ctx.arc(mouseX,mouseY,2.5,0,Math.PI*2);ctx.fill();ctx.restore()}
+function drawScene(){ctx.clearRect(0,0,canvas.width,canvas.height);drawBackground();drawRaccoons();drawMuzzleFlash();drawScreenFlash();drawDamageFlash();drawCrosshair();updateHUD()}
+function gameLoop(t){if(!roundActive)return;if(!lastTime)lastTime=t;const dt=t-lastTime;lastTime=t;if(health<=0||(shots>=MAX_SHOTS&&reloadsLeft<=0)){isFiring=false;update(dt,t);drawScene();endRound();return}spawnRaccoon(t);update(dt,t);drawScene();requestAnimationFrame(gameLoop)}
+function showSummary(){summaryScoreEl.textContent=score;summaryShotsHitEl.textContent=shotsHit;summaryShotsMissedEl.textContent=shotsMissed;summaryHealthTextEl.textContent=heartsString(health);if(health<=0){endTitleEl.textContent="GAME OVER";endTitleEl.style.color="#ff0000"}else if(shots>=MAX_SHOTS&&reloadsLeft<=0){endTitleEl.textContent="OUT OF AMMO";endTitleEl.style.color="#ff1f1f"}else{endTitleEl.textContent="SUMMARY";endTitleEl.style.color="#fff"}endOverlay.style.display="block"}
+function hideSummary(){endOverlay.style.display="none"}function endRound(){roundActive=false;isReloading=false;showSummary()}
+bgImage.onload=()=>drawScene();
+drawScene();
+</script>
 </body>
 </html>
