@@ -11,7 +11,7 @@ body{margin:0;min-height:100vh;background:#050505;display:flex;justify-content:c
 #game-shell{width:min(100vw,1200px);aspect-ratio:16/9;position:relative;background:#000;overflow:hidden;border:2px solid #101010;box-shadow:0 0 45px rgba(0,0,0,.8)}
 #raccoonGame,#gunCanvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 #raccoonGame{z-index:1;cursor:none;background:#0a0d0f}
-#gunCanvas{z-index:12;pointer-events:none}
+#gunCanvas{z-index:12;pointer-events:none;background:transparent}
 .hud-panel{position:absolute;z-index:20;color:var(--white);text-shadow:0 3px 3px rgba(0,0,0,.95);pointer-events:none;letter-spacing:1px}
 #leftHud{top:22px;left:24px;width:255px;padding:10px 14px 14px;background:linear-gradient(90deg,rgba(0,0,0,.72),rgba(0,0,0,.28),transparent);border-left:3px solid rgba(255,255,255,.25)}
 .hud-group{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:center;padding:8px 0 12px;border-bottom:2px solid rgba(255,255,255,.35)}
@@ -44,7 +44,7 @@ body{margin:0;min-height:100vh;background:#050505;display:flex;justify-content:c
 <canvas id="raccoonGame" width="1200" height="675"></canvas>
 <canvas id="gunCanvas"></canvas>
 
-<div id="titleScreen"><div id="titleContent"><h1>RACCOON HUNT</h1><p>K&amp;A Farms Night Defense</p><button id="titleStartButton" class="red-button" type="button">START</button></div></div>
+<div id="titleScreen"><div id="titleContent"><h1>RACCOON HUNT</h1><p>K&amp;A Farms Night Defense<br><small>Tripod-mounted center gun. Press G during gameplay to cycle gun orientation if needed.</small></p><button id="titleStartButton" class="red-button" type="button">START</button></div></div>
 
 <div id="leftHud" class="hud-panel">
 <div class="hud-group"><span class="icon bullet"></span><div><div class="hud-label">AMMO</div><div class="hud-value"><strong id="ammoLeft">100</strong> / <span id="maxAmmo">100</span></div></div></div>
@@ -97,85 +97,240 @@ let raccoons=[],score=0,shots=0,shotsHit=0,shotsMissed=0,reloadsLeft=MAX_RELOADS
 
 maxAmmoEl.textContent=MAX_SHOTS;maxReloadsEl.textContent=MAX_RELOADS;
 
-// ---------- Three.js gun layer ----------
-const renderer=new THREE.WebGLRenderer({canvas:gunCanvas,alpha:true,antialias:true});
-renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
-renderer.setSize(canvas.width,canvas.height,false);
-renderer.outputColorSpace=THREE.SRGBColorSpace;
+// ---------- Three.js model layer ----------
+let renderer = null;
+let scene = null;
+let camera = null;
+let gunRoot = null;
+let gunModel = null;
+let raccoonTemplate = null;
+let raccoonModelPool = new Map();
 
-const scene=new THREE.Scene();
-const camera=new THREE.PerspectiveCamera(45,canvas.width/canvas.height,.1,100);
-camera.position.set(0,0,5);
+// Tweak these if needed.
+const GUN_POSITION = new THREE.Vector3(0.0, -1.45, -2.55);
+const GUN_SCALE_TARGET = 2.95;
+const AIM_YAW_AMOUNT = 0.24;
+const AIM_PITCH_AMOUNT = 0.16;
 
-const ambient=new THREE.AmbientLight(0xffffff,.65);
-scene.add(ambient);
-const keyLight=new THREE.DirectionalLight(0xffffff,1.6);
-keyLight.position.set(3,4,6);
-scene.add(keyLight);
-const moonLight=new THREE.DirectionalLight(0x7fb7ff,.8);
-moonLight.position.set(-4,3,2);
-scene.add(moonLight);
+// Tripod-mounted center feel: lower, centered, with limited traverse.
+const GUN_ORIENTATION_TRIES = [
+  new THREE.Euler(-0.08, Math.PI, 0),
+  new THREE.Euler(-Math.PI / 2, Math.PI, 0),
+  new THREE.Euler(0, Math.PI / 2, 0),
+  new THREE.Euler(0, -Math.PI / 2, 0),
+  new THREE.Euler(Math.PI / 2, Math.PI, 0)
+];
+let currentOrientationIndex = 0;
 
-const gunRoot=new THREE.Group();
-scene.add(gunRoot);
-let gunModel=null;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas: gunCanvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(canvas.width, canvas.height, false);
+  renderer.setClearColor(0x000000, 0);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-// Tweak these if the gun appears offset or angled wrong.
-const GUN_POSITION=new THREE.Vector3(1.25,-1.1,0.35);
-const GUN_BASE_ROTATION=new THREE.Euler(-0.05,0.05,-0.18);
-const GUN_SCALE_TARGET=2.15;
-const AIM_YAW_AMOUNT=0.42;
-const AIM_PITCH_AMOUNT=0.26;
+  scene = new THREE.Scene();
 
-new GLTFLoader().load("m2HeavyModel.glb",(gltf)=>{
-  gunModel=gltf.scene;
+  camera = new THREE.PerspectiveCamera(50, canvas.width / canvas.height, 0.1, 100);
+  camera.position.set(0, 0, 0);
+  camera.lookAt(0, 0, -3);
 
-  const box=new THREE.Box3().setFromObject(gunModel);
-  const size=new THREE.Vector3();
-  const center=new THREE.Vector3();
-  box.getSize(size);
-  box.getCenter(center);
+  const ambient = new THREE.AmbientLight(0xffffff, 1.05);
+  scene.add(ambient);
 
-  gunModel.position.sub(center);
-  const maxDim=Math.max(size.x,size.y,size.z);
-  const scale=GUN_SCALE_TARGET/maxDim;
-  gunModel.scale.setScalar(scale);
+  const keyLight = new THREE.DirectionalLight(0xffffff, 2.15);
+  keyLight.position.set(3, 4, 5);
+  scene.add(keyLight);
 
-  gunRoot.add(gunModel);
-  updateGunTransform();
-},undefined,(err)=>{
-  console.error("Could not load gun model:",err); gunCanvas.style.display="none";
-});
+  const fillLight = new THREE.DirectionalLight(0x9fc6ff, 1.25);
+  fillLight.position.set(-4, 2, 2);
+  scene.add(fillLight);
 
-function updateGunTransform(){
-  if(!gunRoot)return;
-  const nx=(mouseX/canvas.width-.5);
-  const ny=(mouseY/canvas.height-.5);
-  gunRoot.position.copy(GUN_POSITION);
-  gunRoot.position.z += recoilOffset*.018;
-  gunRoot.rotation.set(
-    GUN_BASE_ROTATION.x - ny*AIM_PITCH_AMOUNT,
-    GUN_BASE_ROTATION.y + nx*AIM_YAW_AMOUNT,
-    GUN_BASE_ROTATION.z
+  const groundGlow = new THREE.PointLight(0xffdd8a, 1.2, 14);
+  groundGlow.position.set(0, -2.1, -4);
+  scene.add(groundGlow);
+
+  gunRoot = new THREE.Group();
+  scene.add(gunRoot);
+
+  const loader = new GLTFLoader();
+
+  loader.load(
+    "m2HeavyModel.glb",
+    (gltf) => {
+      gunModel = gltf.scene;
+
+      gunModel.traverse((child) => {
+        if (child.isMesh) {
+          child.frustumCulled = false;
+          if (child.material) {
+            child.material.side = THREE.DoubleSide;
+            child.material.needsUpdate = true;
+          }
+        }
+      });
+
+      const box = new THREE.Box3().setFromObject(gunModel);
+      const size = new THREE.Vector3();
+      const center = new THREE.Vector3();
+      box.getSize(size);
+      box.getCenter(center);
+
+      gunModel.position.sub(center);
+
+      const maxDim = Math.max(size.x, size.y, size.z) || 1;
+      gunModel.scale.setScalar(GUN_SCALE_TARGET / maxDim);
+
+      gunRoot.add(gunModel);
+      updateGunTransform();
+    },
+    undefined,
+    (err) => {
+      console.error("Could not load gun model:", err);
+      gunCanvas.style.display = "none";
+    }
   );
-}
 
-function renderGun(){
-  updateGunTransform();
-  renderer.render(scene,camera);
-  requestAnimationFrame(renderGun);
-}
-renderGun();
+  loader.load(
+    "raccoonModel.glb",
+    (gltf) => {
+      raccoonTemplate = gltf.scene;
+      raccoonTemplate.traverse((child) => {
+        if (child.isMesh) {
+          child.frustumCulled = false;
+          if (child.material) {
+            child.material.side = THREE.DoubleSide;
+            child.material.needsUpdate = true;
+          }
+        }
+      });
 
-function resizeLayers(){
-  const rect=canvas.getBoundingClientRect();
-  gunCanvas.width=canvas.width;
-  gunCanvas.height=canvas.height;
-  renderer.setSize(canvas.width,canvas.height,false);
-  camera.aspect=canvas.width/canvas.height;
-  camera.updateProjectionMatrix();
+      const box = new THREE.Box3().setFromObject(raccoonTemplate);
+      const center = new THREE.Vector3();
+      box.getCenter(center);
+      raccoonTemplate.position.sub(center);
+      raccoonTemplate.visible = false;
+      scene.add(raccoonTemplate);
+      syncRaccoonModels();
+    },
+    undefined,
+    (err) => {
+      console.warn("Could not load raccoon model. Falling back to 2D raccoons.", err);
+    }
+  );
+
+  window.addEventListener("keydown", (e) => {
+    // Press G to cycle gun base orientation while testing.
+    if (e.key.toLowerCase() === "g") {
+      currentOrientationIndex = (currentOrientationIndex + 1) % GUN_ORIENTATION_TRIES.length;
+      updateGunTransform();
+      console.log("Gun orientation index:", currentOrientationIndex);
+    }
+  });
+
+  function screenToWorld(screenX, screenY, distance) {
+    const ndcX = (screenX / canvas.width) * 2 - 1;
+    const ndcY = -(screenY / canvas.height) * 2 + 1;
+
+    const fovRad = THREE.MathUtils.degToRad(camera.fov);
+    const halfHeight = Math.tan(fovRad / 2) * distance;
+    const halfWidth = halfHeight * camera.aspect;
+
+    return new THREE.Vector3(ndcX * halfWidth, ndcY * halfHeight, -distance);
+  }
+
+  function syncRaccoonModels() {
+    if (!raccoonTemplate || !scene) return;
+
+    const activeIds = new Set();
+
+    for (const r of raccoons) {
+      if (!r.modelId) r.modelId = crypto.randomUUID();
+      activeIds.add(r.modelId);
+
+      let model = raccoonModelPool.get(r.modelId);
+      if (!model) {
+        model = raccoonTemplate.clone(true);
+        model.visible = true;
+        scene.add(model);
+        raccoonModelPool.set(r.modelId, model);
+      }
+
+      const pos = getRaccoonScreenPosition(r);
+      const distance = 8.2 - r.z * 5.6;
+      const world = screenToWorld(pos.x, pos.y, distance);
+
+      model.position.copy(world);
+      model.position.y -= 0.12;
+
+      const scale = 0.22 + r.z * 0.52;
+      model.scale.setScalar(scale);
+
+      // Face camera, with a slight low-poly creature stance.
+      model.rotation.set(0.05, Math.PI, 0);
+
+      if (!r.alive) {
+        model.rotation.z = 0.85;
+        model.position.y -= 0.16;
+      }
+
+      model.visible = true;
+    }
+
+    for (const [id, model] of raccoonModelPool.entries()) {
+      if (!activeIds.has(id)) {
+        scene.remove(model);
+        raccoonModelPool.delete(id);
+      }
+    }
+  }
+
+  function updateGunTransform() {
+    if (!gunRoot) return;
+
+    const nx = (mouseX / canvas.width - 0.5);
+    const ny = (mouseY / canvas.height - 0.5);
+
+    gunRoot.position.copy(GUN_POSITION);
+    gunRoot.position.z += recoilOffset * 0.018;
+
+    const base = GUN_ORIENTATION_TRIES[currentOrientationIndex];
+
+    gunRoot.rotation.set(
+      base.x - ny * AIM_PITCH_AMOUNT,
+      base.y + nx * AIM_YAW_AMOUNT,
+      base.z
+    );
+  }
+
+  function renderModels() {
+    try {
+      if (renderer && scene && camera) {
+        updateGunTransform();
+        syncRaccoonModels();
+        renderer.render(scene, camera);
+      }
+    } catch (err) {
+      console.error("3D render failed:", err);
+      gunCanvas.style.display = "none";
+    }
+
+    requestAnimationFrame(renderModels);
+  }
+
+  renderModels();
+
+  function resizeLayers() {
+    renderer.setSize(canvas.width, canvas.height, false);
+    camera.aspect = canvas.width / canvas.height;
+    camera.updateProjectionMatrix();
+  }
+
+  window.addEventListener("resize", resizeLayers);
+} catch (err) {
+  console.error("Three.js setup failed:", err);
+  gunCanvas.style.display = "none";
 }
-window.addEventListener("resize",resizeLayers);
 
 // ---------- Game logic ----------
 function heartsString(v){let h="";for(let i=0;i<v;i++)h+="❤️";for(let i=v;i<MAX_HEALTH;i++)h+="🖤";return h}
@@ -255,8 +410,58 @@ function drawBackground(){
   ctx.fillRect(0,0,canvas.width,canvas.height);
 }
 
-function drawRaccoons(){const sorted=[...raccoons].sort((a,b)=>a.z-b.z);for(const r of sorted){const p=getRaccoonScreenPosition(r);ctx.save();if(!r.alive)ctx.globalAlpha=Math.max(1-r.deathTimer/430,0);ctx.fillStyle="rgba(0,0,0,.45)";ctx.beginPath();ctx.ellipse(p.x,p.y+p.radius*.75,p.radius*.9,p.radius*.22,0,0,Math.PI*2);ctx.fill();ctx.fillStyle="#3f4140";ctx.beginPath();ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);ctx.fill();ctx.fillStyle="#111";ctx.beginPath();ctx.ellipse(p.x,p.y,p.radius*.9,p.radius*.43,0,0,Math.PI*2);ctx.fill();ctx.fillStyle="#e6e6d6";ctx.beginPath();ctx.arc(p.x-p.radius*.33,p.y,p.radius*.13,0,Math.PI*2);ctx.arc(p.x+p.radius*.33,p.y,p.radius*.13,0,Math.PI*2);ctx.fill();ctx.fillStyle="#000";ctx.beginPath();ctx.arc(p.x-p.radius*.33,p.y,p.radius*.06,0,Math.PI*2);ctx.arc(p.x+p.radius*.33,p.y,p.radius*.06,0,Math.PI*2);ctx.fill();ctx.restore()}}
-function drawMuzzleFlash(){if(muzzleFlashTimer<=0)return;const a=Math.max(muzzleFlashTimer/55,0);ctx.save();ctx.fillStyle=`rgba(255,226,90,${.75*a})`;ctx.beginPath();ctx.arc(mouseX,mouseY+42,34,0,Math.PI*2);ctx.fill();ctx.fillStyle=`rgba(255,95,15,${.55*a})`;ctx.beginPath();ctx.arc(mouseX,mouseY+42,17,0,Math.PI*2);ctx.fill();ctx.restore()}
+function drawRaccoons(){
+  // Fallback only: if the 3D raccoon model has not loaded, keep simple 2D targets visible.
+  if(raccoonTemplate) return;
+
+  const sorted=[...raccoons].sort((a,b)=>a.z-b.z);
+  for(const r of sorted){
+    const p=getRaccoonScreenPosition(r);
+    ctx.save();
+    if(!r.alive)ctx.globalAlpha=Math.max(1-r.deathTimer/430,0);
+    ctx.fillStyle="rgba(0,0,0,.45)";
+    ctx.beginPath();
+    ctx.ellipse(p.x,p.y+p.radius*.75,p.radius*.9,p.radius*.22,0,0,Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle="#3f4140";
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle="#111";
+    ctx.beginPath();
+    ctx.ellipse(p.x,p.y,p.radius*.9,p.radius*.43,0,0,Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle="#e6e6d6";
+    ctx.beginPath();
+    ctx.arc(p.x-p.radius*.33,p.y,p.radius*.13,0,Math.PI*2);
+    ctx.arc(p.x+p.radius*.33,p.y,p.radius*.13,0,Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle="#000";
+    ctx.beginPath();
+    ctx.arc(p.x-p.radius*.33,p.y,p.radius*.06,0,Math.PI*2);
+    ctx.arc(p.x+p.radius*.33,p.y,p.radius*.06,0,Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+function drawMuzzleFlash(){
+  if(muzzleFlashTimer<=0)return;
+  const a=Math.max(muzzleFlashTimer/55,0);
+  const baseX=canvas.width*.5,baseY=canvas.height*.83;
+  const angle=Math.atan2(mouseY-baseY,mouseX-baseX);
+  const mx=baseX+Math.cos(angle)*260;
+  const my=baseY+Math.sin(angle)*260;
+  ctx.save();
+  ctx.fillStyle=`rgba(255,226,90,${.75*a})`;
+  ctx.beginPath();
+  ctx.arc(mx,my,34,0,Math.PI*2);
+  ctx.fill();
+  ctx.fillStyle=`rgba(255,95,15,${.55*a})`;
+  ctx.beginPath();
+  ctx.arc(mx,my,17,0,Math.PI*2);
+  ctx.fill();
+  ctx.restore();
+}
 function drawScreenFlash(){if(screenFlashTimer<=0)return;const a=Math.max(screenFlashTimer/38,0)*.18;ctx.save();ctx.fillStyle=`rgba(255,235,170,${a})`;ctx.fillRect(0,0,canvas.width,canvas.height);ctx.restore()}
 function drawDamageFlash(){if(damageFlashTimer<=0)return;const a=Math.max(damageFlashTimer/170,0)*.36;ctx.save();ctx.fillStyle=`rgba(255,0,0,${a})`;ctx.fillRect(0,0,canvas.width,canvas.height);ctx.restore()}
 function drawCrosshair(){ctx.save();ctx.strokeStyle="rgba(255,255,255,.85)";ctx.lineWidth=3;const size=18,gap=9;ctx.beginPath();ctx.moveTo(mouseX-size-gap,mouseY);ctx.lineTo(mouseX-gap,mouseY);ctx.moveTo(mouseX+gap,mouseY);ctx.lineTo(mouseX+size+gap,mouseY);ctx.moveTo(mouseX,mouseY-size-gap);ctx.lineTo(mouseX,mouseY-gap);ctx.moveTo(mouseX,mouseY+gap);ctx.lineTo(mouseX,mouseY+size+gap);ctx.stroke();ctx.fillStyle="rgba(255,255,255,.9)";ctx.beginPath();ctx.arc(mouseX,mouseY,2.5,0,Math.PI*2);ctx.fill();ctx.restore()}
