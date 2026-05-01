@@ -130,6 +130,10 @@ let m2Model = null;
 let raccoonTemplate = null;
 let raccoonModelPool = new Map();
 
+let updateGunModelVisibility = function() {
+  // Safe default before models finish loading.
+};
+
 // Tweak these if needed.
 const GUN_POSITION = new THREE.Vector3(0.0, -1.35, -2.55);
 const REVOLVER_GUN_POSITION = new THREE.Vector3(0.0, -1.35, -2.55);
@@ -338,7 +342,7 @@ try {
     }
   }
 
-  function updateGunModelVisibility() {
+  updateGunModelVisibility = function() {
     if (revolverModel) {
       revolverModel.visible = currentWeapon === WEAPONS.revolver;
     }
@@ -348,7 +352,7 @@ try {
     }
 
     gunModel = currentWeapon === WEAPONS.m2 ? m2Model : revolverModel;
-  }
+  };
 
   function updateGunTransform() {
     if (!gunRoot) return;
@@ -449,9 +453,41 @@ function updateHUD(){
   }
 }
 function resetGameState(){raccoons=[];score=0;shots=0;shotsHit=0;shotsMissed=0;reloadsLeft=MAX_RELOADS;health=MAX_HEALTH;currentWeapon=WEAPONS.revolver;updateGunModelVisibility();m2Ready=false;m2ChargeStartTime=performance.now();lastTime=0;lastSpawnTime=performance.now();lastShotTime=0;roundActive=true;isFiring=false;isReloading=false;muzzleFlashTimer=0;screenFlashTimer=0;damageFlashTimer=0;recoilOffset=0;updateHUD()}
-function startRound(){hideSummary();titleScreen.style.display="none";resetGameState();requestAnimationFrame(gameLoop)}
+function startRound(){
+  hideSummary();
+  titleScreen.style.display="none";
+  try {
+    resetGameState();
+  } catch (err) {
+    console.error("Start/reset failed:", err);
+    raccoons=[];
+    score=0;
+    shots=0;
+    shotsHit=0;
+    shotsMissed=0;
+    reloadsLeft=MAX_RELOADS;
+    health=MAX_HEALTH;
+    currentWeapon=WEAPONS.revolver;
+    m2Ready=false;
+    m2ChargeStartTime=performance.now();
+    lastTime=0;
+    lastSpawnTime=performance.now();
+    lastShotTime=0;
+    roundActive=true;
+    isFiring=false;
+    isReloading=false;
+    muzzleFlashTimer=0;
+    screenFlashTimer=0;
+    damageFlashTimer=0;
+    recoilOffset=0;
+    updateHUD();
+  }
+  requestAnimationFrame(gameLoop);
+}
 function returnToMenu(){hideSummary();titleScreen.style.display="flex";roundActive=false;isFiring=false;isReloading=false;raccoons=[];currentWeapon=WEAPONS.revolver;updateGunModelVisibility();drawScene()}
-titleStartButton.addEventListener("click", startRound); closeSummaryButton.addEventListener("click", returnToMenu); playAgainButton.addEventListener("click", startRound);
+titleStartButton.addEventListener("click", startRound);
+closeSummaryButton.addEventListener("click", returnToMenu);
+playAgainButton.addEventListener("click", startRound);
 window.addEventListener("keydown",e=>{
   if(e.key.toLowerCase()==="r")reloadWeapon();
   if(e.key==="2")activateM2();
