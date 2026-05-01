@@ -451,24 +451,7 @@ function drawRaccoons(){
     ctx.restore();
   }
 }
-function drawMuzzleFlash(){
-  if(muzzleFlashTimer<=0)return;
-  const a=Math.max(muzzleFlashTimer/55,0);
-  const baseX=canvas.width*.5,baseY=canvas.height*.83;
-  const angle=Math.atan2(mouseY-baseY,mouseX-baseX);
-  const mx=baseX+Math.cos(angle)*330;
-  const my=baseY+Math.sin(angle)*330;
-  ctx.save();
-  ctx.fillStyle=`rgba(255,226,90,${.75*a})`;
-  ctx.beginPath();
-  ctx.arc(mx,my,34,0,Math.PI*2);
-  ctx.fill();
-  ctx.fillStyle=`rgba(255,95,15,${.55*a})`;
-  ctx.beginPath();
-  ctx.arc(mx,my,17,0,Math.PI*2);
-  ctx.fill();
-  ctx.restore();
-}
+
 function drawScreenFlash(){if(screenFlashTimer<=0)return;const a=Math.max(screenFlashTimer/38,0)*.18;ctx.save();ctx.fillStyle=`rgba(255,235,170,${a})`;ctx.fillRect(0,0,canvas.width,canvas.height);ctx.restore()}
 function drawDamageFlash(){if(damageFlashTimer<=0)return;const a=Math.max(damageFlashTimer/170,0)*.36;ctx.save();ctx.fillStyle=`rgba(255,0,0,${a})`;ctx.fillRect(0,0,canvas.width,canvas.height);ctx.restore()}
 function drawCrosshair(){ctx.save();ctx.strokeStyle="rgba(255,255,255,.85)";ctx.lineWidth=3;const size=18,gap=9;ctx.beginPath();ctx.moveTo(mouseX-size-gap,mouseY);ctx.lineTo(mouseX-gap,mouseY);ctx.moveTo(mouseX+gap,mouseY);ctx.lineTo(mouseX+size+gap,mouseY);ctx.moveTo(mouseX,mouseY-size-gap);ctx.lineTo(mouseX,mouseY-gap);ctx.moveTo(mouseX,mouseY+gap);ctx.lineTo(mouseX,mouseY+size+gap);ctx.stroke();ctx.fillStyle="rgba(255,255,255,.9)";ctx.beginPath();ctx.arc(mouseX,mouseY,2.5,0,Math.PI*2);ctx.fill();ctx.restore()}
