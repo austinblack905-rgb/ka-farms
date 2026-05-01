@@ -457,8 +457,8 @@ function drawRaccoons(){
   const a=Math.max(muzzleFlashTimer/55,0);
   const baseX=canvas.width*.5,baseY=canvas.height*.83;
   const angle=Math.atan2(mouseY-baseY,mouseX-baseX);
-  const mx=baseX+Math.cos(angle)*330;
-  const my=baseY+Math.sin(angle)*330;
+  const mx=baseX+Math.cos(angle)*150;
+  const my=baseY+Math.sin(angle)*150;
   ctx.save();
   ctx.fillStyle=`rgba(255,226,90,${.75*a})`;
   ctx.beginPath();
