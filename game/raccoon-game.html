@@ -114,10 +114,7 @@ const AIM_PITCH_AMOUNT = 0.62;
 
 // Tripod-mounted center feel: lower, centered, with limited traverse.
 const GUN_ORIENTATION_TRIES = [
-  new THREE.Euler(-Math.PI / 2, Math.PI, 0),
-  new THREE.Euler(0, Math.PI / 2, 0),
-  new THREE.Euler(0, -Math.PI / 2, 0),
-  new THREE.Euler(Math.PI / 2, Math.PI, 0)
+new THREE.Euler(-0.18, Math.PI, 0)
 ];
 let currentOrientationIndex = 0;
 const MAX_PAN = 0.72;
@@ -296,7 +293,7 @@ try {
     if (!gunRoot) return;
 
     const nx = -(mouseX / canvas.width - 0.5) * 2;
-    const ny = -(mouseY / canvas.height - 0.5) * 2;
+    const ny = (mouseY / canvas.height - 0.5) * 2;
 
     const pan = THREE.MathUtils.clamp(nx * AIM_YAW_AMOUNT, -MAX_PAN, MAX_PAN);
     const tilt = THREE.MathUtils.clamp(ny * AIM_PITCH_AMOUNT, -MAX_TILT, MAX_TILT);
