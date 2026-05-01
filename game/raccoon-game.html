@@ -117,7 +117,7 @@ let m2ChargeMs = 30000;
 
 let raccoons=[],score=0,shots=0,shotsHit=0,shotsMissed=0,reloadsLeft=MAX_RELOADS,health=MAX_HEALTH,lastTime=0,lastSpawnTime=0,roundActive=false,mouseX=canvas.width/2,mouseY=canvas.height/2,isFiring=false,isReloading=false,lastShotTime=0,muzzleFlashTimer=0,screenFlashTimer=0,damageFlashTimer=0,recoilOffset=0,audioCtx=null;
 
-maxAmmoEl.textContent=currentWeapon.maxShots;maxReloadsEl.textContent=MAX_RELOADS;
+maxAmmoEl.textContent = currentWeapon.maxShots; maxReloadsEl.textContent = MAX_RELOADS;
 
 // ---------- Three.js model layer ----------
 let renderer = null;
@@ -364,39 +364,47 @@ try {
 // ---------- Game logic ----------
 function heartsString(v){let h="";for(let i=0;i<v;i++)h+="❤️";for(let i=v;i<MAX_HEALTH;i++)h+="🖤";return h}
 function updateHUD(){
-  scoreEl.textContent=score;
-  ammoLeftEl.textContent=Math.max(currentWeapon.maxShots-shots,0);
-  maxAmmoEl.textContent=currentWeapon.maxShots;
-  reloadsLeftEl.textContent=reloadsLeft;
-  maxReloadsEl.textContent=MAX_RELOADS;
-  healthDisplayEl.textContent=heartsString(health);
-  weaponNameEl.textContent=currentWeapon.name;
+  scoreEl.textContent = score;
+  ammoLeftEl.textContent = Math.max(currentWeapon.maxShots - shots, 0);
+  maxAmmoEl.textContent = currentWeapon.maxShots;
+  reloadsLeftEl.textContent = reloadsLeft;
+  maxReloadsEl.textContent = MAX_RELOADS;
+  healthDisplayEl.textContent = heartsString(health);
+  weaponNameEl.textContent = currentWeapon.name;
 
-  if(currentWeapon===WEAPONS.m2){
-    m2StatusEl.textContent="ACTIVE";
-  }else if(m2Ready){
-    m2StatusEl.textContent="READY - 2";
-  }else{
-    const remaining=Math.max(0,Math.ceil((m2ChargeMs-(performance.now()-m2ChargeStartTime))/1000));
-    m2StatusEl.textContent=remaining+"s";
+  if (currentWeapon === WEAPONS.m2) {
+    m2StatusEl.textContent = "ACTIVE";
+  } else if (m2Ready) {
+    m2StatusEl.textContent = "READY - 2";
+  } else {
+    const remaining = Math.max(
+      0,
+      Math.ceil((m2ChargeMs - (performance.now() - m2ChargeStartTime)) / 1000)
+    );
+    m2StatusEl.textContent = remaining + "s";
   }
 
-  if(isReloading){
-    reloadWarningEl.textContent="RELOADING...";
-    reloadWarningEl.style.display="block";
-    reloadWarningEl.style.color="#f6d94a";
-  }else if(shots>=currentWeapon.maxShots && currentWeapon===WEAPONS.revolver && reloadsLeft>0 && roundActive){
-    reloadWarningEl.textContent="RELOAD";
-    reloadWarningEl.style.display="block";
-    reloadWarningEl.style.color="#ff2a1f";
-  }else if(m2Ready && currentWeapon===WEAPONS.revolver && roundActive){
-    reloadWarningEl.textContent="M2 READY - PRESS 2";
-    reloadWarningEl.style.display="block";
-    reloadWarningEl.style.color="#f6d94a";
-  }else{
-    reloadWarningEl.style.display="none";
+  if (isReloading) {
+    reloadWarningEl.textContent = "RELOADING...";
+    reloadWarningEl.style.display = "block";
+    reloadWarningEl.style.color = "#f6d94a";
+  } else if (
+    shots >= currentWeapon.maxShots &&
+    currentWeapon === WEAPONS.revolver &&
+    reloadsLeft > 0 &&
+    roundActive
+  ) {
+    reloadWarningEl.textContent = "RELOAD";
+    reloadWarningEl.style.display = "block";
+    reloadWarningEl.style.color = "#ff2a1f";
+  } else if (m2Ready && currentWeapon === WEAPONS.revolver && roundActive) {
+    reloadWarningEl.textContent = "M2 READY - PRESS 2";
+    reloadWarningEl.style.display = "block";
+    reloadWarningEl.style.color = "#f6d94a";
+  } else {
+    reloadWarningEl.style.display = "none";
   }
-}else if(shots>=MAX_SHOTS&&reloadsLeft>0&&roundActive){reloadWarningEl.textContent="RELOAD";reloadWarningEl.style.display="block";reloadWarningEl.style.color="#ff2a1f"}else reloadWarningEl.style.display="none"}
+}
 function resetGameState(){raccoons=[];score=0;shots=0;shotsHit=0;shotsMissed=0;reloadsLeft=MAX_RELOADS;health=MAX_HEALTH;currentWeapon=WEAPONS.revolver;m2Ready=false;m2ChargeStartTime=performance.now();lastTime=0;lastSpawnTime=performance.now();lastShotTime=0;roundActive=true;isFiring=false;isReloading=false;muzzleFlashTimer=0;screenFlashTimer=0;damageFlashTimer=0;recoilOffset=0;updateHUD()}
 function startRound(){hideSummary();titleScreen.style.display="none";resetGameState();requestAnimationFrame(gameLoop)}
 function returnToMenu(){hideSummary();titleScreen.style.display="flex";roundActive=false;isFiring=false;isReloading=false;raccoons=[];drawScene()}
