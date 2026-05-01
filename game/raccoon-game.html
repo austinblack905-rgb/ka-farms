@@ -276,7 +276,7 @@ try {
       model.scale.setScalar(scale);
 
       // Face toward the player/camera. Press H during gameplay to flip if a model export needs it.
-      model.rotation.set(0.05, raccoonFacingY, 0);
+      model.rotation.set(-0.05, raccoonFacingY, 0);
 
       if (!r.alive) {
         model.rotation.z = 0.85;
@@ -297,8 +297,8 @@ try {
   function updateGunTransform() {
     if (!gunRoot) return;
 
-    const nx = (mouseX / canvas.width - 0.5) * 2;
-    const ny = (mouseY / canvas.height - 0.5) * 2;
+    const nx = -(mouseX / canvas.width - 0.5) * 2;
+    const ny = -(mouseY / canvas.height - 0.5) * 2;
 
     const pan = THREE.MathUtils.clamp(nx * AIM_YAW_AMOUNT, -MAX_PAN, MAX_PAN);
     const tilt = THREE.MathUtils.clamp(ny * AIM_PITCH_AMOUNT, -MAX_TILT, MAX_TILT);
