@@ -44,12 +44,14 @@ body{margin:0;min-height:100vh;background:#050505;display:flex;justify-content:c
 <canvas id="raccoonGame" width="1200" height="675"></canvas>
 <canvas id="gunCanvas"></canvas>
 
-<div id="titleScreen"><div id="titleContent"><h1 style="color:red;">RED JUSTICE</h1><p style="font-size=60px;">Bandit Road</p><button id="titleStartButton" class="red-button" type="button">START</button></div></div>
+<div id="titleScreen"><div id="titleContent"><h1>RED JUSTICE</h1><p>Bandit Road</p><button id="titleStartButton" class="red-button" type="button">START</button></div></div>
 
 <div id="leftHud" class="hud-panel">
 <div class="hud-group"><span class="icon bullet"></span><div><div class="hud-label">AMMO</div><div class="hud-value"><strong id="ammoLeft">100</strong> / <span id="maxAmmo">100</span></div></div></div>
 <div class="hud-group"><span class="icon mag"></span><div><div class="hud-label">RELOADS LEFT</div><div class="hud-small-value"><strong id="reloadsLeft">3</strong> / <span id="maxReloads">3</span></div></div></div>
 <div class="hud-group"><div class="hud-label" style="grid-column:1/span 2;">HEALTH</div><div id="healthDisplay">❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️</div></div>
+<div class="hud-group"><div class="hud-label" style="grid-column:1/span 2;">WEAPON</div><div class="hud-small-value" style="grid-column:1/span 2;"><strong id="weaponName">Revolver</strong></div></div>
+<div class="hud-group"><div class="hud-label" style="grid-column:1/span 2;">M2</div><div class="hud-small-value" style="grid-column:1/span 2;"><strong id="m2Status">30s</strong></div></div>
 </div>
 
 <div id="scoreHud" class="hud-panel"><div class="hud-label">SCORE</div><div class="hud-value" id="score">0</div></div>
@@ -84,13 +86,13 @@ window.addEventListener("unhandledrejection", (e) => {
 
 const canvas=document.getElementById("raccoonGame"),ctx=canvas.getContext("2d");
 const gunCanvas=document.getElementById("gunCanvas");
-const scoreEl=document.getElementById("score"),ammoLeftEl=document.getElementById("ammoLeft"),maxAmmoEl=document.getElementById("maxAmmo"),reloadsLeftEl=document.getElementById("reloadsLeft"),maxReloadsEl=document.getElementById("maxReloads"),healthDisplayEl=document.getElementById("healthDisplay"),reloadWarningEl=document.getElementById("reloadWarning");
+const scoreEl=document.getElementById("score"),ammoLeftEl=document.getElementById("ammoLeft"),maxAmmoEl=document.getElementById("maxAmmo"),reloadsLeftEl=document.getElementById("reloadsLeft"),maxReloadsEl=document.getElementById("maxReloads"),healthDisplayEl=document.getElementById("healthDisplay"),reloadWarningEl=document.getElementById("reloadWarning"),weaponNameEl=document.getElementById("weaponName"),m2StatusEl=document.getElementById("m2Status");
 const titleScreen=document.getElementById("titleScreen"),titleStartButton=document.getElementById("titleStartButton"),endOverlay=document.getElementById("endOverlay"),endTitleEl=document.getElementById("endTitle"),summaryScoreEl=document.getElementById("summaryScore"),summaryShotsHitEl=document.getElementById("summaryShotsHit"),summaryShotsMissedEl=document.getElementById("summaryShotsMissed"),summaryHealthTextEl=document.getElementById("summaryHealthText"),closeSummaryButton=document.getElementById("closeSummaryButton"),playAgainButton=document.getElementById("playAgainButton");
 
 const bgImage=new Image();
 bgImage.src="farmNightBackground.png";
 
-const MAX_SHOTS=6,MAX_RELOADS=15,MAX_HEALTH=10,FIRE_INTERVAL=92,RELOAD_TIME=500,SPAWN_INTERVAL_START=1050,SPAWN_INTERVAL_MIN=390,DIFFICULTY_SCORE_TARGET=350,RACCOON_BASE_RADIUS=16,RACCOON_MAX_RADIUS=86,RACCOON_SPEED_MIN=.16,RACCOON_SPEED_MAX=.34;
+const MAX_SHOTS=6,MAX_RELOADS=6,MAX_HEALTH=10,FIRE_INTERVAL=92,RELOAD_TIME=1400,SPAWN_INTERVAL_START=1050,SPAWN_INTERVAL_MIN=390,DIFFICULTY_SCORE_TARGET=350,RACCOON_BASE_RADIUS=16,RACCOON_MAX_RADIUS=86,RACCOON_SPEED_MIN=.16,RACCOON_SPEED_MAX=.34;
 const HORIZON_Y=canvas.height*.47,GROUND_Y=canvas.height*.93;
 //--------Weapons--------
 const WEAPONS = {
@@ -111,11 +113,11 @@ const WEAPONS = {
 let currentWeapon = WEAPONS.revolver;
 let m2Ready = false;
 let m2ChargeStartTime = performance.now();
-let m2ChargeMs = 15000;
+let m2ChargeMs = 30000;
 
 let raccoons=[],score=0,shots=0,shotsHit=0,shotsMissed=0,reloadsLeft=MAX_RELOADS,health=MAX_HEALTH,lastTime=0,lastSpawnTime=0,roundActive=false,mouseX=canvas.width/2,mouseY=canvas.height/2,isFiring=false,isReloading=false,lastShotTime=0,muzzleFlashTimer=0,screenFlashTimer=0,damageFlashTimer=0,recoilOffset=0,audioCtx=null;
 
-maxAmmoEl.textContent=MAX_SHOTS;maxReloadsEl.textContent=MAX_RELOADS;
+maxAmmoEl.textContent=currentWeapon.maxShots;maxReloadsEl.textContent=MAX_RELOADS;
 
 // ---------- Three.js model layer ----------
 let renderer = null;
@@ -361,19 +363,198 @@ try {
 
 // ---------- Game logic ----------
 function heartsString(v){let h="";for(let i=0;i<v;i++)h+="❤️";for(let i=v;i<MAX_HEALTH;i++)h+="🖤";return h}
-function updateHUD(){scoreEl.textContent=score;ammoLeftEl.textContent=Math.max(MAX_SHOTS-shots,0);reloadsLeftEl.textContent=reloadsLeft;healthDisplayEl.textContent=heartsString(health);if(isReloading){reloadWarningEl.textContent="RELOADING...";reloadWarningEl.style.display="block";reloadWarningEl.style.color="#f6d94a"}else if(shots>=MAX_SHOTS&&reloadsLeft>0&&roundActive){reloadWarningEl.textContent="RELOAD";reloadWarningEl.style.display="block";reloadWarningEl.style.color="#ff2a1f"}else reloadWarningEl.style.display="none"}
-function resetGameState(){raccoons=[];score=0;shots=0;shotsHit=0;shotsMissed=0;reloadsLeft=MAX_RELOADS;health=MAX_HEALTH;lastTime=0;lastSpawnTime=performance.now();lastShotTime=0;roundActive=true;isFiring=false;isReloading=false;muzzleFlashTimer=0;screenFlashTimer=0;damageFlashTimer=0;recoilOffset=0;updateHUD()}
+function updateHUD(){
+  scoreEl.textContent=score;
+  ammoLeftEl.textContent=Math.max(currentWeapon.maxShots-shots,0);
+  maxAmmoEl.textContent=currentWeapon.maxShots;
+  reloadsLeftEl.textContent=reloadsLeft;
+  maxReloadsEl.textContent=MAX_RELOADS;
+  healthDisplayEl.textContent=heartsString(health);
+  weaponNameEl.textContent=currentWeapon.name;
+
+  if(currentWeapon===WEAPONS.m2){
+    m2StatusEl.textContent="ACTIVE";
+  }else if(m2Ready){
+    m2StatusEl.textContent="READY - 2";
+  }else{
+    const remaining=Math.max(0,Math.ceil((m2ChargeMs-(performance.now()-m2ChargeStartTime))/1000));
+    m2StatusEl.textContent=remaining+"s";
+  }
+
+  if(isReloading){
+    reloadWarningEl.textContent="RELOADING...";
+    reloadWarningEl.style.display="block";
+    reloadWarningEl.style.color="#f6d94a";
+  }else if(shots>=currentWeapon.maxShots && currentWeapon===WEAPONS.revolver && reloadsLeft>0 && roundActive){
+    reloadWarningEl.textContent="RELOAD";
+    reloadWarningEl.style.display="block";
+    reloadWarningEl.style.color="#ff2a1f";
+  }else if(m2Ready && currentWeapon===WEAPONS.revolver && roundActive){
+    reloadWarningEl.textContent="M2 READY - PRESS 2";
+    reloadWarningEl.style.display="block";
+    reloadWarningEl.style.color="#f6d94a";
+  }else{
+    reloadWarningEl.style.display="none";
+  }
+}else if(shots>=MAX_SHOTS&&reloadsLeft>0&&roundActive){reloadWarningEl.textContent="RELOAD";reloadWarningEl.style.display="block";reloadWarningEl.style.color="#ff2a1f"}else reloadWarningEl.style.display="none"}
+function resetGameState(){raccoons=[];score=0;shots=0;shotsHit=0;shotsMissed=0;reloadsLeft=MAX_RELOADS;health=MAX_HEALTH;currentWeapon=WEAPONS.revolver;m2Ready=false;m2ChargeStartTime=performance.now();lastTime=0;lastSpawnTime=performance.now();lastShotTime=0;roundActive=true;isFiring=false;isReloading=false;muzzleFlashTimer=0;screenFlashTimer=0;damageFlashTimer=0;recoilOffset=0;updateHUD()}
 function startRound(){hideSummary();titleScreen.style.display="none";resetGameState();requestAnimationFrame(gameLoop)}
 function returnToMenu(){hideSummary();titleScreen.style.display="flex";roundActive=false;isFiring=false;isReloading=false;raccoons=[];drawScene()}
 titleStartButton.addEventListener("click", startRound); closeSummaryButton.addEventListener("click", returnToMenu); playAgainButton.addEventListener("click", startRound);
-window.addEventListener("keydown",e=>{if(e.key.toLowerCase()==="r")reloadWeapon();if(e.key==="Escape")returnToMenu()});
+window.addEventListener("keydown",e=>{
+  if(e.key.toLowerCase()==="r")reloadWeapon();
+  if(e.key==="2")activateM2();
+  if(e.key==="Escape")returnToMenu();
+});
 function updateMousePosition(clientX,clientY){const rect=canvas.getBoundingClientRect();mouseX=(clientX-rect.left)*(canvas.width/rect.width);mouseY=(clientY-rect.top)*(canvas.height/rect.height)}
-canvas.addEventListener("mousemove",e=>updateMousePosition(e.clientX,e.clientY));canvas.addEventListener("mousedown",e=>{updateMousePosition(e.clientX,e.clientY);if(currentWeapon.fireMode==="semi"){fireWeapon(performance.now());}});window.addEventListener("mouseup",()=>isFiring=false);canvas.addEventListener("mouseleave",()=>isFiring=false);
-canvas.addEventListener("touchstart",e=>{e.preventDefault();const t=e.touches[0];updateMousePosition(t.clientX,t.clientY);isFiring=true;fireWeapon(performance.now())},{passive:false});canvas.addEventListener("touchmove",e=>{e.preventDefault();const t=e.touches[0];updateMousePosition(t.clientX,t.clientY)},{passive:false});window.addEventListener("touchend",()=>isFiring=false);
-function reloadWeapon(){if(!roundActive||isReloading||shots===0||reloadsLeft<=0)return;isReloading=true;isFiring=false;updateHUD();setTimeout(()=>{if(!roundActive)return;shots=0;reloadsLeft--;isReloading=false;lastShotTime=0;updateHUD()},RELOAD_TIME)}
-function fireWeapon(now){if(!roundActive||isReloading)return;if(shots>=currentWeapon.maxShots){if(currentWeapon===WEAPONS.m2){currentWeapon=WEAPONS.revolver;shots=0;lastShotTime=0;m2ChargeStartTime=performance.now();}updateHud();return;}if(now-lastShotTime<currentWeapon.fireInterval)return;lastShotTime=now;shots++;playGunshotSound();muzzleFlashTimer=55;screenFlashTimer=38;recoilOffset=11;let didHit=false;for(let i=raccoons.length-1;i>=0;i--){const r=raccoons[i];if(!r.alive)continue;const pos=getRaccoonScreenPosition(r),dx=mouseX-pos.x,dy=mouseY-pos.y;if(Math.hypot(dx,dy)<=pos.radius){r.alive=false;r.hit=true;score+=10;shotsHit++;didHit=true;playRaccoonDeathSound();break}}if(!didHit)shotsMissed++;updateHUD()}
+canvas.addEventListener("mousemove",e=>updateMousePosition(e.clientX,e.clientY));
+canvas.addEventListener("mousedown",e=>{
+  updateMousePosition(e.clientX,e.clientY);
+  if(currentWeapon.fireMode==="semi"){
+    fireWeapon(performance.now());
+  }else{
+    isFiring=true;
+    fireWeapon(performance.now());
+  }
+});window.addEventListener("mouseup",()=>isFiring=false);canvas.addEventListener("mouseleave",()=>isFiring=false);
+canvas.addEventListener("touchstart",e=>{
+  e.preventDefault();
+  const t=e.touches[0];
+  updateMousePosition(t.clientX,t.clientY);
+  if(currentWeapon.fireMode==="semi"){
+    fireWeapon(performance.now());
+  }else{
+    isFiring=true;
+    fireWeapon(performance.now());
+  }
+},{passive:false});canvas.addEventListener("touchmove",e=>{e.preventDefault();const t=e.touches[0];updateMousePosition(t.clientX,t.clientY)},{passive:false});window.addEventListener("touchend",()=>isFiring=false);
+function reloadWeapon(){
+  if(!roundActive||isReloading||shots===0||reloadsLeft<=0)return;
+  if(currentWeapon!==WEAPONS.revolver)return;
+  isReloading=true;
+  isFiring=false;
+  updateHUD();
+  setTimeout(()=>{
+    if(!roundActive)return;
+    shots=0;
+    reloadsLeft--;
+    isReloading=false;
+    lastShotTime=0;
+    updateHUD();
+  },RELOAD_TIME);
+}
+
+function activateM2(){
+  if(!roundActive)return;
+  if(!m2Ready)return;
+  if(currentWeapon===WEAPONS.m2)return;
+
+  currentWeapon=WEAPONS.m2;
+  shots=0;
+  lastShotTime=0;
+  isReloading=false;
+  isFiring=false;
+  m2Ready=false;
+  updateHUD();
+}
+
+function switchToRevolver(){
+  currentWeapon=WEAPONS.revolver;
+  shots=0;
+  lastShotTime=0;
+  isFiring=false;
+  isReloading=false;
+  m2Ready=false;
+  m2ChargeStartTime=performance.now();
+  updateHUD();
+}
+function fireWeapon(now){
+  if(!roundActive||isReloading)return;
+
+  if(shots>=currentWeapon.maxShots){
+    if(currentWeapon===WEAPONS.m2){
+      switchToRevolver();
+    }
+    updateHUD();
+    return;
+  }
+
+  if(now-lastShotTime<currentWeapon.fireInterval)return;
+
+  lastShotTime=now;
+  shots++;
+  playGunshotSound();
+  muzzleFlashTimer=55;
+  screenFlashTimer=38;
+  recoilOffset=currentWeapon===WEAPONS.m2 ? 11 : 18;
+
+  let didHit=false;
+  for(let i=raccoons.length-1;i>=0;i--){
+    const r=raccoons[i];
+    if(!r.alive)continue;
+    const pos=getRaccoonScreenPosition(r),dx=mouseX-pos.x,dy=mouseY-pos.y;
+    if(Math.hypot(dx,dy)<=pos.radius){
+      r.alive=false;
+      r.hit=true;
+      score+=10;
+      shotsHit++;
+      didHit=true;
+      playRaccoonDeathSound();
+      break;
+    }
+  }
+
+  if(!didHit)shotsMissed++;
+
+  if(currentWeapon===WEAPONS.m2 && shots>=currentWeapon.maxShots){
+    switchToRevolver();
+  }else{
+    updateHUD();
+  }
+}
+
 function spawnRaccoon(now){const d=Math.min(score/DIFFICULTY_SCORE_TARGET,1),interval=SPAWN_INTERVAL_START-(SPAWN_INTERVAL_START-SPAWN_INTERVAL_MIN)*d;if(now-lastSpawnTime<interval)return;lastSpawnTime=now;const laneX=canvas.width*.16+Math.random()*canvas.width*.68,speed=(RACCOON_SPEED_MIN+Math.random()*(RACCOON_SPEED_MAX-RACCOON_SPEED_MIN))*(1+d*.48);raccoons.push({laneX,z:.03,speed,alive:true,hit:false,deathTimer:0})}
-function update(dt,now){if (currentWeapon === WEAPONS.revolver && !m2Ready){const elapsed = now - m2ChargeStartTime;if(elapsed >= m2ChargeMs){m2Ready = true;}}const s=dt/1000;if(isFiring && currentWeapon.fireMode === "auto"){fireWeapon(now);}if(muzzleFlashTimer>0)muzzleFlashTimer-=dt;if(screenFlashTimer>0)screenFlashTimer-=dt;if(damageFlashTimer>0)damageFlashTimer-=dt;if(recoilOffset>0){recoilOffset*=.78;if(recoilOffset<.2)recoilOffset=0}for(let i=raccoons.length-1;i>=0;i--){const r=raccoons[i];if(r.alive){r.z+=r.speed*s;if(r.z>=1){r.alive=false;r.hit=false;health=Math.max(health-1,0);damageFlashTimer=170;updateHUD()}}else{r.deathTimer+=dt;r.z+=.2*s;if(r.deathTimer>430||r.z>1.2)raccoons.splice(i,1)}}}
+function update(dt,now){
+  const s=dt/1000;
+
+  if(currentWeapon===WEAPONS.revolver && !m2Ready){
+    const elapsed=now-m2ChargeStartTime;
+    if(elapsed>=m2ChargeMs){
+      m2Ready=true;
+    }
+  }
+
+  if(isFiring && currentWeapon.fireMode==="auto")fireWeapon(now);
+
+  if(muzzleFlashTimer>0)muzzleFlashTimer-=dt;
+  if(screenFlashTimer>0)screenFlashTimer-=dt;
+  if(damageFlashTimer>0)damageFlashTimer-=dt;
+  if(recoilOffset>0){
+    recoilOffset*=.78;
+    if(recoilOffset<.2)recoilOffset=0;
+  }
+
+  for(let i=raccoons.length-1;i>=0;i--){
+    const r=raccoons[i];
+    if(r.alive){
+      r.z+=r.speed*s;
+      if(r.z>=1){
+        r.alive=false;
+        r.hit=false;
+        health=Math.max(health-1,0);
+        damageFlashTimer=170;
+        updateHUD();
+      }
+    }else{
+      r.deathTimer+=dt;
+      r.z+=.2*s;
+      if(r.deathTimer>430||r.z>1.2)raccoons.splice(i,1);
+    }
+  }
+
+  updateHUD();
+}
+
 function getRaccoonScreenPosition(r){const z=Math.max(.03,Math.min(r.z,1)),cx=canvas.width/2;return{x:cx+(r.laneX-cx)*z,y:HORIZON_Y+(GROUND_Y-HORIZON_Y)*z,radius:RACCOON_BASE_RADIUS+(RACCOON_MAX_RADIUS-RACCOON_BASE_RADIUS)*z}}
 function ensureAudioContext(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)()}
 function playGunshotSound(){ensureAudioContext();const duration=.055,sampleRate=audioCtx.sampleRate,buffer=audioCtx.createBuffer(1,sampleRate*duration,sampleRate),data=buffer.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,2);const noise=audioCtx.createBufferSource();noise.buffer=buffer;const gain=audioCtx.createGain();gain.gain.setValueAtTime(1.05,audioCtx.currentTime);gain.gain.exponentialRampToValueAtTime(.01,audioCtx.currentTime+duration);const filter=audioCtx.createBiquadFilter();filter.type="lowpass";filter.frequency.setValueAtTime(900,audioCtx.currentTime);noise.connect(filter);filter.connect(gain);gain.connect(audioCtx.destination);noise.start()}
@@ -497,8 +678,8 @@ function drawDamageFlash(){if(damageFlashTimer<=0)return;const a=Math.max(damage
 function drawScene(){ctx.clearRect(0,0,canvas.width,canvas.height);drawBackground();drawRaccoons();
                      //drawMuzzleFlash();
                      drawScreenFlash();drawDamageFlash();drawCrosshair();updateHUD()}
-function gameLoop(t){if(!roundActive)return;if(!lastTime)lastTime=t;const dt=t-lastTime;lastTime=t;if(health<=0||(shots>=MAX_SHOTS&&reloadsLeft<=0)){isFiring=false;update(dt,t);drawScene();endRound();return}spawnRaccoon(t);update(dt,t);drawScene();requestAnimationFrame(gameLoop)}
-function showSummary(){summaryScoreEl.textContent=score;summaryShotsHitEl.textContent=shotsHit;summaryShotsMissedEl.textContent=shotsMissed;summaryHealthTextEl.textContent=heartsString(health);if(health<=0){endTitleEl.textContent="GAME OVER";endTitleEl.style.color="#ff0000"}else if(shots>=MAX_SHOTS&&reloadsLeft<=0){endTitleEl.textContent="OUT OF AMMO";endTitleEl.style.color="#ff1f1f"}else{endTitleEl.textContent="SUMMARY";endTitleEl.style.color="#fff"}endOverlay.style.display="block"}
+function gameLoop(t){if(!roundActive)return;if(!lastTime)lastTime=t;const dt=t-lastTime;lastTime=t;if(health<=0||(currentWeapon===WEAPONS.revolver&&shots>=currentWeapon.maxShots&&reloadsLeft<=0)){isFiring=false;update(dt,t);drawScene();endRound();return}spawnRaccoon(t);update(dt,t);drawScene();requestAnimationFrame(gameLoop)}
+function showSummary(){summaryScoreEl.textContent=score;summaryShotsHitEl.textContent=shotsHit;summaryShotsMissedEl.textContent=shotsMissed;summaryHealthTextEl.textContent=heartsString(health);if(health<=0){endTitleEl.textContent="GAME OVER";endTitleEl.style.color="#ff0000"}else if(currentWeapon===WEAPONS.revolver&&shots>=currentWeapon.maxShots&&reloadsLeft<=0){endTitleEl.textContent="OUT OF AMMO";endTitleEl.style.color="#ff1f1f"}else{endTitleEl.textContent="SUMMARY";endTitleEl.style.color="#fff"}endOverlay.style.display="block"}
 function hideSummary(){endOverlay.style.display="none"}function endRound(){roundActive=false;isReloading=false;showSummary()}
 bgImage.onload=()=>drawScene(); bgImage.onerror=()=>{ console.warn("Background image failed to load; using fallback background."); drawScene(); };
 drawScene();
