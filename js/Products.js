@@ -41,5 +41,11 @@ window.PRODUCTS = {
     "price": 14,
     "thumb": "https://www.ka-farms.com/images/CupCookies.jpg",
     "inventory": "By Order"
+  },
+  "strCookie" : {
+    "title": "Strawberry Cookie",
+    "price": 10,
+    "thumb": "https://www.ka-farms.com/images/Strawberry_Cookies.png",
+    "inventory": "By Order"
   }
 };
