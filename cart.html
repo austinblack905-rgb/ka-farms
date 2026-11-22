@@ -135,6 +135,15 @@
             catch { return {}; }
         }
         function saveCart(c) { localStorage.setItem(STORAGE_KEY, JSON.stringify(c)); }
+        function effectivePriceCents(product) {
+            const regular = product.price_cents;
+            const sale = product.sale_price_cents;
+            return Number.isInteger(sale) && sale >= 0 && sale < regular ? sale : regular;
+        }
+        function escapeHTML(value) {
+            const entities = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+            return String(value).replace(/[&<>"']/g, char => entities[char]);
+        }
         function currency(n) { return (Math.round(n * 100) / 100).toFixed(2); }
         function itemsCount(c) { return Object.values(c).reduce((a, b) => a + (b || 0), 0); }
         function total(c) {
@@ -191,13 +200,13 @@
                 line.className = 'row pad';
                 line.innerHTML = `
           <div class="line">
-            <img class="thumb" src="${thumb}" alt="${title}">
-            <div>${title}</div>
+            <img class="thumb" src="${escapeHTML(thumb)}" alt="${escapeHTML(title)}">
+            <div>${escapeHTML(title)}</div>
           </div>
           <div>$ ${currency(price)}</div>
-          <div class="actions" data-key="${key}">
+          <div class="actions" data-key="${escapeHTML(key)}">
             <button class="step" aria-label="Decrease">–</button>
-            <strong class="qty">${qty}</strong>
+            <strong class="qty">${escapeHTML(qty)}</strong>
             <button class="step" aria-label="Increase">+</button>
           </div>
           <div class="money">$ <span class="lineTotal">${currency(price * qty)}</span></div>
@@ -280,8 +289,8 @@
                     const unit = (PRICES[k] || 0).toFixed(2);
                     const line = (q * (PRICES[k] || 0)).toFixed(2);
                     return `<tr>
-            <td style="padding:8px;border-top:1px solid #eee">${q}</td>
-            <td style="padding:8px;border-top:1px solid #eee">${TITLES[k] || k}</td>
+            <td style="padding:8px;border-top:1px solid #eee">${escapeHTML(q)}</td>
+            <td style="padding:8px;border-top:1px solid #eee">${escapeHTML(TITLES[k] || k)}</td>
             <td style="padding:8px;border-top:1px solid #eee;text-align:right">$${unit}</td>
             <td style="padding:8px;border-top:1px solid #eee;text-align:right">$${line}</td>
           </tr>`;
@@ -490,7 +499,7 @@
       
           const { data, error } = await supabaseClient
               .from('products')
-              .select('id, title, price_cents, thumb');
+              .select('id, title, price_cents, sale_price_cents, thumb');
       
           if (error) {
               console.error('Error loading products from Supabase', error);
@@ -503,7 +512,7 @@
           }
       
           PRODUCTS = Object.fromEntries(data.map(p => [p.id, p]));
-          PRICES   = Object.fromEntries(data.map(p => [p.id, (Number(p.price_cents) || 0) / 100]));
+          PRICES   = Object.fromEntries(data.map(p => [p.id, (effectivePriceCents(p) || 0) / 100]));
           TITLES   = Object.fromEntries(data.map(p => [p.id, p.title]));
           THUMBS   = Object.fromEntries(data.map(p => [p.id, p.thumb || '']));
       
