@@ -27,7 +27,7 @@
 
     <main class="container">
         <h1 class="h1">Shop</h1>
-        <p class="notice" id="shopNotice" style="margin-bottom:16px;display:none;"></p>
+        <p class="notice" id="shopNotice" role="status" style="margin-bottom:16px;display:none;"></p>
 
         <div style="border:1px solid #eee;border-radius:8px;background:#fff;margin:10px" hidden>
             <hero style="text-align:center">
@@ -37,140 +37,24 @@
             </hero>
         </div>
 
-        <section class="grid" aria-label="Products">
-            <!-- Eggs -->
+        <section id="productGrid" class="grid" aria-label="Products"></section>
+        <template id="productCard">
             <article class="card">
-                <img src="https://www.ka-farms.com/images/Eggs.png" alt="Farm fresh eggs in a basket">
+                <img alt="" loading="lazy" hidden>
                 <div class="pad">
-                    <div class="kicker">Farm-Fresh</div>
-                    <h2 style="margin:2px 0 6px;font-size:20px">Eggs <br /><span class="badge">1 Dozen</span></h2>
-                    <p class="price">$ <span data-price="eggs">5.00</span></p>
-                    <div class="controls" data-key="eggs">
-                        <button class="step" aria-label="Decrease" disabled>–</button>
+                    <div class="kicker" hidden></div>
+                    <h2 style="margin:2px 0 6px;font-size:20px"><span data-title></span><br hidden><span class="badge" hidden></span></h2>
+                    <p style="color:red" data-note hidden></p>
+                    <p class="price">$ <span data-price></span></p>
+                    <div class="controls">
+                        <button type="button" class="step" aria-label="Decrease" disabled>–</button>
                         <span class="qty" aria-live="polite">0</span>
-                        <button class="step" aria-label="Increase" disabled>+</button>
-                        <button class="btn primary" data-add>Add to cart</button>
+                        <button type="button" class="step" aria-label="Increase" disabled>+</button>
+                        <button type="button" class="btn primary" data-add>Add to cart</button>
                     </div>
                 </div>
             </article>
-
-            <!-- Egg Scrubber -->
-            <article class="card">
-                <img src="https://www.ka-farms.com/images/EggScrubber.jpg" alt="Chicken-shaped silicone egg scrubber">
-                <div class="pad">
-                    <div class="kicker">Kitchen Tool</div>
-                    <h2 style="margin:2px 0 6px;font-size:20px">Egg Scrubber</h2>
-                    <p class="price">$ <span data-price="scrubber">6.00</span></p>
-                    <div class="controls" data-key="scrubber">
-                        <button class="step" aria-label="Decrease" disabled>–</button>
-                        <span class="qty" aria-live="polite">0</span>
-                        <button class="step" aria-label="Increase" disabled>+</button>
-                        <button class="btn primary" data-add>Add to cart</button>
-                    </div>
-                </div>
-            </article>
-
-            <!-- Vanilla Extract -->
-            <article class="card">
-                <img src="https://www.ka-farms.com/images/Vanilla.jpg" alt="Homemade vanilla extract bottle">
-                <div class="pad">
-                    <div class="kicker">Small-Batch</div>
-                    <h2 style="margin:2px 0 6px;font-size:20px">Vanilla Extract <br /><span class="badge">2 oz</span></h2>
-                    <p class="price">$ <span data-price="vanilla">5.00</span></p>
-                    <div class="controls" data-key="vanilla">
-                        <button class="step" aria-label="Decrease" disabled>–</button>
-                        <span class="qty" aria-live="polite">0</span>
-                        <button class="step" aria-label="Increase" disabled>+</button>
-                        <button class="btn primary" data-add>Add to cart</button>
-                    </div>
-                </div>
-            </article>
-        </section>
-
-        <section style="margin-top:16px;" class="grid" aria-label="Products">
-            <!-- Crinkle Cookies -->
-            <article class="card">
-                <img src="https://www.ka-farms.com/images/CrinkleCookie.jpg" alt="Crinkle Cookies">
-                <div class="pad">
-                    <div class="kicker">Fresh Baked</div>
-                    <h2 style="margin:2px 0 6px;font-size:20px">Crinkle Cookies <br /><span class="badge">24 ct</span></h2>
-                    <p style="color:red">48 hour lead</p>
-                    <p class="price">$ <span data-price="crinkle">10.00</span></p>
-                    <div class="controls" data-key="crinkle">
-                        <button class="step" aria-label="Decrease" disabled>–</button>
-                        <span class="qty" aria-live="polite">0</span>
-                        <button class="step" aria-label="Increase" disabled>+</button>
-                        <button class="btn primary" data-add>Add to cart</button>
-                    </div>
-                </div>
-            </article>
-
-            <!-- Ooey Gooey -->
-            <article class="card">
-                <img src="https://www.ka-farms.com/Ooey%20Gooey.png" alt="Butter Cake">
-                <div class="pad">
-                    <div class="kicker">Fresh Baked</div>
-                    <h2 style="margin:2px 0 6px;font-size:20px">Ooey Gooey Butter Cake <br /><span class="badge">9x13 pan</span></h2>
-                    <p class="price">$ <span data-price="butterCake">20.00</span></p>
-                    <div class="controls" data-key="butterCake">
-                        <button class="step" aria-label="Decrease" disabled>–</button>
-                        <span class="qty" aria-live="polite">0</span>
-                        <button class="step" aria-label="Increase" disabled>+</button>
-                        <button class="btn primary" data-add>Add to cart</button>
-                    </div>
-                </div>
-            </article>
-
-            <!-- Chocolate Chip -->
-            <article class="card">
-                <img src="https://www.ka-farms.com/images/ChocolateChip.jpg" alt="Chocolate Chip">
-                <div class="pad">
-                    <div class="kicker">Fresh Baked</div>
-                    <h2 style="margin:2px 0 6px;font-size:20px">Chocolate Chip Cookies <br /><span class="badge">18 ct</span></h2>
-                    <p class="price">$ <span data-price="chocChip">12.00</span></p>
-                    <div class="controls" data-key="chocChip">
-                        <button class="step" aria-label="Decrease" disabled>–</button>
-                        <span class="qty" aria-live="polite">0</span>
-                        <button class="step" aria-label="Increase" disabled>+</button>
-                        <button class="btn primary" data-add>Add to cart</button>
-                    </div>
-                </div>
-            </article>
-        </section>
-
-        <section style="margin-top:16px;" class="grid" aria-label="Products">
-            <!-- Peanut Butter Cup Cookies -->
-            <article class="card">
-                <img src="https://www.ka-farms.com/images/CupCookies.jpg" alt="Peanut Cup Cookies">
-                <div class="pad">
-                    <div class="kicker">Fresh Baked</div>
-                    <h2 style="margin:2px 0 6px;font-size:20px">Peanut Butter Cup Cookies <br /><span class="badge">24 ct</span></h2>
-                    <p class="price">$ <span data-price="cupCookie">14.00</span></p>
-                    <div class="controls" data-key="cupCookie">
-                        <button class="step" aria-label="Decrease" disabled>–</button>
-                        <span class="qty" aria-live="polite">0</span>
-                        <button class="step" aria-label="Increase" disabled>+</button>
-                        <button class="btn primary" data-add>Add to cart</button>
-                    </div>
-                </div>
-            </article>
-
-            <!-- Strawberry Cookies -->
-            <article class="card">
-                <img src="https://www.ka-farms.com/images/strawberry_cookie.png" alt="Strawberry Cookies">
-                <div class="pad">
-                    <div class="kicker">Fresh Baked</div>
-                    <h2 style="margin:2px 0 6px;font-size:20px">Strawberry White Chocolate Chip Cookies <br /><span class="badge">12 ct</span></h2>
-                    <p class="price">$ <span data-price="strCookie">10.00</span></p>
-                    <div class="controls" data-key="strCookie">
-                        <button class="step" aria-label="Decrease" disabled>–</button>
-                        <span class="qty" aria-live="polite">0</span>
-                        <button class="step" aria-label="Increase" disabled>+</button>
-                        <button class="btn primary" data-add>Add to cart</button>
-                    </div>
-                </div>
-            </article>            
-        </section>
+        </template>
     </main>
 
     <footer>
@@ -217,8 +101,8 @@
     <script>
         // ==== CART + SUPABASE CONFIG ====
         const STORAGE_KEY = 'ka_cart';
-        const PRICES = {}; // filled from Supabase
-        const DESCRIPTIONS = {}; // long text from Supabase
+        const PRICES = Object.create(null); // filled from Supabase
+        const DESCRIPTIONS = Object.create(null); // long text from Supabase
 
         const SUPABASE_URL = 'https://mxuqexwylasphrnldhmx.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14dXFleHd5bGFzcGhybmxkaG14Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzOTQ3NzMsImV4cCI6MjA4MDk3MDc3M30.u1mS0rM6EWH5BlJ6qvz4bXRCy5LQSqaF_9R0eUlPuLc';
@@ -228,13 +112,13 @@
         if (window.supabase && typeof window.supabase.createClient === 'function') {
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         } else {
-        console.error('Supabase JS SDK not available; using static prices from HTML.');
+        console.error('Supabase JS SDK is unavailable.');
         }
 
         // ==== CART HELPERS ====
         function loadCart() {
-            try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
-            catch { return {}; }
+            try { return Object.assign(Object.create(null), JSON.parse(localStorage.getItem(STORAGE_KEY))); }
+            catch { return Object.create(null); }
         }
         function saveCart(c) { localStorage.setItem(STORAGE_KEY, JSON.stringify(c)); }
         function countItems(c) { return Object.values(c).reduce((a, b) => a + (b || 0), 0); }
@@ -324,7 +208,7 @@
             let currentKey = null;
 
             function syncCardControls(key) {
-                const controls = document.querySelector(`.controls[data-key="${key}"]`);
+                const controls = document.querySelector(`.controls[data-key="${CSS.escape(key)}"]`);
                 if (!controls) return;
 
                 const qtyEl = controls.querySelector('.qty');
@@ -355,13 +239,11 @@
                 const titleNode = card.querySelector('h2');
                 const badgeNode = titleNode.querySelector('.badge');
 
-                // Title: text without badge
-                const titleText = badgeNode
-                    ? titleNode.childNodes[0].textContent.trim()
-                    : titleNode.textContent.trim();
-
-                imgEl.src = img.src;
-                imgEl.alt = img.alt || titleText;
+                const titleText = titleNode.querySelector('[data-title]').textContent;
+                imgEl.hidden = img.hidden;
+                if (img.hidden) imgEl.removeAttribute('src');
+                else imgEl.src = img.src;
+                imgEl.alt = img.alt;
                 titleEl.textContent = titleText;
 
                 // Subtitle = badge text (if present)
@@ -453,70 +335,91 @@
         }
 
 
-        // ==== LOAD PRICES FROM SUPABASE ====
-        async function loadPricesFromSupabase() {
-        const notice = document.getElementById('shopNotice');
-        notice.style.display = 'block';
-        notice.textContent = 'Loading live prices…';
-        
-        // If Supabase didn’t load, fall back to the prices in the HTML
-        if (!supabaseClient) {
-            document.querySelectorAll('[data-price]').forEach(span => {
-                const key = span.dataset.price;
-                const val = parseFloat(span.textContent);
-                if (!isNaN(val)) PRICES[key] = val;
-            });
-        
-            notice.textContent = 'Using local fallback prices.';
-            updateBadge();
-            initControls();
-            initModals();
-            return;
-        }
-        
-        const { data, error } = await supabaseClient
-            .from('products')
-            .select('id, price_cents, description');
-        
-        if (error) {
-            console.error('Supabase error loading products:', error);
-            // Fallback: read prices from HTML spans
-            document.querySelectorAll('[data-price]').forEach(span => {
-                const key = span.dataset.price;
-                const val = parseFloat(span.textContent);
-                if (!isNaN(val)) PRICES[key] = val;
-            });
-            notice.textContent = 'Unable to load live prices from Supabase. Using fallback prices.';
-        } else {
-            // Fill PRICES map from Supabase (cents -> dollars)
-            data.forEach(p => {
-                const priceNumber = (Number(p.price_cents) || 0) / 100;
-                PRICES[p.id] = priceNumber;
-                DESCRIPTIONS[p.id] = p.description || '';
-            });
-        
-            // Update visible prices
-            document.querySelectorAll('[data-price]').forEach(span => {
-                const key = span.dataset.price;
-                if (key in PRICES) {
-                    span.textContent = PRICES[key].toFixed(2);
+        // Keep the display details that currently live outside the products table.
+        const cardDetails = new Map([
+            ["eggs", {"kicker": "Farm-Fresh", "badge": "1 Dozen", "note": ""}],
+            ["scrubber", {"kicker": "Kitchen Tool", "badge": "", "note": ""}],
+            ["vanilla", {"kicker": "Small-Batch", "badge": "2 oz", "note": ""}],
+            ["crinkle", {"kicker": "Fresh Baked", "badge": "24 ct", "note": "48 hour lead"}],
+            ["butterCake", {"kicker": "Fresh Baked", "badge": "9x13 pan", "note": ""}],
+            ["chocChip", {"kicker": "Fresh Baked", "badge": "18 ct", "note": ""}],
+            ["cupCookie", {"kicker": "Fresh Baked", "badge": "24 ct", "note": ""}],
+            ["strCookie", {"kicker": "Fresh Baked", "badge": "12 ct", "note": ""}]
+        ]);
+        const productOrder = [...cardDetails.keys()];
+
+        function createProductCard(product) {
+            const card = document.getElementById('productCard').content.firstElementChild.cloneNode(true);
+            const details = cardDetails.get(product.id) || {};
+            const img = card.querySelector('img');
+            if (product.thumb) {
+                const url = URL.parse(product.thumb, document.baseURI);
+                if (url && (url.protocol === 'https:' || url.protocol === 'http:')) {
+                    img.src = url.href;
+                    img.hidden = false;
                 }
-            });
-        
-            notice.style.display = "none";
-        }
-        
-        updateBadge();
-        initControls();
-        initModals();
+            }
+            img.alt = product.title;
+            card.querySelector('[data-title]').textContent = product.title;
+            card.querySelector('[data-price]').textContent = currency(product.price_cents / 100);
+            card.querySelector('.controls').dataset.key = product.id;
+
+            for (const [selector, value] of [
+                ['.kicker', details.kicker],
+                ['.badge', details.badge],
+                ['[data-note]', details.note],
+            ]) {
+                const element = card.querySelector(selector);
+                element.textContent = value || '';
+                element.hidden = !value;
+            }
+            card.querySelector('h2 br').hidden = !details.badge;
+            return card;
         }
 
-        // Kick things off
-        loadPricesFromSupabase();
+        async function loadProducts() {
+            const notice = document.getElementById('shopNotice');
+            notice.style.display = 'block';
+            notice.textContent = 'Loading products…';
+
+            try {
+                if (!supabaseClient) throw new Error('Supabase JS SDK is unavailable.');
+                const { data, error } = await supabaseClient
+                    .from('products')
+                    .select('id, title, thumb, price_cents, description')
+                    .eq('is_active', true)
+                    .order('inserted_at')
+                    .order('id');
+
+                if (error) throw error;
+
+                const order = id => cardDetails.has(id) ? productOrder.indexOf(id) : productOrder.length;
+                data.sort((first, second) => order(first.id) - order(second.id));
+                const cards = data.map(product => createProductCard(product));
+                for (const product of data) {
+                    PRICES[product.id] = product.price_cents / 100;
+                    DESCRIPTIONS[product.id] = product.description || '';
+                }
+
+                document.getElementById('productGrid').replaceChildren(...cards);
+                updateBadge();
+                initControls();
+                initModals();
+
+                if (cards.length) notice.style.display = 'none';
+                else notice.textContent = 'No products are available right now.';
+            } catch (error) {
+                console.error('Unable to load the shop catalog:', error);
+                notice.textContent = 'Unable to load products. Please refresh the page to try again.';
+                document.getElementById('cartCount').textContent = countItems(cart);
+                document.getElementById('cartTotal').textContent = '—';
+            }
+        }
+
+        loadProducts();
     </script>
 </body>
 </html>
-
 
 
 
