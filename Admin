@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Product Admin | K&amp;A Farms</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap">
+<link rel="stylesheet" href="https://www.ka-farms.com/css/shopstyle.css">
+<link rel="icon" type="image/png" href="https://www.ka-farms.com/assets/KA_logo.png">
+<style>
+[hidden] { display: none !important; }
+.admin-brand { color: inherit; text-decoration: none; font-weight: 700; }
+.admin-main .h1 { margin-bottom: 16px; }
+.admin-main h2 { margin: 0 0 14px; font-size: 20px; }
+.admin-panel { padding: clamp(16px, 3vw, 24px); }
+#loginPanel { max-width: 460px; }
+.admin-toolbar, .admin-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.admin-toolbar { justify-content: space-between; margin-bottom: 18px; }
+.admin-toolbar h2, #editor h2 { margin: 0; }
+.admin-main form, .admin-fields { display: grid; gap: 16px; }
+.admin-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.full { grid-column: 1 / -1; }
+.admin-main label { display: grid; align-content: start; gap: 6px; font-weight: 600; }
+.admin-main :is(input, select, textarea, button) { font-family: inherit; }
+.admin-main :is(input:not([type="checkbox"]), select, textarea) {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #8d94a0;
+    border-radius: 10px;
+    color: var(--ink);
+    background: #fff;
+    font-size: 16px;
+}
+.admin-main textarea { resize: vertical; }
+.admin-main .btn { color: var(--ink); justify-content: center; }
+.admin-main .btn.primary { color: #171717; }
+.admin-main .btn:not(:disabled):hover { border-color: var(--brand); }
+.admin-main .btn.primary:not(:disabled):hover { filter: brightness(1.05); }
+.admin-main .btn:disabled { opacity: .6; cursor: not-allowed; }
+:focus-visible { outline: 2px solid #6f6000; outline-offset: 3px; }
+.admin-main .check { display: flex; align-items: center; gap: 8px; }
+.check input { width: 18px; height: 18px; margin: 0; accent-color: var(--brand); }
+#editor { margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px; }
+.admin-main small { color: var(--muted); font-weight: 400; }
+#status { margin: 0 0 16px; background: var(--accent); color: var(--ink); }
+#status.error { color: #792921; background: #f9e7e3; }
+@media (max-width: 600px) { .admin-fields { grid-template-columns: minmax(0, 1fr); } }
+</style>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<header>
+    <div class="nav">
+        <a class="admin-brand" href="https://www.ka-farms.com/">K&amp;A Farms</a>
+        <nav class="links" aria-label="Main navigation">
+            <a href="https://www.ka-farms.com/Shop">View shop</a>
+        </nav>
+    </div>
+</header>
+<main class="container admin-main">
+    <h1 class="h1">Product admin</h1>
+    <p id="status" class="notice" role="status">Connecting…</p>
+    <section id="loginPanel" class="card admin-panel" hidden>
+        <h2>Sign in</h2>
+        <form id="login">
+            <label>Email <input name="email" type="email" autocomplete="username" required></label>
+            <label>Password <input name="password" type="password" autocomplete="current-password" required></label>
+            <div><button class="btn primary" type="submit">Sign in</button></div>
+        </form>
+    </section>
+    <section id="catalog" class="card admin-panel" hidden>
+        <div class="admin-toolbar">
+            <h2>Catalog</h2>
+            <div class="admin-actions">
+                <button id="newProduct" class="btn primary" style="color:white" type="button" hidden>New product</button>
+                <button id="refresh" class="btn" type="button">Reload catalog</button>
+                <button id="signOut" class="btn" type="button">Sign out</button>
+            </div>
+        </div>
+        <label id="productPicker" hidden>Product <select id="product"></select></label>
+        <form id="editor" hidden>
+            <h2 id="editorTitle">Edit product</h2>
+            <div class="admin-fields">
+                <label class="full">Product name <input name="title" required></label>
+                <label>Regular price (USD) <input name="price" type="number" min="0" max="21474836.47" step="0.01" required></label>
+                <label>Sale price (USD) <input name="salePrice" type="number" min="0" max="21474836.47" step="0.01">
+                    <small>Enter a lower price to start a sale. Clear it to end the sale.</small>
+                </label>
+                <label>Availability
+                    <select name="availability" required>
+                        <option value="in_stock">In stock</option>
+                        <option value="by_order">By order</option>
+                    </select>
+                </label>
+                <label>Inventory count <input name="inventory_count" type="number" min="0" max="2147483647" step="1">
+                    <small>Leave blank if this product has no tracked count.</small>
+                </label>
+                <label class="full">Image URL <input name="thumb"></label>
+                <label class="full">Description <textarea name="description" rows="5"></textarea></label>
+                <label class="check full"><input name="is_active" type="checkbox"> Show on the shop</label>
+            </div>
+            <div class="admin-actions">
+                <button id="saveProduct" class="btn primary" style="color:white" type="submit">Save changes</button>
+                <button id="cancelNew" type="button" class="btn" hidden>Cancel</button>
+            </div>
+        </form>
+    </section>
+</main>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    const status = document.getElementById('status');
+    function showStatus(message, error = false) {
+        status.textContent = message;
+        status.classList.toggle('error', error);
+        status.hidden = !message;
+    }
+
+    if (!window.supabase) {
+        showStatus('Could not load the sign-in service. Refresh the page to try again.', true);
+        return;
+    }
+
+    const client = window.supabase.createClient('https://mxuqexwylasphrnldhmx.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14dXFleHd5bGFzcGhybmxkaG14Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzOTQ3NzMsImV4cCI6MjA4MDk3MDc3M30.u1mS0rM6EWH5BlJ6qvz4bXRCy5LQSqaF_9R0eUlPuLc', {
+        auth: { storageKey: 'ka-farms-product-admin' },
+    });
+    const loginPanel = document.getElementById('loginPanel');
+    const login = document.getElementById('login');
+    const catalog = document.getElementById('catalog');
+    const picker = document.getElementById('productPicker');
+    const productSelect = document.getElementById('product');
+    const editor = document.getElementById('editor');
+    const newProduct = document.getElementById('newProduct');
+    const cancelNew = document.getElementById('cancelNew');
+    const editorTitle = document.getElementById('editorTitle');
+    const saveProduct = document.getElementById('saveProduct');
+    const refresh = document.getElementById('refresh');
+    const signOut = document.getElementById('signOut');
+    let products = [];
+    let selected;
+    let original;
+    let draftId;
+
+    function editorValues() {
+        const fields = editor.elements;
+        return {
+            title: fields.title.value.trim(),
+            price_cents: fields.price.value === '' ? null : Math.round(fields.price.valueAsNumber * 100),
+            sale_price_cents: fields.salePrice.value === '' ? null : Math.round(fields.salePrice.valueAsNumber * 100),
+            availability: fields.availability.value,
+            inventory_count: fields.inventory_count.value === '' ? null : fields.inventory_count.valueAsNumber,
+            thumb: fields.thumb.value.trim() || null,
+            description: fields.description.value || null,
+            is_active: fields.is_active.checked,
+        };
+    }
+
+    function changesToSave() {
+        const values = editorValues();
+        return Object.fromEntries(Object.entries(values).filter(([field, value]) => value !== original[field]));
+    }
+
+    function openProduct(id) {
+        draftId = null;
+        cancelNew.hidden = true;
+        editorTitle.textContent = 'Edit product';
+        saveProduct.textContent = 'Save changes';
+        selected = products.find(product => String(product.id) === id);
+        editor.hidden = !selected;
+        if (!selected) return;
+
+        const fields = editor.elements;
+        fields.title.value = selected.title;
+        fields.price.value = (selected.price_cents / 100).toFixed(2);
+        fields.salePrice.value = selected.sale_price_cents == null ? '' : (selected.sale_price_cents / 100).toFixed(2);
+        fields.availability.querySelector('[data-existing]')?.remove();
+        if (selected.availability && !Array.from(fields.availability.options).some(option => option.value === selected.availability)) {
+            const option = new Option(selected.availability, selected.availability);
+            option.dataset.existing = '';
+            fields.availability.add(option);
+        }
+        fields.availability.value = selected.availability ?? '';
+        fields.inventory_count.value = selected.inventory_count ?? '';
+        fields.thumb.value = selected.thumb ?? '';
+        fields.description.value = selected.description ?? '';
+        fields.is_active.checked = selected.is_active;
+        original = editorValues();
+    }
+
+    function confirmDiscard() {
+        return !(draftId || selected) || !Object.keys(changesToSave()).length
+            || window.confirm('Discard your unsaved changes?');
+    }
+
+    function setBusy(busy) {
+        for (const control of [...editor.elements, productSelect, newProduct, refresh, signOut]) control.disabled = busy;
+    }
+
+    function resetCatalog() {
+        products = [];
+        openProduct();
+        productSelect.replaceChildren();
+        picker.hidden = true;
+        newProduct.hidden = true;
+    }
+
+    async function loadCatalog(preferredId, successMessage) {
+        setBusy(true);
+        showStatus('Loading catalog…');
+        try {
+            const { data, error } = await client.rpc('ka_farms_admin_products');
+            if (error) throw error;
+            products = data;
+            newProduct.hidden = false;
+            productSelect.replaceChildren(...products.map(product => new Option(
+                product.title + (product.is_active ? '' : ' (hidden)'), String(product.id)
+            )));
+            if (products.some(product => String(product.id) === preferredId)) productSelect.value = preferredId;
+            picker.hidden = products.length === 0;
+            openProduct(productSelect.value);
+            showStatus(products.length ? successMessage : 'No products found.');
+        } catch (error) {
+            resetCatalog();
+            const message = error.code === 'PGRST202'
+                ? 'Run setup.sql in your Supabase project to enable product admin access.'
+                : error.message || 'Could not load the catalog.';
+            showStatus(message, true);
+        } finally {
+            setBusy(false);
+        }
+    }
+
+    function showLogin(message = '', error = false) {
+        resetCatalog();
+        catalog.hidden = true;
+        loginPanel.hidden = false;
+        showStatus(message, error);
+    }
+
+    async function showCatalog() {
+        loginPanel.hidden = true;
+        catalog.hidden = false;
+        await loadCatalog();
+    }
+
+    login.addEventListener('submit', async event => {
+        event.preventDefault();
+        const button = login.querySelector('button');
+        button.disabled = true;
+        showStatus('Signing in…');
+        try {
+            const { error } = await client.auth.signInWithPassword({
+                email: login.elements.email.value.trim(),
+                password: login.elements.password.value,
+            });
+            if (error) throw error;
+            login.reset();
+            await showCatalog();
+        } catch (error) {
+            showStatus(error.message || 'Could not sign in.', true);
+        } finally {
+            button.disabled = false;
+        }
+    });
+
+    signOut.addEventListener('click', async () => {
+        setBusy(true);
+        try {
+            const { error } = await client.auth.signOut({ scope: 'local' });
+            if (error) throw error;
+            showLogin('Signed out.');
+        } catch (error) {
+            showStatus(error.message || 'Could not sign out.', true);
+        } finally {
+            setBusy(false);
+        }
+    });
+
+    newProduct.addEventListener('click', () => {
+        if (draftId || !confirmDiscard()) return;
+        selected = null;
+        draftId = crypto.randomUUID();
+        productSelect.value = '';
+        editor.reset();
+        original = editorValues();
+        editorTitle.textContent = 'New product';
+        saveProduct.textContent = 'Create product';
+        cancelNew.hidden = false;
+        editor.hidden = false;
+        showStatus('');
+        editor.elements.title.focus();
+    });
+
+    cancelNew.addEventListener('click', () => {
+        if (!confirmDiscard()) return;
+        productSelect.selectedIndex = products.length ? 0 : -1;
+        openProduct(productSelect.value);
+        showStatus('');
+    });
+
+    productSelect.addEventListener('change', () => {
+        const id = productSelect.value;
+        if (!confirmDiscard()) {
+            productSelect.value = draftId ? '' : String(selected.id);
+            return;
+        }
+        openProduct(id);
+        showStatus('');
+    });
+
+    refresh.addEventListener('click', async () => {
+        if (!confirmDiscard()) return;
+        await loadCatalog(productSelect.value);
+    });
+
+    editor.addEventListener('submit', async event => {
+        event.preventDefault();
+        if (!draftId && !selected) return;
+        const values = editorValues();
+        if (values.sale_price_cents !== null && values.sale_price_cents >= values.price_cents) {
+            showStatus('Sale price must be lower than the regular price.', true);
+            return;
+        }
+
+        const changes = draftId ? values : changesToSave();
+        if (!Object.keys(changes).length) {
+            showStatus('No changes to save.');
+            return;
+        }
+
+        if (changes.title === '') {
+            showStatus('Enter a product name.', true);
+            return;
+        }
+
+        if (changes.thumb) {
+            try {
+                const url = new URL(changes.thumb, 'https://www.ka-farms.com/shop');
+                if (!['https:', 'http:'].includes(url.protocol)) throw new Error('Invalid image URL.');
+            } catch {
+                showStatus('Enter a valid image URL or a path on the shop website.', true);
+                return;
+            }
+        }
+
+        setBusy(true);
+        showStatus(draftId ? 'Creating product…' : 'Saving changes…');
+        try {
+            if (draftId) {
+                const { data, error } = await client.rpc('ka_farms_admin_create_product', {
+                    draft_id: draftId,
+                    details: changes,
+                });
+                if (error) throw error;
+                await loadCatalog(data, changes.is_active ? 'Product added to the shop.' : 'Product created and hidden from the shop.');
+            } else {
+                const id = String(selected.id);
+                const previous = Object.fromEntries(Object.keys(changes).map(field => [field, selected[field]]));
+                const { error } = await client.rpc('ka_farms_admin_update_product', {
+                    product_id: id,
+                    changes,
+                    previous_values: previous,
+                });
+                if (error) throw error;
+                await loadCatalog(id, 'Product saved.');
+            }
+        } catch (error) {
+            showStatus(error.message || 'Could not save the product.', true);
+        } finally {
+            setBusy(false);
+        }
+    });
+
+    try {
+        const { data, error } = await client.auth.getSession();
+        if (error) throw error;
+        if (data.session) await showCatalog();
+        else showLogin();
+    } catch (error) {
+        showLogin(error.message || 'Could not restore your session.', true);
+    }
+});
+</script>
+</body>
+</html>
