@@ -9,6 +9,16 @@
     <link rel="stylesheet" href="https://www.ka-farms.com/css/shopstyle.css" />
     <link rel="shortcut icon" type="image/x-icon" href="https://raw.githubusercontent.com/austinblack905-rgb/ka-farms/refs/heads/main/assets/KA_logo.png">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .original-price {
+            color: #6b7280;
+            margin-inline-end: 0.4rem;
+        }
+        .product-availability {
+            margin: 0.35rem 0 0.65rem;
+            font-size: 0.875rem;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -45,7 +55,8 @@
                     <div class="kicker" hidden></div>
                     <h2 style="margin:2px 0 6px;font-size:20px"><span data-title></span><br hidden><span class="badge" hidden></span></h2>
                     <p style="color:red" data-note hidden></p>
-                    <p class="price">$ <span data-price></span></p>
+                    <p class="price"><s class="original-price" hidden></s><span data-price></span></p>
+                    <p class="product-availability"></p>
                     <div class="controls">
                         <button type="button" class="step" aria-label="Decrease" disabled>–</button>
                         <span class="qty" aria-live="polite">0</span>
@@ -79,6 +90,7 @@
                 <img id="modalImage" class="modal-img" src="" alt="" />
 
                 <p id="modalDescription" class="modal-text"></p>
+                <p id="modalAvailability" class="product-availability"></p>
 
                 <div class="modal-footer">
 
@@ -86,7 +98,7 @@
                     <span class="qty modal-qty" aria-live="polite">0</span>
                     <button class="step modal-step" aria-label="Increase" disabled>+</button>
                     <div class="modal-price">
-                        $ <span id="modalPrice">0.00</span>
+                        <s id="modalOriginalPrice" class="original-price" hidden></s><span id="modalPrice">$0.00</span>
                     </div>
                     <button id="modalAddBtn" class="btn primary">
                         Add to cart
@@ -197,7 +209,9 @@
             const titleEl = document.getElementById('modalTitle');
             const subtitleEl = document.getElementById('modalSubtitle');
             const descEl = document.getElementById('modalDescription');
+            const availabilityEl = document.getElementById('modalAvailability');
             const priceEl = document.getElementById('modalPrice');
+            const originalPriceEl = document.getElementById('modalOriginalPrice');
             const addBtn = document.getElementById('modalAddBtn');
 
             // NEW: modal +/- and qty
@@ -252,9 +266,12 @@
                 // Description: Pull from Supabase
                 const descText = DESCRIPTIONS[key] || '';
                 descEl.textContent = descText;
+                availabilityEl.textContent = card.querySelector('.product-availability').textContent;
 
-                // Price from PRICES map (already in dollars)
-                priceEl.textContent = (PRICES[key] || 0).toFixed(2);
+                const originalPrice = card.querySelector('.original-price');
+                originalPriceEl.hidden = originalPrice.hidden;
+                originalPriceEl.textContent = originalPrice.textContent;
+                priceEl.textContent = card.querySelector('[data-price]').textContent;
 
                 // Sync modal qty to current cart qty
                 syncModalControls(key);
@@ -348,6 +365,25 @@
         ]);
         const productOrder = [...cardDetails.keys()];
 
+        function describeAvailability({ availability, inventory_count: count }) {
+            const hasCount = Number.isInteger(count) && count >= 0;
+
+            if (availability === 'by_order') {
+                return hasCount && count > 0 ? `Made to order · ${count} available now` : 'Made to order';
+            }
+
+            if (availability === 'out_of_stock' || count === 0) return 'Out of stock';
+            if (hasCount) return `In stock · ${count} available`;
+            if (availability === 'in_stock') return 'In stock';
+            return 'Availability unlisted';
+        }
+
+        function effectivePriceCents(product) {
+            const regular = product.price_cents;
+            const sale = product.sale_price_cents;
+            return Number.isInteger(sale) && sale >= 0 && sale < regular ? sale : regular;
+        }
+
         function createProductCard(product) {
             const card = document.getElementById('productCard').content.firstElementChild.cloneNode(true);
             const details = cardDetails.get(product.id) || {};
@@ -361,7 +397,12 @@
             }
             img.alt = product.title;
             card.querySelector('[data-title]').textContent = product.title;
-            card.querySelector('[data-price]').textContent = currency(product.price_cents / 100);
+            const priceCents = effectivePriceCents(product);
+            const originalPrice = card.querySelector('.original-price');
+            originalPrice.hidden = priceCents === product.price_cents;
+            originalPrice.textContent = '$' + currency(product.price_cents / 100);
+            card.querySelector('[data-price]').textContent = '$' + currency(priceCents / 100);
+            card.querySelector('.product-availability').textContent = describeAvailability(product);
             card.querySelector('.controls').dataset.key = product.id;
 
             for (const [selector, value] of [
@@ -386,7 +427,7 @@
                 if (!supabaseClient) throw new Error('Supabase JS SDK is unavailable.');
                 const { data, error } = await supabaseClient
                     .from('products')
-                    .select('id, title, thumb, price_cents, description')
+                    .select('id, title, thumb, price_cents, sale_price_cents, description, availability, inventory_count')
                     .eq('is_active', true)
                     .order('inserted_at')
                     .order('id');
@@ -397,7 +438,7 @@
                 data.sort((first, second) => order(first.id) - order(second.id));
                 const cards = data.map(product => createProductCard(product));
                 for (const product of data) {
-                    PRICES[product.id] = product.price_cents / 100;
+                    PRICES[product.id] = effectivePriceCents(product) / 100;
                     DESCRIPTIONS[product.id] = product.description || '';
                 }
 
